@@ -11,6 +11,7 @@ import TenantBillingPage from "../features/tenant-billing/pages/TenantBillingPag
 import FloorList from "../features/floors/pages/FloorList";
 import ManufacturingUnitList from "../features/manufacturing-units/pages/ManufacturingUnitList";
 import ProductionRecordList from "../features/production-records/pages/ProductionRecordList";
+import NetZeroPage from "../features/net-zero/pages/NetZeroPage";
 import ComingSoon from "../pages/ComingSoon";
 import Dashboard from "../pages/Dashboard";
 import Login from "../pages/Login";
@@ -43,6 +44,7 @@ export default function AppRouter() {
           <Route path="floors" element={<FloorList />} />
           <Route path="manufacturing-units" element={<ManufacturingUnitList />} />
           <Route path="production-records" element={<ProductionRecordList />} />
+          <Route path="net-zero" element={<NetZeroPage />} />
           <Route
             path="electrical"
             element={<ComingSoon title="Electrical Analytics" />}

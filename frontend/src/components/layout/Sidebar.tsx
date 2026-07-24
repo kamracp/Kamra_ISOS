@@ -16,6 +16,7 @@ import {
   Layers,
   Boxes,
   ClipboardList,
+  Target,
 } from "lucide-react";
 import { useSegment, type Segment } from "../../context/SegmentContext";
 
@@ -53,6 +54,7 @@ const menu: MenuItem[] = [
   { title: "Utilities", icon: Gauge, path: "/utilities" },
   { title: "Energy", icon: Zap, path: "/energy" },
   { title: "Carbon", icon: Leaf, path: "/carbon" },
+  { title: "Net Zero", icon: Target, path: "/net-zero" },
   { title: "ESG Reports", icon: BarChart3, path: "/esg" },
 ];
 
