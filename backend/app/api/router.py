@@ -14,6 +14,7 @@ from app.api.occupant import router as occupant_router
 from app.api.tenant_billing import router as tenant_billing_router
 from app.api.manufacturing_unit import router as manufacturing_unit_router
 from app.api.production_record import router as production_record_router
+from app.api.facility_category import router as facility_category_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
@@ -31,3 +32,4 @@ api_router.include_router(occupant_router)
 api_router.include_router(tenant_billing_router)
 api_router.include_router(manufacturing_unit_router)
 api_router.include_router(production_record_router)
+api_router.include_router(facility_category_router)

@@ -17,6 +17,7 @@ from app.models.hvac_equipment import HvacEquipment
 from app.models.occupant import Occupant
 from app.models.manufacturing_unit import ManufacturingUnit
 from app.models.production_record import ProductionRecord
+from app.models.facility_category import FacilityCategory
 
 
 
@@ -34,6 +35,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
     ],
     allow_credentials=True,
     allow_methods=["*"],

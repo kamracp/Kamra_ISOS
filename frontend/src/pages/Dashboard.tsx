@@ -1,11 +1,45 @@
+import { useState } from "react";
 import { useCarbonSummary } from "../features/carbon/hooks/useCarbonSummary";
+import { useSegment } from "../context/SegmentContext";
+import {
+  useFacilityCategories,
+  useCreateFacilityCategory,
+  useDeleteFacilityCategory,
+} from "../features/facility-categories/hooks/useFacilityCategories";
+
 export default function Dashboard() {
   const { data: carbon } = useCarbonSummary();
+  const { segment } = useSegment();
+
+  const { data: categories = [] } = useFacilityCategories(segment);
+  const createCategory = useCreateFacilityCategory(segment);
+  const deleteCategory = useDeleteFacilityCategory(segment);
+
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   const totalTonnes = carbon?.total_co2e_tonnes ?? 0;
   const electricityKwh = (carbon?.line_items ?? [])
     .filter((item) => item.meter_type === "electricity")
     .reduce((sum, item) => sum + item.consumption, 0);
+
+  const portfolioTitle =
+    segment === "manufacturing" ? "Facility Portfolio" : "Building Portfolio";
+
+  async function handleAddCategory() {
+    const name = newCategoryName.trim();
+    if (!name) return;
+
+    try {
+      await createCategory.mutateAsync({
+        segment,
+        name,
+        display_order: categories.length,
+      });
+      setNewCategoryName("");
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const kpis = [
     {
@@ -14,7 +48,7 @@ export default function Dashboard() {
       color: "bg-blue-50 border-blue-200",
     },
     {
-      title: "Buildings",
+      title: segment === "manufacturing" ? "Facilities" : "Buildings",
       value: "0",
       color: "bg-green-50 border-green-200",
     },
@@ -39,7 +73,9 @@ export default function Dashboard() {
         </h1>
 
         <p className="text-slate-500">
-          Operational overview of your building portfolio
+          {segment === "manufacturing"
+            ? "Operational overview of your facility portfolio"
+            : "Operational overview of your building portfolio"}
         </p>
       </div>
 
@@ -71,37 +107,56 @@ export default function Dashboard() {
         <div className="rounded-xl border bg-white p-6 shadow-sm">
 
           <h2 className="text-xl font-semibold">
-            Building Portfolio
+            {portfolioTitle}
           </h2>
 
-          <table className="mt-5 w-full">
+          <div className="mt-4 flex gap-2">
+            <input
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
+              placeholder="e.g. Engineering Wing, Workshop, Utility..."
+              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+
+            <button
+              onClick={handleAddCategory}
+              disabled={createCategory.isPending || !newCategoryName.trim()}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              + Add
+            </button>
+          </div>
+
+          <table className="mt-4 w-full">
 
             <tbody>
 
-              <tr className="border-b">
-                <td className="py-3">Commercial Buildings</td>
-                <td className="text-right font-semibold">0</td>
-              </tr>
-
-              <tr className="border-b">
-                <td className="py-3">Industrial Plants</td>
-                <td className="text-right font-semibold">0</td>
-              </tr>
-
-              <tr className="border-b">
-                <td className="py-3">Hospitals</td>
-                <td className="text-right font-semibold">0</td>
-              </tr>
-
-              <tr className="border-b">
-                <td className="py-3">Hotels</td>
-                <td className="text-right font-semibold">0</td>
-              </tr>
-
-              <tr>
-                <td className="py-3">Universities</td>
-                <td className="text-right font-semibold">0</td>
-              </tr>
+              {categories.length === 0 ? (
+                <tr>
+                  <td colSpan={2} className="py-6 text-center text-sm text-gray-400">
+                    No categories added yet.
+                  </td>
+                </tr>
+              ) : (
+                categories.map((category, idx) => (
+                  <tr
+                    key={category.id}
+                    className={idx < categories.length - 1 ? "border-b" : ""}
+                  >
+                    <td className="py-3">{category.name}</td>
+                    <td className="py-3 text-right">
+                      <span className="mr-4 font-semibold">0</span>
+                      <button
+                        onClick={() => deleteCategory.mutate(category.id)}
+                        className="text-sm text-red-600 hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
 
             </tbody>
 
