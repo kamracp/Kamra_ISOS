@@ -11,6 +11,10 @@ from app.schemas.manufacturing_unit import (
     ManufacturingUnitUpdate,
 )
 from app.services import sec_calculation_service
+from app.services.aluminium_ghg_calculator import (
+    AluminiumCellTechnology,
+    calculate_tier1_default_co2,
+)
 from app.services.manufacturing_unit_service import ManufacturingUnitService
 
 router = APIRouter(
@@ -81,4 +85,24 @@ def get_sec_summary(
         db=db,
         organization_id=current_user.organization_id,
         manufacturing_unit_id=unit_id,
+    )
+
+
+@router.get("/{unit_id}/aluminium-tier1-co2")
+def get_aluminium_tier1_co2(
+    unit_id: int,
+    technology: AluminiumCellTechnology,
+    aluminium_production_tonnes: float,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Aluminium GHG Protocol Cluster 1 - Tier 1 Default CO2 from smelting.
+
+    Query params:
+        technology: prebake | soderberg
+        aluminium_production_tonnes: aluminium produced in the period (t)
+    """
+    return calculate_tier1_default_co2(
+        technology=technology,
+        aluminium_production_tonnes=aluminium_production_tonnes,
     )
