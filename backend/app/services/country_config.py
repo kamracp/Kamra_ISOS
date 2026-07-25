@@ -91,10 +91,9 @@ COUNTRY_REGISTRY = {
     ),
     "TH": CountryConfig(
         "TH", "Thailand", Region.ASIA,
-        None,
-        "TODO: verify from IEA Emission Factors 2025 / TGO source",
+        0.4750,
+        "TGO (Thailand Greenhouse Gas Management Organization), Nov 2025 Scope 2 factor",
         "TGO (Thailand Greenhouse Gas Management Organization) guidelines",
-        needs_verification=True,
     ),
     "SG": CountryConfig(
         "SG", "Singapore", Region.ASIA,
