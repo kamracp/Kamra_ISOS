@@ -25,6 +25,12 @@ METER_TYPES = (
     "coal",
     "furnace_oil",
     "biomass",
+    "petroleum_coke",
+    "coke_oven_coke",
+    "blast_furnace_gas",
+    "sulphite_lyes_black_liquor",
+    "anthracite",
+    "naphtha",
     "water",
     "solar_generation",
     "other",
@@ -39,23 +45,17 @@ METER_TYPE_SCOPE_MAP = {
     "coal": "scope_1",
     "furnace_oil": "scope_1",
     "biomass": "scope_1",
+    "petroleum_coke": "scope_1",
+    "coke_oven_coke": "scope_1",
+    "blast_furnace_gas": "scope_1",
+    "sulphite_lyes_black_liquor": "scope_1",
+    "anthracite": "scope_1",
+    "naphtha": "scope_1",
     "water": "other",
     "solar_generation": "renewable",
     "other": "other",
 }
 
-# GHG Protocol scope classification (structural mapping, not a factor).
-# Emission FACTORS are never stored here — they come from
-# DEFRA / India CEA / IPCC datasets in the carbon engine (Phase 3).
-METER_TYPE_SCOPE_MAP = {
-    "electricity": "scope_2",
-    "diesel": "scope_1",
-    "natural_gas": "scope_1",
-    "lpg": "scope_1",
-    "water": "other",
-    "solar_generation": "renewable",
-    "other": "other",
-}
 
 
 class EnergyMeter(Base):
