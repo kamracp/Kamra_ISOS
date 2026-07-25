@@ -1,0 +1,155 @@
+"""
+Country / Region configuration layer for Kamra ClimateOS.
+
+Purpose: make the platform globally applicable. Selecting a country
+sets (a) the location-based Scope 2 grid electricity emission factor
+and (b) the applicable regulatory standards/norms shown in the UI and
+reports. Fuel COMBUSTION factors stay global (IPCC 2006 defaults, used
+by the GHG Protocol Cross-Sector tool) and are NOT country-varied here.
+
+STRICT SOURCING RULE (project-wide): every grid factor below is a real
+published value from an official/authoritative source, tagged with its
+source. Where a verified value is not yet in hand, grid_factor is None
+and needs_verification is True -- NEVER guess or interpolate a number.
+
+Grid factors are location-based Scope 2, kg CO2e per kWh.
+"""
+
+from enum import Enum
+from typing import Optional
+
+
+class Region(str, Enum):
+    INDIA = "india"
+    ASIA = "asia"
+    MIDDLE_EAST = "middle_east"
+    EUROPE = "europe"
+
+
+class CountryConfig:
+    """One country's grid factor + applicable standards."""
+
+    def __init__(
+        self,
+        code: str,
+        name: str,
+        region: Region,
+        grid_factor_kgco2e_per_kwh: Optional[float],
+        grid_factor_source: str,
+        applicable_standards: str,
+        needs_verification: bool = False,
+    ):
+        self.code = code
+        self.name = name
+        self.region = region
+        self.grid_factor_kgco2e_per_kwh = grid_factor_kgco2e_per_kwh
+        self.grid_factor_source = grid_factor_source
+        self.applicable_standards = applicable_standards
+        self.needs_verification = needs_verification
+
+    def to_dict(self) -> dict:
+        return {
+            "code": self.code,
+            "name": self.name,
+            "region": self.region.value,
+            "grid_factor_kgco2e_per_kwh": self.grid_factor_kgco2e_per_kwh,
+            "grid_factor_source": self.grid_factor_source,
+            "applicable_standards": self.applicable_standards,
+            "needs_verification": self.needs_verification,
+        }
+
+
+# Registry keyed by ISO country code.
+# Verified values carry a full source string. Pending values use
+# grid_factor=None + needs_verification=True (to be filled from IEA
+# Emission Factors 2025 or the national regulator, not guessed).
+COUNTRY_REGISTRY = {
+    "IN": CountryConfig(
+        "IN", "India", Region.INDIA,
+        0.7117,
+        "CEA CO2 Baseline Database for the Indian Power Sector, V21.0 (2025)",
+        "BEE PAT (Perform Achieve Trade) + BRSR (SEBI)",
+    ),
+    "CN": CountryConfig(
+        "CN", "China", Region.ASIA,
+        0.526,
+        "Grid EF reference dataset 2026 (location-based Scope 2)",
+        "National carbon market (ETS) + corporate GHG accounting guidelines",
+    ),
+    "JP": CountryConfig(
+        "JP", "Japan", Region.ASIA,
+        0.477,
+        "Grid EF reference dataset 2026 (location-based Scope 2)",
+        "Act on Promotion of Global Warming Countermeasures + TCFD",
+    ),
+    "KR": CountryConfig(
+        "KR", "South Korea", Region.ASIA,
+        None,
+        "TODO: verify from IEA Emission Factors 2025 / national source",
+        "K-ETS (Korea Emissions Trading Scheme)",
+        needs_verification=True,
+    ),
+    "TH": CountryConfig(
+        "TH", "Thailand", Region.ASIA,
+        None,
+        "TODO: verify from IEA Emission Factors 2025 / TGO source",
+        "TGO (Thailand Greenhouse Gas Management Organization) guidelines",
+        needs_verification=True,
+    ),
+    "SG": CountryConfig(
+        "SG", "Singapore", Region.ASIA,
+        0.497,
+        "Grid EF reference dataset 2026 (location-based Scope 2)",
+        "Carbon Pricing Act + SGX sustainability reporting",
+    ),
+    "AE": CountryConfig(
+        "AE", "United Arab Emirates", Region.MIDDLE_EAST,
+        None,
+        "TODO: verify from IEA Emission Factors 2025 / national source",
+        "UAE Climate Law (Federal Decree-Law No. 11 of 2024)",
+        needs_verification=True,
+    ),
+    "SA": CountryConfig(
+        "SA", "Saudi Arabia", Region.MIDDLE_EAST,
+        None,
+        "TODO: verify from IEA Emission Factors 2025 / national source",
+        "Saudi Green Initiative + national GHG framework",
+        needs_verification=True,
+    ),
+    "GB": CountryConfig(
+        "GB", "United Kingdom", Region.EUROPE,
+        0.177,
+        "DEFRA/DESNZ 2025 GHG conversion factors (location-based, AR5)",
+        "SECR (Streamlined Energy & Carbon Reporting) + UK ETS",
+    ),
+    "DE": CountryConfig(
+        "DE", "Germany", Region.EUROPE,
+        0.330,
+        "Grid EF reference dataset 2026 (location-based Scope 2)",
+        "EU ETS + CSRD / ESRS",
+    ),
+    "FR": CountryConfig(
+        "FR", "France", Region.EUROPE,
+        0.041,
+        "Grid EF reference dataset 2026 (location-based Scope 2, nuclear-heavy)",
+        "EU ETS + CSRD / ESRS",
+    ),
+    "EU": CountryConfig(
+        "EU", "European Union (generic)", Region.EUROPE,
+        None,
+        "TODO: use EEA EU-27 average or country-specific value",
+        "EU ETS + CSRD / ESRS",
+        needs_verification=True,
+    ),
+}
+
+
+def list_countries() -> list:
+    """All configured countries as dicts, grouped-friendly (region field)."""
+    return [c.to_dict() for c in COUNTRY_REGISTRY.values()]
+
+
+def get_country_config(code: str) -> Optional[dict]:
+    """One country's config by ISO code, or None if unknown."""
+    cfg = COUNTRY_REGISTRY.get(code.upper())
+    return cfg.to_dict() if cfg else None

@@ -18,6 +18,8 @@ from app.models.occupant import Occupant
 from app.models.manufacturing_unit import ManufacturingUnit
 from app.models.production_record import ProductionRecord
 from app.models.facility_category import FacilityCategory
+from app.models.net_zero_target import NetZeroTarget
+from app.models.decarbonization_project import DecarbonizationProject
 
 
 

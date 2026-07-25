@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
+import CountrySelector from "../../countries/components/CountrySelector";
+import { useCountries } from "../../countries/hooks/useCountries";
+
 import type {
   ManufacturingUnit,
   ManufacturingUnitCreate,
@@ -44,8 +47,14 @@ export default function ManufacturingUnitForm({
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ManufacturingUnitCreate>();
+
+  const { data: countries } = useCountries();
+  const selectedCountry = watch("country_code") ?? "IN";
+  const countryInfo = countries?.find((c) => c.code === selectedCountry);
 
   useEffect(() => {
     if (initialData) {
@@ -56,6 +65,7 @@ export default function ManufacturingUnitForm({
         sector: initialData.sector,
         baseline_year: initialData.baseline_year,
         standards_applicable: initialData.standards_applicable ?? "",
+        country_code: initialData.country_code ?? "IN",
         remarks: initialData.remarks ?? "",
       });
     } else {
@@ -66,6 +76,7 @@ export default function ManufacturingUnitForm({
         sector: defaultSector,
         baseline_year: new Date().getFullYear(),
         standards_applicable: "BEE PAT + ISO 50001",
+        country_code: "IN",
         remarks: "",
       });
     }
@@ -209,6 +220,28 @@ export default function ManufacturingUnitForm({
               placeholder="BEE PAT + ISO 50001"
               className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
             />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Country *
+            </label>
+
+            <CountrySelector
+              value={selectedCountry}
+              onChange={(code) => setValue("country_code", code)}
+            />
+
+            {countryInfo && (
+              <p className="mt-1 text-xs text-gray-500">
+                Grid factor:{" "}
+                {countryInfo.grid_factor_kgco2e_per_kwh !== null
+                  ? countryInfo.grid_factor_kgco2e_per_kwh + " kgCO2e/kWh"
+                  : "pending verification"}
+                {" \u00b7 "}
+                {countryInfo.applicable_standards}
+              </p>
+            )}
           </div>
         </div>
 

@@ -12,6 +12,7 @@ class ManufacturingUnitBase(BaseModel):
     sector: PatSector
     baseline_year: int = Field(..., ge=1990, le=2100)
     standards_applicable: str | None = Field(default=None, max_length=100)
+    country_code: str = Field(default="IN", max_length=10)
     remarks: str | None = None
 
 
@@ -26,6 +27,7 @@ class ManufacturingUnitUpdate(BaseModel):
     sector: PatSector | None = None
     baseline_year: int | None = Field(default=None, ge=1990, le=2100)
     standards_applicable: str | None = Field(default=None, max_length=100)
+    country_code: str | None = Field(default=None, max_length=10)
     remarks: str | None = None
     is_active: bool | None = None
 

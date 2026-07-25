@@ -86,6 +86,12 @@ class ManufacturingUnit(Base):
     standards_applicable: Mapped[str | None] = mapped_column(
         String(100), nullable=True
     )
+    # ISO country code (e.g. "IN", "GB", "AE") -- selects this unit's
+    # location-based Scope 2 grid factor + applicable regulatory
+    # standards via app.services.country_config. Defaults to India.
+    country_code: Mapped[str] = mapped_column(
+        String(10), nullable=False, default="IN", index=True
+    )
     remarks: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
