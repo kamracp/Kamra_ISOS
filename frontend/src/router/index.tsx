@@ -17,6 +17,7 @@ import Dashboard from "../pages/Dashboard";
 import Login from "../pages/Login";
 import NotFound from "../pages/NotFound";
 import Signup from "../pages/Signup";
+import ESGReportPage from "../features/esg-reports/ESGReportPage";
 export default function AppRouter() {
   return (
     <Routes>
@@ -51,7 +52,7 @@ export default function AppRouter() {
           />
           <Route path="water" element={<ComingSoon title="Water Analytics" />} />
           <Route path="carbon" element={<ComingSoon title="Carbon Accounting" />}/>
-          <Route path="esg" element={<ComingSoon title="ESG Reporting" />} />
+          <Route path="esg" element={<ESGReportPage />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFound />} />
