@@ -84,10 +84,9 @@ COUNTRY_REGISTRY = {
     ),
     "KR": CountryConfig(
         "KR", "South Korea", Region.ASIA,
-        None,
-        "TODO: verify from IEA Emission Factors 2025 / national source",
+        0.417,
+        "Ember Yearly Electricity Data, 2025 release (CY2024 generation mix), location-based Scope 2, CC BY 4.0",
         "K-ETS (Korea Emissions Trading Scheme)",
-        needs_verification=True,
     ),
     "TH": CountryConfig(
         "TH", "Thailand", Region.ASIA,
@@ -103,17 +102,15 @@ COUNTRY_REGISTRY = {
     ),
     "AE": CountryConfig(
         "AE", "United Arab Emirates", Region.MIDDLE_EAST,
-        None,
-        "TODO: verify from IEA Emission Factors 2025 / national source",
+        0.468,
+        "Ember Yearly Electricity Data, 2025 release (CY2024 generation mix), location-based Scope 2, CC BY 4.0",
         "UAE Climate Law (Federal Decree-Law No. 11 of 2024)",
-        needs_verification=True,
     ),
     "SA": CountryConfig(
         "SA", "Saudi Arabia", Region.MIDDLE_EAST,
-        None,
-        "TODO: verify from IEA Emission Factors 2025 / national source",
+        0.692,
+        "Ember Yearly Electricity Data, 2025 release (CY2024 generation mix), location-based Scope 2, CC BY 4.0",
         "Saudi Green Initiative + national GHG framework",
-        needs_verification=True,
     ),
     "GB": CountryConfig(
         "GB", "United Kingdom", Region.EUROPE,
@@ -136,7 +133,11 @@ COUNTRY_REGISTRY = {
     "EU": CountryConfig(
         "EU", "European Union (generic)", Region.EUROPE,
         None,
-        "TODO: use EEA EU-27 average or country-specific value",
+        "PENDING: EEA/Eurostat only publish EU-27 GHG intensity as an interactive "
+        "chart (not an extractable text/table figure) as of this check; requires "
+        "a downloadable Eurostat/EEA dataset (e.g. nrg_bal_c energy balances "
+        "cross-referenced with EEA GHG data viewer 1A1a) to source a real 2024 "
+        "figure -- do not fill from a chart estimate.",
         "EU ETS + CSRD / ESRS",
         needs_verification=True,
     ),
