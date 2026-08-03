@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useBrsrPrinciple6 } from "./hooks/useEsgReport";
 import type { Datapoint } from "./api/esgReportApi";
+import { useCountries } from "../countries/hooks/useCountries";
+import CountrySelector from "../countries/components/CountrySelector";
 
 function DatapointCell({ dp }: { dp?: Datapoint }) {
   if (!dp) return <span className="text-gray-400">—</span>;
@@ -25,7 +27,11 @@ function DatapointCell({ dp }: { dp?: Datapoint }) {
 
 export default function ESGReportPage() {
   const [year, setYear] = useState(2024);
+  const [countryCode, setCountryCode] = useState("IN");
   const { data: report, isLoading } = useBrsrPrinciple6(year);
+  const { data: countries } = useCountries();
+
+  const selectedCountry = countries?.find((c) => c.code === countryCode);
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-6">
@@ -36,22 +42,57 @@ export default function ESGReportPage() {
         </p>
       </div>
 
-      <div className="flex items-center gap-3">
-        <label className="text-sm font-medium text-gray-700">
-          Reporting Year
-        </label>
-        <select
-          value={year}
-          onChange={(e) => setYear(Number(e.target.value))}
-          className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none"
-        >
-          {[2022, 2023, 2024, 2025, 2026].map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-wrap items-end gap-6">
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium text-gray-700">
+            Reporting Year
+          </label>
+          <select
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none"
+          >
+            {[2022, 2023, 2024, 2025, 2026].map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <CountrySelector
+          value={countryCode}
+          onChange={setCountryCode}
+          label="Reporting Jurisdiction"
+        />
       </div>
+
+      {selectedCountry && (
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-600">
+          <span className="font-medium text-gray-700">
+            {selectedCountry.name}
+          </span>{" "}
+          — Applicable standards: {selectedCountry.applicable_standards}
+          {selectedCountry.grid_factor_kgco2e_per_kwh != null ? (
+            <>
+              {" "}
+              · Grid factor: {selectedCountry.grid_factor_kgco2e_per_kwh}{" "}
+              kgCO₂e/kWh ({selectedCountry.grid_factor_source})
+            </>
+          ) : (
+            <span className="text-amber-700">
+              {" "}
+              · Grid factor not yet verified for this country
+            </span>
+          )}
+          <div className="mt-1 italic text-gray-400">
+            Note: the emissions below are calculated from your recorded
+            utility bills and the platform's global factor library, not
+            re-calculated using this country's grid factor. This selector
+            currently sets display context (applicable standards) only.
+          </div>
+        </div>
+      )}
 
       {isLoading && <p className="text-gray-500">Loading report…</p>}
 
