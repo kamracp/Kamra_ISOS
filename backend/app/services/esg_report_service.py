@@ -33,18 +33,18 @@ def generate_brsr_principle6(db: Session, organization_id: int,
         meter_repository=EnergyMeterRepository(db, organization_id=organization_id),
         factor_repository=EmissionFactorRepository(db),
     )
-    summary = carbon.get_summary()
+    summary = carbon.get_summary(year=reporting_year)
     by_scope_kg = summary.get("by_scope_kg", {})
     scope1_t = round(by_scope_kg.get("scope_1", 0.0) / 1000, 3)
     scope2_t = round(by_scope_kg.get("scope_2", 0.0) / 1000, 3)
-    src = f"CarbonService (all available bills, org {organization_id})"
+    src = f"CarbonService (year {reporting_year} bills, org {organization_id})"
 
     return {
         "framework": "BRSR",
         "section": "Section C, Principle 6 (Environment)",
         "reporting_year": reporting_year,
         "organization_id": organization_id,
-        "data_basis": "All available utility-bill data (not yet year-filtered).",
+        "data_basis": f"Utility-bill data with billing period starting in calendar year {reporting_year}.",
         "essential_indicators": _build_indicators(scope1_t, scope2_t, src),
         "totals": {
             "scope1_plus_2_tCO2e": round(scope1_t + scope2_t, 3),

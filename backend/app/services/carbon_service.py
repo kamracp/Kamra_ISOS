@@ -38,10 +38,13 @@ class CarbonService:
     - Factor lookup date = billing_period_start (deterministic;
       simplification for periods spanning a factor boundary —
       documented, refine later by splitting consumption).
-    - Meters with scope 'renewable' are reported as AVOIDED
+    - Meters with scope "renewable" are reported as AVOIDED
       emissions, never subtracted from Scope 1/2 totals.
     - Bills with no applicable factor are listed as pending,
       never silently skipped and never estimated.
+    - Optional year filter (matched against billing_period_start)
+      scopes the summary to one calendar year; omitted, it covers
+      all available bills exactly as before this option existed.
     """
 
     def __init__(
@@ -54,8 +57,10 @@ class CarbonService:
         self.meter_repository = meter_repository
         self.factor_repository = factor_repository
 
-    def _calculate_bills(self) -> list[BillEmission]:
-        bills = self.bill_repository.get_all()
+    def _calculate_bills(
+        self, year: int | None = None
+    ) -> list[BillEmission]:
+        bills = self.bill_repository.get_all(year=year)
         meters = {m.id: m for m in self.meter_repository.get_all()}
 
         results: list[BillEmission] = []
@@ -121,9 +126,15 @@ class CarbonService:
 
         return results
 
-    def get_summary(self) -> dict:
-        """Organization-wide emissions summary with full traceability."""
-        items = self._calculate_bills()
+    def get_summary(self, year: int | None = None) -> dict:
+        """Organization-wide emissions summary with full traceability.
+
+        year: optional calendar year to scope the summary to (matched
+        against billing_period_start). Omitted, covers all bills —
+        unchanged from behavior before this parameter existed, so
+        existing callers (e.g. the Dashboard) are unaffected.
+        """
+        items = self._calculate_bills(year=year)
 
         totals_by_scope: dict[str, float] = defaultdict(float)
         avoided_kg = 0.0

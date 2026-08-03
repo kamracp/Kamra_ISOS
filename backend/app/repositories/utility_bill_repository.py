@@ -18,11 +18,25 @@ class UtilityBillRepository:
             UtilityBill.organization_id == self.organization_id,
         )
 
-    def get_all(self, meter_id: int | None = None) -> list[UtilityBill]:
+    def get_all(
+        self,
+        meter_id: int | None = None,
+        year: int | None = None,
+    ) -> list[UtilityBill]:
+        """Return bills, optionally scoped to one meter and/or one
+        calendar year (matched against billing_period_start, the same
+        field already used for factor lookup — see CarbonService).
+        """
         query = self._base_query()
 
         if meter_id is not None:
             query = query.filter(UtilityBill.meter_id == meter_id)
+
+        if year is not None:
+            query = query.filter(
+                UtilityBill.billing_period_start >= date(year, 1, 1),
+                UtilityBill.billing_period_start <= date(year, 12, 31),
+            )
 
         return (
             query
