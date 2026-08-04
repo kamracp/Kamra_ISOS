@@ -24,6 +24,11 @@ from app.services.cement_ghg_calculator import (
     NonCarbonateEntry,
     calculate_clinker_calcination_co2,
 )
+from app.services.iron_steel_ghg_calculator import (
+    MaterialEntry,
+    calculate_iron_steel_co2,
+)
+from pydantic import BaseModel
 from app.services.manufacturing_unit_service import ManufacturingUnitService
 router = APIRouter(
     prefix="/manufacturing-units",
@@ -187,4 +192,59 @@ def get_cement_calcination_co2(
         "calcination_factor_corrected_kg_per_tonne_clinker": str(
             result.calcination_factor_corrected_kg_per_tonne_clinker
         ),
+    }
+class MaterialEntryInput(BaseModel):
+    material_name: str
+    amount: float
+    carbon_content: float
+
+
+class IronSteelCO2Request(BaseModel):
+    input_materials: list[MaterialEntryInput]
+    output_materials: list[MaterialEntryInput] = []
+
+
+@router.post("/{unit_id}/iron-steel-co2")
+def get_iron_steel_co2(
+    unit_id: int,
+    payload: IronSteelCO2Request,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Iron & Steel sector GHG Protocol tool - CO2 via carbon mass-balance.
+    Body:
+        input_materials: list of {material_name, amount, carbon_content}
+            for materials entering the process (e.g. coke, coal, limestone,
+            dolomite, carbon electrodes, coke oven gas)
+        output_materials: list of {material_name, amount, carbon_content}
+            for materials leaving the process still carrying carbon
+            (e.g. steel produced, iron not converted, BF gas offsite)
+    amount and carbon_content must use consistent units across all
+    entries; carbon_content is a fraction (0-1), not a percentage.
+    """
+    from decimal import Decimal
+
+    result = calculate_iron_steel_co2(
+        input_materials=[
+            MaterialEntry(
+                material_name=m.material_name,
+                amount=Decimal(str(m.amount)),
+                carbon_content=Decimal(str(m.carbon_content)),
+            )
+            for m in payload.input_materials
+        ],
+        output_materials=[
+            MaterialEntry(
+                material_name=m.material_name,
+                amount=Decimal(str(m.amount)),
+                carbon_content=Decimal(str(m.carbon_content)),
+            )
+            for m in payload.output_materials
+        ],
+    )
+    return {
+        "total_input_carbon": str(result.total_input_carbon),
+        "total_output_carbon": str(result.total_output_carbon),
+        "net_carbon": str(result.net_carbon),
+        "co2_emissions": str(result.co2_emissions),
     }
