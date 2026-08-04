@@ -32,6 +32,9 @@ from app.services.refrigerant_ghg_calculator import (
     RefrigerantLifecycleEntry,
     calculate_refrigerant_lifecycle_co2e,
 )
+from app.services.chp_ghg_calculator import (
+    calculate_chp_emissions_allocation,
+)
 from pydantic import BaseModel
 from app.services.manufacturing_unit_service import ManufacturingUnitService
 router = APIRouter(
@@ -309,4 +312,42 @@ def get_refrigerant_lifecycle_co2e(
         "total_emissions_kg": str(result.total_emissions_kg),
         "gwp": str(result.gwp),
         "co2e_tonnes": str(result.co2e_tonnes),
+    }
+@router.get("/{unit_id}/chp-emissions-allocation")
+def get_chp_emissions_allocation(
+    unit_id: int,
+    total_emissions_tonnes: float,
+    steam_output: float,
+    power_output: float,
+    steam_efficiency: float,
+    power_efficiency: float,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    CHP (captive power + waste heat recovery) GHG Protocol tool -
+    allocates total CHP plant emissions between steam and electricity
+    output using the Efficiency Method. Matches BEE PAT Section IV
+    (Captive Power Generation incl. WHR).
+    Query params:
+        total_emissions_tonnes: total direct emissions from the CHP facility (t CO2e)
+        steam_output / power_output: energy output of each stream, SAME unit for both
+            (GJ, BTU or kWh)
+        steam_efficiency / power_efficiency: assumed reference efficiency (0-1)
+            of producing that output by a typical non-CHP technology
+    """
+    from decimal import Decimal
+
+    result = calculate_chp_emissions_allocation(
+        total_emissions=Decimal(str(total_emissions_tonnes)),
+        steam_output=Decimal(str(steam_output)),
+        power_output=Decimal(str(power_output)),
+        steam_efficiency=Decimal(str(steam_efficiency)),
+        power_efficiency=Decimal(str(power_efficiency)),
+    )
+    return {
+        "total_emissions": str(result.total_emissions),
+        "steam_emissions": str(result.steam_emissions),
+        "power_emissions": str(result.power_emissions),
+        "steam_emission_factor": str(result.steam_emission_factor),
+        "power_emission_factor": str(result.power_emission_factor),
     }
