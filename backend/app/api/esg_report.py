@@ -7,6 +7,7 @@ GET /esg-reports/gri-305?year=YYYY
 GET /esg-reports/gri-305/pdf?year=YYYY
 GET /esg-reports/esrs-e1?year=YYYY
 GET /esg-reports/esrs-e1/pdf?year=YYYY
+GET /esg-reports/emission-factor-sources
 
 Returns structured (or PDF) reports for the current user's
 organization, built from existing platform data.
@@ -19,6 +20,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_user
 from app.database.session import get_db
 from app.models.user import User
+from app.repositories.emission_factor_repository import EmissionFactorRepository
 from app.services.esg_report_service import generate_brsr_principle6, generate_gri_305, generate_esrs_e1
 from app.services.esg_report_pdf import generate_brsr_principle6_pdf
 
@@ -134,3 +136,35 @@ def esrs_e1_pdf(
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+@router.get("/emission-factor-sources")
+def emission_factor_sources(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Transparency appendix: every active emission factor the platform
+    uses, with its exact official source, publication year, document
+    reference, and validity window. Global reference data -- not
+    tenant-scoped, since these are the same published facts (CEA,
+    DEFRA, IPCC, Ember, TGO...) for every organization.
+    """
+    repository = EmissionFactorRepository(db)
+    factors = repository.get_all()
+
+    return [
+        {
+            "meter_type": factor.meter_type,
+            "unit": factor.unit,
+            "region": factor.region,
+            "factor_kgco2e_per_unit": factor.factor_kgco2e_per_unit,
+            "source": factor.source,
+            "source_year": factor.source_year,
+            "document_reference": factor.document_reference,
+            "valid_from": factor.valid_from.isoformat(),
+            "valid_to": factor.valid_to.isoformat() if factor.valid_to else None,
+            "notes": factor.notes,
+        }
+        for factor in factors
+    ]
