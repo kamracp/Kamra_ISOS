@@ -131,15 +131,11 @@ COUNTRY_REGISTRY = {
         "EU ETS + CSRD / ESRS",
     ),
     "EU": CountryConfig(
-        "EU", "European Union (generic)", Region.EUROPE,
-        None,
-        "PENDING: EEA/Eurostat only publish EU-27 GHG intensity as an interactive "
-        "chart (not an extractable text/table figure) as of this check; requires "
-        "a downloadable Eurostat/EEA dataset (e.g. nrg_bal_c energy balances "
-        "cross-referenced with EEA GHG data viewer 1A1a) to source a real 2024 "
-        "figure -- do not fill from a chart estimate.",
+        "EU", "European Union (EU-27 average)", Region.EUROPE,
+        0.213,
+        "Ember European Electricity Review, full-year CY2024 generation emissions "
+        "intensity, as reported by Carbon Brief (Jan 2025), location-based Scope 2",
         "EU ETS + CSRD / ESRS",
-        needs_verification=True,
     ),
 }
 
