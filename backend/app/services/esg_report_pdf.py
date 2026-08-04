@@ -1,9 +1,10 @@
 """
 PDF export for ESG reports (Kamra ClimateOS).
 
-Pure formatter: takes the same dict produced by
-esg_report_service.generate_brsr_principle6() and renders it as a
-PDF using reportlab. No new data, no new calculations.
+Pure formatter: takes the same dict produced by the report generation
+functions in esg_report_service.py (BRSR, GRI 305, ESRS E1 all share
+the same shape) and renders it as a PDF using reportlab. No new data,
+no new calculations.
 """
 
 import io
@@ -37,31 +38,49 @@ def _fmt_datapoint(dp: dict) -> tuple[str, str]:
     return value_text, note_text
 
 
-def _indicator_rows(indicators: dict) -> list[list]:
-    """Flatten the essential_indicators dict into table rows."""
-    rows = [["Indicator", "Value", "Status / Source"]]
+def _indicator_rows(indicators: dict, cell_style: ParagraphStyle) -> list[list]:
+    """Flatten the essential_indicators dict into wrapped Paragraph table rows.
+
+    Plain strings in a reportlab Table do not wrap to fit the column
+    width -- long text simply overflows and overlaps the next column.
+    Wrapping every cell in a Paragraph makes reportlab wrap the text
+    properly within colWidths.
+    """
+    rows = []
 
     for entry in indicators.values():
         label = entry.get("label", "")
 
-        # Some indicators (EI_1) have multiple sub-datapoints instead
-        # of a single "data" key -- handle both shapes.
+        # Some indicators (EI_1 / E1_5) have multiple sub-datapoints
+        # instead of a single "data" key -- handle both shapes.
         if "data" in entry:
             value_text, note_text = _fmt_datapoint(entry["data"])
-            rows.append([label, value_text, note_text])
+            rows.append(
+                [
+                    Paragraph(label, cell_style),
+                    Paragraph(value_text, cell_style),
+                    Paragraph(note_text, cell_style),
+                ]
+            )
         else:
             for key, val in entry.items():
                 if not isinstance(val, dict) or "status" not in val:
                     continue
                 value_text, note_text = _fmt_datapoint(val)
-                sub_label = f"{label} — {key.replace('_', ' ')}"
-                rows.append([sub_label, value_text, note_text])
+                sub_label = f"{label} \u2014 {key.replace('_', ' ')}"
+                rows.append(
+                    [
+                        Paragraph(sub_label, cell_style),
+                        Paragraph(value_text, cell_style),
+                        Paragraph(note_text, cell_style),
+                    ]
+                )
 
     return rows
 
 
 def generate_brsr_principle6_pdf(report: dict) -> bytes:
-    """Render a BRSR Principle 6 report dict as a PDF, return raw bytes."""
+    """Render any of the three report dicts (BRSR/GRI/ESRS shape) as a PDF."""
 
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -89,6 +108,17 @@ def generate_brsr_principle6_pdf(report: dict) -> bytes:
         "Footnote", parent=styles["Normal"], fontSize=8,
         textColor=colors.HexColor("#777777"), spaceBefore=16,
     )
+    header_cell_style = ParagraphStyle(
+        "HeaderCell", parent=styles["Normal"], fontSize=8.5, leading=11,
+        textColor=colors.white, fontName="Helvetica-Bold",
+    )
+    body_cell_style = ParagraphStyle(
+        "BodyCell", parent=styles["Normal"], fontSize=8.5, leading=11,
+    )
+    bold_cell_style = ParagraphStyle(
+        "BoldCell", parent=styles["Normal"], fontSize=9, leading=12,
+        fontName="Helvetica-Bold",
+    )
 
     story = []
 
@@ -108,15 +138,19 @@ def generate_brsr_principle6_pdf(report: dict) -> bytes:
 
     story.append(Paragraph("Essential Indicators", section_style))
 
-    rows = _indicator_rows(report["essential_indicators"])
-    table = Table(rows, colWidths=[70 * mm, 40 * mm, 65 * mm])
+    header_row = [
+        Paragraph("Indicator", header_cell_style),
+        Paragraph("Value", header_cell_style),
+        Paragraph("Status / Source", header_cell_style),
+    ]
+    body_rows = _indicator_rows(report["essential_indicators"], body_cell_style)
+    rows = [header_row] + body_rows
+
+    table = Table(rows, colWidths=[70 * mm, 40 * mm, 65 * mm], repeatRows=1)
     table.setStyle(
         TableStyle(
             [
                 ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1f2937")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, -1), 8.5),
                 ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#dddddd")),
                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f7f7f7")]),
@@ -131,24 +165,32 @@ def generate_brsr_principle6_pdf(report: dict) -> bytes:
 
     story.append(Paragraph("Totals", section_style))
     totals = report["totals"]
-    totals_rows = [["Metric", "Value"]]
-    totals_rows.append(
-        ["Scope 1 + Scope 2 (tCO2e)", str(totals["scope1_plus_2_tCO2e"])]
-    )
+
     total_dp = totals["total_all_scopes"]
     value_text, note_text = _fmt_datapoint(total_dp)
-    totals_rows.append(["Total, all scopes (tCO2e)", f"{value_text}  ({note_text})"])
+
+    totals_rows = [
+        [
+            Paragraph("Metric", header_cell_style),
+            Paragraph("Value", header_cell_style),
+        ],
+        [
+            Paragraph("Scope 1 + Scope 2 (tCO2e)", bold_cell_style),
+            Paragraph(str(totals["scope1_plus_2_tCO2e"]), body_cell_style),
+        ],
+        [
+            Paragraph("Total, all scopes (tCO2e)", bold_cell_style),
+            Paragraph(f"{value_text} ({note_text})", body_cell_style),
+        ],
+    ]
 
     totals_table = Table(totals_rows, colWidths=[80 * mm, 95 * mm])
     totals_table.setStyle(
         TableStyle(
             [
                 ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1f2937")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTNAME", (0, 1), (0, -1), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, -1), 9),
                 ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#dddddd")),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ("LEFTPADDING", (0, 0), (-1, -1), 6),
                 ("TOPPADDING", (0, 0), (-1, -1), 5),
                 ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
