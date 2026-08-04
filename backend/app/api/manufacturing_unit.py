@@ -28,6 +28,10 @@ from app.services.iron_steel_ghg_calculator import (
     MaterialEntry,
     calculate_iron_steel_co2,
 )
+from app.services.refrigerant_ghg_calculator import (
+    RefrigerantLifecycleEntry,
+    calculate_refrigerant_lifecycle_co2e,
+)
 from pydantic import BaseModel
 from app.services.manufacturing_unit_service import ManufacturingUnitService
 router = APIRouter(
@@ -247,4 +251,62 @@ def get_iron_steel_co2(
         "total_output_carbon": str(result.total_output_carbon),
         "net_carbon": str(result.net_carbon),
         "co2_emissions": str(result.co2_emissions),
+    }
+class RefrigerantLifecycleRequest(BaseModel):
+    refrigerant: str
+    fill_new_equipment: float = 0
+    fill_retrofitted_equipment: float = 0
+    new_equipment_full_charge: float = 0
+    retrofit_equipment_full_charge: float = 0
+    service_amount_net: float = 0
+    retired_equipment_full_charge: float = 0
+    retrofitted_away_full_charge: float = 0
+    recovered_from_retiring: float = 0
+    recovered_from_retrofitted_away: float = 0
+
+
+@router.post("/{unit_id}/refrigerant-lifecycle-co2e")
+def get_refrigerant_lifecycle_co2e(
+    unit_id: int,
+    payload: RefrigerantLifecycleRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Refrigeration & AC Equipment GHG Protocol tool - fugitive HFC/PFC
+    CO2e via the lifecycle-stage approach for equipment users
+    (installation + use/servicing + disposal losses).
+    All amounts in kilograms.
+    Note: HCFCs (e.g. R-22) intentionally raise a 400 error -- the
+    GHG Protocol excludes Montreal Protocol substances from GHG
+    inventories; track R-22 leakage separately, not here.
+    """
+    from decimal import Decimal
+    from fastapi import HTTPException
+
+    entry = RefrigerantLifecycleEntry(
+        refrigerant=payload.refrigerant,
+        fill_new_equipment=Decimal(str(payload.fill_new_equipment)),
+        fill_retrofitted_equipment=Decimal(str(payload.fill_retrofitted_equipment)),
+        new_equipment_full_charge=Decimal(str(payload.new_equipment_full_charge)),
+        retrofit_equipment_full_charge=Decimal(str(payload.retrofit_equipment_full_charge)),
+        service_amount_net=Decimal(str(payload.service_amount_net)),
+        retired_equipment_full_charge=Decimal(str(payload.retired_equipment_full_charge)),
+        retrofitted_away_full_charge=Decimal(str(payload.retrofitted_away_full_charge)),
+        recovered_from_retiring=Decimal(str(payload.recovered_from_retiring)),
+        recovered_from_retrofitted_away=Decimal(str(payload.recovered_from_retrofitted_away)),
+    )
+
+    try:
+        result = calculate_refrigerant_lifecycle_co2e(entry)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {
+        "refrigerant": result.refrigerant,
+        "installation_emissions_kg": str(result.installation_emissions_kg),
+        "use_emissions_kg": str(result.use_emissions_kg),
+        "disposal_emissions_kg": str(result.disposal_emissions_kg),
+        "total_emissions_kg": str(result.total_emissions_kg),
+        "gwp": str(result.gwp),
+        "co2e_tonnes": str(result.co2e_tonnes),
     }
