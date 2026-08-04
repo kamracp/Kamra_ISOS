@@ -4,8 +4,8 @@ ESG Report generation service for Kamra ClimateOS.
 Aggregator + formatter, not a new calculator: maps existing platform
 data (CarbonService Scope 1/2) into standards report structures.
 Frameworks: BRSR Section C Principle 6 (Environment), GRI 305
-(Emissions). Untracked datapoints are marked "not_tracked", never
-guessed.
+(Emissions), ESRS E1 (Climate Change / CSRD). Untracked datapoints are
+marked "not_tracked", never guessed.
 """
 
 from sqlalchemy.orm import Session
@@ -162,6 +162,78 @@ def _build_gri_indicators(scope1_t, scope2_t, src):
         },
         "305_7_other_air_emissions": {
             "label": "305-7 NOx, SOx, and other significant air emissions",
+            "data": NOT_TRACKED,
+        },
+    }
+
+
+def generate_esrs_e1(db: Session, organization_id: int,
+                     reporting_year: int) -> dict:
+    """ESRS E1 (Climate Change) -- CSRD disclosures, emissions-focused subset."""
+    scope1_t, scope2_t, src = _get_scope_summary(db, organization_id, reporting_year)
+
+    return {
+        "framework": "ESRS E1",
+        "section": "Climate Change (CSRD)",
+        "reporting_year": reporting_year,
+        "organization_id": organization_id,
+        "data_basis": f"Utility-bill data with billing period starting in calendar year {reporting_year}.",
+        "essential_indicators": _build_esrs_indicators(scope1_t, scope2_t, src),
+        "totals": {
+            "scope1_plus_2_tCO2e": round(scope1_t + scope2_t, 3),
+            "total_all_scopes": _tracked(
+                round(scope1_t + scope2_t, 3), "tCO2e",
+                src + " (Scope 1+2 only; Scope 3 not tracked)",
+            ),
+        },
+    }
+
+
+def _build_esrs_indicators(scope1_t, scope2_t, src):
+    """ESRS E1 disclosures. Emissions filled, rest not_tracked."""
+    return {
+        "E1_4_targets": {
+            "label": "E1-4 Targets related to climate change mitigation and adaptation",
+            "data": NOT_TRACKED,
+            "note": "See the platform's Net Zero Action Plan module for target-vs-actual tracking, not yet mapped into this disclosure.",
+        },
+        "E1_5_energy_consumption": {
+            "label": "E1-5 Energy consumption and mix",
+            "renewable_gj": NOT_TRACKED,
+            "non_renewable_gj": NOT_TRACKED,
+            "note": "Energy in GJ available via SEC engine per unit; org-wide split not yet aggregated here.",
+        },
+        "E1_6_scope1": {
+            "label": "E1-6 Gross Scope 1 GHG emissions",
+            "data": _tracked(scope1_t, "tCO2e", src),
+        },
+        "E1_6_scope2": {
+            "label": "E1-6 Gross Scope 2 GHG emissions, location-based",
+            "data": _tracked(scope2_t, "tCO2e", src),
+        },
+        "E1_6_scope3": {
+            "label": "E1-6 Gross Scope 3 GHG emissions",
+            "data": NOT_TRACKED,
+        },
+        "E1_6_total": {
+            "label": "E1-6 Total GHG emissions (location-based)",
+            "data": _tracked(round(scope1_t + scope2_t, 3), "tCO2e", src),
+        },
+        "E1_6_intensity": {
+            "label": "E1-6 GHG intensity per net revenue",
+            "data": NOT_TRACKED,
+            "note": "Revenue not tracked on the platform.",
+        },
+        "E1_7_removals": {
+            "label": "E1-7 GHG removals and carbon credits",
+            "data": NOT_TRACKED,
+        },
+        "E1_8_carbon_pricing": {
+            "label": "E1-8 Internal carbon pricing",
+            "data": NOT_TRACKED,
+        },
+        "E1_9_financial_effects": {
+            "label": "E1-9 Anticipated financial effects of climate risks/opportunities",
             "data": NOT_TRACKED,
         },
     }
