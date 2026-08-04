@@ -19,6 +19,11 @@ from app.services.pulp_paper_ghg_calculator import (
     QuantityBasis,
     calculate_biomass_co2,
 )
+from app.services.cement_ghg_calculator import (
+    ClinkerEntry,
+    NonCarbonateEntry,
+    calculate_clinker_calcination_co2,
+)
 from app.services.manufacturing_unit_service import ManufacturingUnitService
 router = APIRouter(
     prefix="/manufacturing-units",
@@ -125,4 +130,61 @@ def get_pulp_paper_biomass_co2(
         "co2_tonnes_per_year": str(result.co2_tonnes_per_year),
         "is_biogenic": result.is_biogenic,
         "note": result.note,
+    }
+@router.get("/{unit_id}/cement-calcination-co2")
+def get_cement_calcination_co2(
+    unit_id: int,
+    clinker_produced_tonnes: float,
+    cao_content_percent: float,
+    mgo_content_percent: float,
+    non_carbonate_raw_material_tonnes: float = 0,
+    non_carbonate_cao_content_percent: float = 0,
+    non_carbonate_mgo_content_percent: float = 0,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Cement sector CSI Protocol - clinker calcination CO2 (stoichiometric method).
+    Query params:
+        clinker_produced_tonnes: clinker produced in the period (t)
+        cao_content_percent / mgo_content_percent: measured clinker
+            composition, as a fraction (e.g. 0.65 for 65%)
+        non_carbonate_*: optional correction for pre-calcined raw
+            materials (e.g. fly ash, slag) entering the kiln; omit
+            (defaults to 0) if none apply
+    """
+    from decimal import Decimal
+
+    non_carbonate_entries = []
+    if non_carbonate_raw_material_tonnes > 0:
+        non_carbonate_entries.append(
+            NonCarbonateEntry(
+                raw_material_consumed_tonnes=Decimal(str(non_carbonate_raw_material_tonnes)),
+                cao_content_percent=Decimal(str(non_carbonate_cao_content_percent)),
+                mgo_content_percent=Decimal(str(non_carbonate_mgo_content_percent)),
+            )
+        )
+
+    result = calculate_clinker_calcination_co2(
+        clinker_entries=[
+            ClinkerEntry(
+                clinker_produced_tonnes=Decimal(str(clinker_produced_tonnes)),
+                cao_content_percent=Decimal(str(cao_content_percent)),
+                mgo_content_percent=Decimal(str(mgo_content_percent)),
+            )
+        ],
+        non_carbonate_entries=non_carbonate_entries or None,
+    )
+    return {
+        "total_clinker_produced_tonnes": str(result.total_clinker_produced_tonnes),
+        "total_cao_tonnes": str(result.total_cao_tonnes),
+        "total_mgo_tonnes": str(result.total_mgo_tonnes),
+        "uncorrected_co2_tonnes": str(result.uncorrected_co2_tonnes),
+        "non_carbonate_correction_co2_tonnes": str(result.non_carbonate_correction_co2_tonnes),
+        "corrected_co2_tonnes": str(result.corrected_co2_tonnes),
+        "calcination_factor_uncorrected_kg_per_tonne_clinker": str(
+            result.calcination_factor_uncorrected_kg_per_tonne_clinker
+        ),
+        "calcination_factor_corrected_kg_per_tonne_clinker": str(
+            result.calcination_factor_corrected_kg_per_tonne_clinker
+        ),
     }
