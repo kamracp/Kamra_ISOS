@@ -1,8 +1,15 @@
 import { useState } from "react";
-import { useBrsrPrinciple6 } from "./hooks/useEsgReport";
-import type { Datapoint } from "./api/esgReportApi";
+import toast from "react-hot-toast";
+import { useEsgReport } from "./hooks/useEsgReport";
+import esgReportApi, {
+  type Datapoint,
+  type ReportFramework,
+  REPORT_FRAMEWORK_LABELS,
+} from "./api/esgReportApi";
 import { useCountries } from "../countries/hooks/useCountries";
 import CountrySelector from "../countries/components/CountrySelector";
+
+const FRAMEWORK_ORDER: ReportFramework[] = ["brsr", "gri-305", "esrs-e1"];
 
 function DatapointCell({ dp }: { dp?: Datapoint }) {
   if (!dp) return <span className="text-gray-400">—</span>;
@@ -26,20 +33,51 @@ function DatapointCell({ dp }: { dp?: Datapoint }) {
 }
 
 export default function ESGReportPage() {
+  const [framework, setFramework] = useState<ReportFramework>("brsr");
   const [year, setYear] = useState(2024);
   const [countryCode, setCountryCode] = useState("IN");
-  const { data: report, isLoading } = useBrsrPrinciple6(year);
+  const [downloading, setDownloading] = useState(false);
+
+  const { data: report, isLoading } = useEsgReport(framework, year);
   const { data: countries } = useCountries();
 
   const selectedCountry = countries?.find((c) => c.code === countryCode);
+
+  const handleDownloadPdf = async () => {
+    setDownloading(true);
+    try {
+      await esgReportApi.downloadReportPdf(framework, year);
+    } catch {
+      toast.error("Could not download the PDF. Please try again.");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-800">ESG Report</h1>
         <p className="mt-1 text-sm text-gray-500">
-          BRSR (Business Responsibility &amp; Sustainability Report) — SEBI
+          Sustainability and emissions reporting, built from your own
+          tracked utility-bill data.
         </p>
+      </div>
+
+      <div className="flex gap-2 border-b border-gray-200">
+        {FRAMEWORK_ORDER.map((fw) => (
+          <button
+            key={fw}
+            onClick={() => setFramework(fw)}
+            className={`px-4 py-2 text-sm font-medium ${
+              framework === fw
+                ? "border-b-2 border-blue-600 text-blue-700"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {REPORT_FRAMEWORK_LABELS[fw]}
+          </button>
+        ))}
       </div>
 
       <div className="flex flex-wrap items-end gap-6">
@@ -65,6 +103,14 @@ export default function ESGReportPage() {
           onChange={setCountryCode}
           label="Reporting Jurisdiction"
         />
+
+        <button
+          onClick={handleDownloadPdf}
+          disabled={downloading || !report}
+          className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        >
+          {downloading ? "Preparing PDF…" : "Download PDF"}
+        </button>
       </div>
 
       {selectedCountry && (
@@ -100,7 +146,7 @@ export default function ESGReportPage() {
         <div className="space-y-6">
           <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-800">
-              {report.section}
+              {report.framework} — {report.section}
             </h2>
             <p className="mt-1 text-xs text-gray-500">{report.data_basis}</p>
             <div className="mt-4 rounded-lg bg-blue-50 p-4">
