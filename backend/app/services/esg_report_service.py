@@ -157,7 +157,10 @@ def generate_gri_305(db: Session, organization_id: int,
         "reporting_year": reporting_year,
         "organization_id": organization_id,
         "data_basis": f"Utility-bill data with billing period starting in calendar year {reporting_year}.",
-        "essential_indicators": _build_gri_indicators(scope1_t, scope2_t, src),
+        "essential_indicators": _build_gri_indicators(
+            scope1_t, scope2_t, src,
+            intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
+        ),
         "totals": {
             "scope1_plus_2_tCO2e": round(scope1_t + scope2_t, 3),
             "total_all_scopes": _tracked(
@@ -168,7 +171,8 @@ def generate_gri_305(db: Session, organization_id: int,
     }
 
 
-def _build_gri_indicators(scope1_t, scope2_t, src):
+def _build_gri_indicators(scope1_t, scope2_t, src, intensity=None):
+    intensity = intensity or {}
     """GRI 305 core disclosures. Emissions filled, rest not_tracked."""
     return {
         "305_1_direct_ghg": {
@@ -184,9 +188,14 @@ def _build_gri_indicators(scope1_t, scope2_t, src):
             "data": NOT_TRACKED,
         },
         "305_4_ghg_intensity": {
-            "label": "305-4 GHG emissions intensity",
-            "data": NOT_TRACKED,
-            "note": "No intensity denominator (revenue/output/floor area) tracked yet.",
+            "label": "305-4 GHG emissions intensity (per revenue)",
+            "data": intensity.get("intensity_per_revenue_tco2e", NOT_TRACKED),
+            "note": "tCO2e per Rs crore of annual revenue, as set in organization profile.",
+        },
+        "305_4_ghg_intensity_per_employee": {
+            "label": "305-4 GHG emissions intensity (per employee)",
+            "data": intensity.get("intensity_per_employee_tco2e", NOT_TRACKED),
+            "note": "tCO2e per employee, as set in organization profile.",
         },
         "305_5_ghg_reduction": {
             "label": "305-5 Reduction of GHG emissions",
@@ -215,7 +224,10 @@ def generate_esrs_e1(db: Session, organization_id: int,
         "reporting_year": reporting_year,
         "organization_id": organization_id,
         "data_basis": f"Utility-bill data with billing period starting in calendar year {reporting_year}.",
-        "essential_indicators": _build_esrs_indicators(scope1_t, scope2_t, src),
+        "essential_indicators": _build_esrs_indicators(
+            scope1_t, scope2_t, src,
+            intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
+        ),
         "totals": {
             "scope1_plus_2_tCO2e": round(scope1_t + scope2_t, 3),
             "total_all_scopes": _tracked(
@@ -226,7 +238,8 @@ def generate_esrs_e1(db: Session, organization_id: int,
     }
 
 
-def _build_esrs_indicators(scope1_t, scope2_t, src):
+def _build_esrs_indicators(scope1_t, scope2_t, src, intensity=None):
+    intensity = intensity or {}
     """ESRS E1 disclosures. Emissions filled, rest not_tracked."""
     return {
         "E1_4_targets": {
@@ -256,10 +269,15 @@ def _build_esrs_indicators(scope1_t, scope2_t, src):
             "label": "E1-6 Total GHG emissions (location-based)",
             "data": _tracked(round(scope1_t + scope2_t, 3), "tCO2e", src),
         },
+        "E1_6_intensity_per_employee": {
+            "label": "E1-6 GHG intensity per employee",
+            "data": intensity.get("intensity_per_employee_tco2e", NOT_TRACKED),
+            "note": "tCO2e per employee, as set in organization profile.",
+        },
         "E1_6_intensity": {
             "label": "E1-6 GHG intensity per net revenue",
-            "data": NOT_TRACKED,
-            "note": "Revenue not tracked on the platform.",
+            "data": intensity.get("intensity_per_revenue_tco2e", NOT_TRACKED),
+            "note": "tCO2e per Rs crore of annual revenue, as set in organization profile.",
         },
         "E1_7_removals": {
             "label": "E1-7 GHG removals and carbon credits",
