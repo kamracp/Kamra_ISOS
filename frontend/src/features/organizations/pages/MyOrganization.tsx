@@ -30,6 +30,8 @@ export default function MyOrganization() {
         country: org.country ?? "",
         state: org.state ?? "",
         city: org.city ?? "",
+        employee_count: org.employee_count,
+        annual_revenue_inr: org.annual_revenue_inr,
       });
     }
   }, [org]);
@@ -49,6 +51,16 @@ export default function MyOrganization() {
 
   const setField = (key: keyof OrganizationUpdate, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const setNumericField = (
+    key: "employee_count" | "annual_revenue_inr",
+    value: string
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      [key]: value === "" ? undefined : Number(value),
+    }));
   };
 
   if (isLoading) {
@@ -106,7 +118,38 @@ export default function MyOrganization() {
             </div>
           ))}
         </div>
+<div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Employee Count
+            </label>
+            <input
+              type="number"
+              min="0"
+              className="w-full rounded-lg border border-gray-300 p-2.5"
+              value={form.employee_count ?? ""}
+              onChange={(e) => setNumericField("employee_count", e.target.value)}
+            />
+            <p className="mt-1 text-xs text-gray-400">
+              Used for GHG intensity per employee in ESG reports.
+            </p>
+          </div>
 
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Annual Revenue (Rs)
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              className="w-full rounded-lg border border-gray-300 p-2.5"
+              value={form.annual_revenue_inr ?? ""}
+              onChange={(e) => setNumericField("annual_revenue_inr", e.target.value)}
+            />
+            <p className="mt-1 text-xs text-gray-400">
+              Used for GHG intensity per Rs crore revenue in ESG reports.
+            </p>
+          </div>
         <button
           className="mt-6 rounded-lg bg-blue-600 px-6 py-2.5 font-semibold text-white disabled:opacity-50"
           onClick={() => mutation.mutate(form)}

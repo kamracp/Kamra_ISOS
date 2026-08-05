@@ -14,6 +14,7 @@ from app.repositories.emission_factor_repository import EmissionFactorRepository
 from app.repositories.energy_meter_repository import EnergyMeterRepository
 from app.repositories.utility_bill_repository import UtilityBillRepository
 from app.services.carbon_service import CarbonService
+from app.models.organization import Organization
 
 NOT_TRACKED = {
     "value": None,
@@ -41,6 +42,33 @@ def _get_scope_summary(db, organization_id, reporting_year):
     return scope1_t, scope2_t, src
 
 
+def _get_intensity_metrics(db, organization_id, total_scope1_2_t):
+    """Compute tCO2e per employee and tCO2e per Rs crore revenue, if data is tracked."""
+    org = db.query(Organization).filter(Organization.id == organization_id).first()
+    result = {}
+
+    if org and org.employee_count:
+        result["intensity_per_employee_tco2e"] = _tracked(
+            round(total_scope1_2_t / org.employee_count, 4),
+            "tCO2e/employee",
+            f"Scope 1+2 ({total_scope1_2_t} tCO2e) / {org.employee_count} employees",
+        )
+    else:
+        result["intensity_per_employee_tco2e"] = NOT_TRACKED
+
+    if org and org.annual_revenue_inr:
+        revenue_crore = float(org.annual_revenue_inr) / 1e7
+        result["intensity_per_revenue_tco2e"] = _tracked(
+            round(total_scope1_2_t / revenue_crore, 4),
+            "tCO2e/Rs crore",
+            f"Scope 1+2 ({total_scope1_2_t} tCO2e) / Rs {revenue_crore:.2f} crore revenue",
+        )
+    else:
+        result["intensity_per_revenue_tco2e"] = NOT_TRACKED
+
+    return result
+
+
 def generate_brsr_principle6(db: Session, organization_id: int,
                              reporting_year: int) -> dict:
     """BRSR Section C, Principle 6 (Environment) -- Essential Indicators."""
@@ -52,7 +80,10 @@ def generate_brsr_principle6(db: Session, organization_id: int,
         "reporting_year": reporting_year,
         "organization_id": organization_id,
         "data_basis": f"Utility-bill data with billing period starting in calendar year {reporting_year}.",
-        "essential_indicators": _build_brsr_indicators(scope1_t, scope2_t, src),
+        "essential_indicators": _build_brsr_indicators(
+            scope1_t, scope2_t, src,
+            intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
+        ),
         "totals": {
             "scope1_plus_2_tCO2e": round(scope1_t + scope2_t, 3),
             "total_all_scopes": _tracked(
@@ -63,7 +94,8 @@ def generate_brsr_principle6(db: Session, organization_id: int,
     }
 
 
-def _build_brsr_indicators(scope1_t, scope2_t, src):
+def _build_brsr_indicators(scope1_t, scope2_t, src, intensity=None):
+    intensity = intensity or {}
     """BRSR Principle 6 Essential Indicators. Emissions filled, rest not_tracked."""
     return {
         "EI_1_energy_consumption": {
@@ -91,8 +123,13 @@ def _build_brsr_indicators(scope1_t, scope2_t, src):
         },
         "EI_7_ghg_intensity": {
             "label": "GHG emission intensity per rupee of turnover",
-            "data": NOT_TRACKED,
-            "note": "Turnover not tracked on the platform.",
+            "data": intensity.get("intensity_per_revenue_tco2e", NOT_TRACKED),
+            "note": "tCO2e per Rs crore of annual revenue, as set in organization profile.",
+        },
+        "EI_7_ghg_intensity_per_employee": {
+            "label": "GHG emission intensity per employee",
+            "data": intensity.get("intensity_per_employee_tco2e", NOT_TRACKED),
+            "note": "tCO2e per employee, as set in organization profile.",
         },
         "EI_2_water_withdrawal": {
             "label": "Water withdrawal by source (kL)",

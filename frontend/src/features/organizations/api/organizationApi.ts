@@ -19,6 +19,8 @@ export interface Organization {
 
   timezone?: string;
   currency?: string;
+  employee_count?: number;
+  annual_revenue_inr?: number;
 
   is_active: boolean;
   created_at: string;
@@ -41,6 +43,8 @@ export interface OrganizationUpdate {
 
   timezone?: string;
   currency?: string;
+  employee_count?: number;
+  annual_revenue_inr?: number;
 }
 
 export const organizationApi = {

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 class OrganizationBase(BaseModel):
@@ -63,6 +63,8 @@ class OrganizationBase(BaseModel):
         max_length=20,
     )
 
+    employee_count: int | None = None
+    annual_revenue_inr: float | None = None
     is_active: bool = True
 
 
@@ -71,6 +73,11 @@ class OrganizationCreate(OrganizationBase):
 
 
 class OrganizationUpdate(BaseModel):
+    @field_validator("email", mode="before")
+    @classmethod
+    def empty_email_to_none(cls, v):
+        return None if v == "" else v
+
     organization_code: str | None = Field(
         default=None,
         max_length=30,
@@ -128,6 +135,8 @@ class OrganizationUpdate(BaseModel):
         max_length=20,
     )
 
+    employee_count: int | None = None
+    annual_revenue_inr: float | None = None
     is_active: bool | None = None
 
 

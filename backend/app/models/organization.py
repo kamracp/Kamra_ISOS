@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Integer, String
+from sqlalchemy import Boolean, DateTime, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
@@ -33,6 +33,8 @@ class Organization(Base):
     timezone: Mapped[str | None] = mapped_column(String(80))
     currency: Mapped[str | None] = mapped_column(String(20))
 
+    employee_count: Mapped[int | None] = mapped_column(Integer)
+    annual_revenue_inr: Mapped[float | None] = mapped_column(Numeric(18, 2))
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
