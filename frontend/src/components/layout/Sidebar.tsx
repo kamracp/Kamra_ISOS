@@ -17,6 +17,7 @@ import {
   Boxes,
   ClipboardList,
   Target,
+  AlertTriangle,
 } from "lucide-react";
 import { useSegment, type Segment } from "../../context/SegmentContext";
 
@@ -56,6 +57,7 @@ const menu: MenuItem[] = [
   { title: "Carbon", icon: Leaf, path: "/carbon" },
   { title: "Net Zero", icon: Target, path: "/net-zero" },
   { title: "ESG Reports", icon: BarChart3, path: "/esg" },
+  { title: "Climate Risk", icon: AlertTriangle, path: "/climate-risk" },
 ];
 
 export default function Sidebar() {
