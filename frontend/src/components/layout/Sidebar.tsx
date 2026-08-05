@@ -60,8 +60,20 @@ const menu: MenuItem[] = [
   { title: "Climate Risk", icon: AlertTriangle, path: "/climate-risk" },
 ];
 
+// If VITE_APP_SEGMENT is set at build time, this deployment is locked to
+// one product (Kamra BENAS or Kamra ManufactureOS) and the segment toggle
+// is hidden. Unset (dev/default) falls back to the toggle-based combined UI.
+const LOCKED_SEGMENT = import.meta.env.VITE_APP_SEGMENT as Segment | undefined;
+const APP_TITLE =
+  LOCKED_SEGMENT === "benas"
+    ? "Kamra BENAS"
+    : LOCKED_SEGMENT === "manufacturing"
+      ? "Kamra ManufactureOS"
+      : "Kamra ClimateOS";
+
 export default function Sidebar() {
-  const { segment, setSegment } = useSegment();
+  const { segment: contextSegment, setSegment } = useSegment();
+  const segment = LOCKED_SEGMENT ?? contextSegment;
 
   const visibleMenu = menu.filter(
     (item) => !item.segment || item.segment === segment
@@ -70,12 +82,13 @@ export default function Sidebar() {
   return (
     <aside className="w-72 bg-slate-900 text-white flex flex-col">
       <div className="border-b border-slate-700 p-6">
-        <h1 className="text-2xl font-bold">Kamra ClimateOS</h1>
+        <h1 className="text-2xl font-bold">{APP_TITLE}</h1>
         <p className="mt-1 text-xs text-slate-400">
           Kamra Engineering Solutions
         </p>
       </div>
 
+      {!LOCKED_SEGMENT && (
       <div className="border-b border-slate-700 p-4">
        <p className="mb-2 inline-block rounded bg-blue-600/20 px-2 py-1 text-sm font-bold uppercase tracking-wider text-blue-300">
           Segment
@@ -105,6 +118,8 @@ export default function Sidebar() {
           </button>
         </div>
       </div>
+      )}
+
 
       <nav className="flex-1 overflow-y-auto p-4">
         <div className="space-y-2">
