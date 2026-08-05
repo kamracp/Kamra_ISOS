@@ -1,6 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useEsgReport } from "./hooks/useEsgReport";
+import { useEsgReport, useEsgTrend } from "./hooks/useEsgReport";
 import esgReportApi, {
   type Datapoint,
   type ReportFramework,
@@ -40,6 +40,7 @@ export default function ESGReportPage() {
 
   const { data: report, isLoading } = useEsgReport(framework, year);
   const { data: countries } = useCountries();
+  const { data: trendReport } = useEsgTrend([2022, 2023, 2024]);
 
   const selectedCountry = countries?.find((c) => c.code === countryCode);
 
@@ -202,6 +203,50 @@ export default function ESGReportPage() {
               </tbody>
             </table>
           </div>
+
+          {trendReport && (
+            <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+              <div className="border-b px-4 py-3">
+                <h3 className="text-sm font-semibold text-gray-800">
+                  Multi-Year Emissions Trend
+                </h3>
+              </div>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-gray-50 text-left text-xs uppercase text-gray-500">
+                    <th className="px-4 py-3">Year</th>
+                    <th className="px-4 py-3">Scope 1 (tCO2e)</th>
+                    <th className="px-4 py-3">Scope 2 (tCO2e)</th>
+                    <th className="px-4 py-3">Scope 1+2 (tCO2e)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trendReport.trend.map((entry) => (
+                    <tr key={entry.year} className="border-b last:border-0">
+                      <td className="px-4 py-3 font-medium text-gray-800">
+                        {entry.year}
+                      </td>
+                      <td className="px-4 py-3">
+                        {entry.scope1_tco2e ?? (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {entry.scope2_tco2e ?? (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 font-semibold text-blue-700">
+                        {entry.scope1_plus_2_tco2e ?? (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>

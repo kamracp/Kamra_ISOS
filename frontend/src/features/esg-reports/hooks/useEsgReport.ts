@@ -16,3 +16,11 @@ export function useEsgReport(framework: ReportFramework, year: number) {
 export function useBrsrPrinciple6(year: number) {
   return useEsgReport("brsr", year);
 }
+
+export function useEsgTrend(years: number[]) {
+  return useQuery({
+    queryKey: ["esg-trend", years],
+    queryFn: () => esgReportApi.getTrend(years),
+    staleTime: 5 * 60 * 1000,
+  });
+}

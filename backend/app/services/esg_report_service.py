@@ -237,3 +237,31 @@ def _build_esrs_indicators(scope1_t, scope2_t, src):
             "data": NOT_TRACKED,
         },
     }
+
+
+def generate_trend(db: Session, organization_id: int, years: list[int]) -> dict:
+    """Multi-year trend table for Scope 1, Scope 2, and Scope 1+2 emissions."""
+    trend_data = []
+    for year in sorted(years):
+        try:
+            scope1_t, scope2_t, src = _get_scope_summary(db, organization_id, year)
+            trend_data.append({
+                "year": year,
+                "scope1_tco2e": scope1_t,
+                "scope2_tco2e": scope2_t,
+                "scope1_plus_2_tco2e": round(scope1_t + scope2_t, 3),
+                "status": "tracked",
+            })
+        except Exception:
+            trend_data.append({
+                "year": year,
+                "scope1_tco2e": None,
+                "scope2_tco2e": None,
+                "scope1_plus_2_tco2e": None,
+                "status": "no_data",
+            })
+    return {
+        "organization_id": organization_id,
+        "years": sorted(years),
+        "trend": trend_data,
+    }

@@ -29,6 +29,20 @@ export interface EsgReport {
   };
 }
 
+export interface TrendEntry {
+  year: number;
+  scope1_tco2e: number | null;
+  scope2_tco2e: number | null;
+  scope1_plus_2_tco2e: number | null;
+  status: "tracked" | "no_data";
+}
+
+export interface TrendReport {
+  organization_id: number;
+  years: number[];
+  trend: TrendEntry[];
+}
+
 // Kept as an alias so any existing import of BrsrReport still works.
 export type BrsrReport = EsgReport;
 
@@ -76,6 +90,13 @@ export const esgReportApi = {
     link.click();
     link.remove();
     window.URL.revokeObjectURL(url);
+  },
+
+  getTrend: async (years: number[]): Promise<TrendReport> => {
+    const response = await client.get<TrendReport>("/esg-reports/trend", {
+      params: { years: years.join(",") },
+    });
+    return response.data;
   },
 
   // Kept for backward compatibility with any existing caller.
