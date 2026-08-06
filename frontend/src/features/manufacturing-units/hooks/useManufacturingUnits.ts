@@ -6,6 +6,7 @@ import manufacturingUnitApi, {
   type ManufacturingUnitUpdate,
   type SecSummary,
 } from "../api/manufacturingUnitApi";
+import { getApiErrorMessage } from "../../../utils/apiError";
 
 const QUERY_KEY = ["manufacturing-units"] as const;
 
@@ -46,7 +47,7 @@ export function useCreateManufacturingUnit() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to create manufacturing unit."
+        getApiErrorMessage(error, "Failed to create manufacturing unit.")
       );
     },
   });
@@ -63,7 +64,7 @@ export function useUpdateManufacturingUnit() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to update manufacturing unit."
+        getApiErrorMessage(error, "Failed to update manufacturing unit.")
       );
     },
   });
@@ -79,7 +80,7 @@ export function useDeleteManufacturingUnit() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to delete manufacturing unit."
+        getApiErrorMessage(error, "Failed to delete manufacturing unit.")
       );
     },
   });

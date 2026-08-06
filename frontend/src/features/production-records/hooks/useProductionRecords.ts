@@ -5,6 +5,7 @@ import productionRecordApi, {
   type ProductionRecordCreate,
   type ProductionRecordUpdate,
 } from "../api/productionRecordApi";
+import { getApiErrorMessage } from "../../../utils/apiError";
 
 const QUERY_KEY = ["production-records"] as const;
 
@@ -28,7 +29,7 @@ export function useCreateProductionRecord() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to create production record."
+        getApiErrorMessage(error, "Failed to create production record.")
       );
     },
   });
@@ -46,7 +47,7 @@ export function useUpdateProductionRecord() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to update production record."
+        getApiErrorMessage(error, "Failed to update production record.")
       );
     },
   });
@@ -63,7 +64,7 @@ export function useDeleteProductionRecord() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to delete production record."
+        getApiErrorMessage(error, "Failed to delete production record.")
       );
     },
   });

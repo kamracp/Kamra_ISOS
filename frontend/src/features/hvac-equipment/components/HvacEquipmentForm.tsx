@@ -59,9 +59,11 @@ export default function HvacEquipmentForm({
         equipment_code: "",
         equipment_name: "",
         equipment_type: "",
-        capacity_kw: undefined,
-        cop: undefined,
-        operating_hours_per_day: undefined,
+        // Typical starting values for a standard split-AC/package unit —
+        // the user should override these with actual nameplate data where known.
+        capacity_kw: 5.5,
+        cop: 3.2,
+        operating_hours_per_day: 8,
         operating_days_per_month: 26,
         manufacturer: "",
         installation_year: undefined,

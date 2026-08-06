@@ -93,6 +93,11 @@ class ManufacturingUnit(Base):
         String(10), nullable=False, default="IN", index=True
     )
     remarks: Mapped[str | None] = mapped_column(Text, nullable=True)
+    category_id: Mapped[int | None] = mapped_column(
+        ForeignKey("facility_categories.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 

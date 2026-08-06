@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import organizationApi, {
   type OrganizationUpdate,
 } from "../api/organizationApi";
+import { getApiErrorMessage } from "../../../utils/apiError";
 
 const QUERY_KEY = ["my-organization"] as const;
 
@@ -44,7 +45,7 @@ export default function MyOrganization() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to update organization."
+        getApiErrorMessage(error, "Failed to update organization.")
       );
     },
   });

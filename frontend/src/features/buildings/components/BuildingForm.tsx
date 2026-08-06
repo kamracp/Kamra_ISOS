@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import type { Building, BuildingCreate } from "../api/buildingApi";
+import { useSegment } from "../../../context/SegmentContext";
+import { useFacilityCategories } from "../../facility-categories/hooks/useFacilityCategories";
 
 interface BuildingFormProps {
   initialData?: Building;
@@ -16,6 +18,9 @@ export default function BuildingForm({
   onCancel,
   loading = false,
 }: BuildingFormProps) {
+  const { segment } = useSegment();
+  const { data: categories = [] } = useFacilityCategories(segment);
+
   const {
     register,
     handleSubmit,
@@ -36,6 +41,7 @@ export default function BuildingForm({
         country: initialData.country ?? "",
         pincode: initialData.pincode ?? "",
         building_type: initialData.building_type ?? "",
+        category_id: initialData.category_id ?? undefined,
         total_floor_area: initialData.total_floor_area ?? undefined,
         number_of_floors: initialData.number_of_floors ?? undefined,
         year_constructed: initialData.year_constructed ?? undefined,
@@ -53,6 +59,7 @@ export default function BuildingForm({
         country: "India",
         pincode: "",
         building_type: "",
+        category_id: undefined,
         total_floor_area: undefined,
         number_of_floors: undefined,
         year_constructed: undefined,
@@ -155,6 +162,24 @@ export default function BuildingForm({
               {...register("building_type")}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
             />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Category
+            </label>
+
+            <select
+              {...register("category_id", { valueAsNumber: true })}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+            >
+              <option value="">No category</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

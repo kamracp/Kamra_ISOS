@@ -21,3 +21,4 @@ class FacilityCategoryResponse(FacilityCategoryBase):
 
     id: int
     organization_id: int
+    buildings_count: int = 0

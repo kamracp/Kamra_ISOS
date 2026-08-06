@@ -29,6 +29,7 @@ class BuildingBase(BaseModel):
 
     year_constructed: int | None = Field(default=None, ge=1800)
 
+    category_id: int | None = None
     is_active: bool = True
 
 

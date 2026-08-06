@@ -9,6 +9,7 @@ import {
   type DecarbonizationProject,
   type DecarbonizationProjectCreate,
 } from "../api/netZeroApi";
+import { getApiErrorMessage } from "../../../utils/apiError";
 
 const TARGET_KEY = ["net-zero-targets"] as const;
 const PROJECT_KEY = ["decarbonization-projects"] as const;
@@ -39,7 +40,7 @@ export function useCreateNetZeroTarget() {
       toast.success("Net Zero target created.");
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Failed to create target.");
+      toast.error(getApiErrorMessage(error, "Failed to create target."));
     },
   });
 }
@@ -53,7 +54,7 @@ export function useDeleteNetZeroTarget() {
       toast.success("Net Zero target deleted.");
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Failed to delete target.");
+      toast.error(getApiErrorMessage(error, "Failed to delete target."));
     },
   });
 }
@@ -76,7 +77,7 @@ export function useCreateDecarbonizationProject() {
       toast.success("Project added.");
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Failed to add project.");
+      toast.error(getApiErrorMessage(error, "Failed to add project."));
     },
   });
 }
@@ -91,7 +92,7 @@ export function useDeleteDecarbonizationProject() {
       toast.success("Project removed.");
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Failed to remove project.");
+      toast.error(getApiErrorMessage(error, "Failed to remove project."));
     },
   });
 }

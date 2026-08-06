@@ -1,4 +1,5 @@
 from app.core.exceptions import ResourceNotFoundException
+from app.models.building import Building
 from app.repositories.facility_category_repository import FacilityCategoryRepository
 from app.schemas.facility_category import (
     FacilityCategoryCreate,
@@ -12,10 +13,18 @@ class FacilityCategoryService:
         self.repository = repository
 
     def get_by_segment(self, segment: str) -> list[FacilityCategoryResponse]:
-        return [
-            FacilityCategoryResponse.model_validate(c)
-            for c in self.repository.get_by_segment(segment)
-        ]
+        categories = self.repository.get_by_segment(segment)
+        results = []
+        for c in categories:
+            count = (
+                self.repository.db.query(Building)
+                .filter(Building.category_id == c.id)
+                .count()
+            )
+            response = FacilityCategoryResponse.model_validate(c)
+            response.buildings_count = count
+            results.append(response)
+        return results
 
     def create(self, data: FacilityCategoryCreate) -> FacilityCategoryResponse:
         category = self.repository.create(data)

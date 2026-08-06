@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 
 import CountrySelector from "../../countries/components/CountrySelector";
 import { useCountries } from "../../countries/hooks/useCountries";
+import { useSegment } from "../../../context/SegmentContext";
+import { useFacilityCategories } from "../../facility-categories/hooks/useFacilityCategories";
 
 import type {
   ManufacturingUnit,
@@ -52,6 +54,8 @@ export default function ManufacturingUnitForm({
     formState: { errors },
   } = useForm<ManufacturingUnitCreate>();
 
+  const { segment } = useSegment();
+  const { data: categories = [] } = useFacilityCategories(segment);
   const { data: countries } = useCountries();
   const selectedCountry = watch("country_code") ?? "IN";
   const countryInfo = countries?.find((c) => c.code === selectedCountry);
@@ -64,6 +68,7 @@ export default function ManufacturingUnitForm({
         unit_name: initialData.unit_name,
         sector: initialData.sector,
         baseline_year: initialData.baseline_year,
+        category_id: initialData.category_id ?? undefined,
         standards_applicable: initialData.standards_applicable ?? "",
         country_code: initialData.country_code ?? "IN",
         remarks: initialData.remarks ?? "",
@@ -75,6 +80,7 @@ export default function ManufacturingUnitForm({
         unit_name: "",
         sector: defaultSector,
         baseline_year: new Date().getFullYear(),
+        category_id: undefined,
         standards_applicable: "BEE PAT + ISO 50001",
         country_code: "IN",
         remarks: "",
@@ -175,6 +181,24 @@ export default function ManufacturingUnitForm({
               {buildings.map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.building_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Category
+            </label>
+
+            <select
+              {...register("category_id", { valueAsNumber: true })}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+            >
+              <option value="">No category</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
                 </option>
               ))}
             </select>

@@ -5,6 +5,7 @@ import buildingApi, {
   type BuildingCreate,
   type BuildingUpdate,
 } from "../api/buildingApi";
+import { getApiErrorMessage } from "../../../utils/apiError";
 
 const QUERY_KEY = ["buildings"] as const;
 
@@ -36,7 +37,7 @@ export function useCreateBuilding() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to create building."
+        getApiErrorMessage(error, "Failed to create building.")
       );
     },
   });
@@ -53,7 +54,7 @@ export function useUpdateBuilding() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to update building."
+        getApiErrorMessage(error, "Failed to update building.")
       );
     },
   });
@@ -69,7 +70,7 @@ export function useDeleteBuilding() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to delete building."
+        getApiErrorMessage(error, "Failed to delete building.")
       );
     },
   });

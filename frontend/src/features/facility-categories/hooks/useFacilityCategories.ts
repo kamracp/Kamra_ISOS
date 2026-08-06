@@ -4,6 +4,7 @@ import facilityCategoryApi, {
   type FacilityCategory,
   type FacilityCategoryCreate,
 } from "../api/facilityCategoryApi";
+import { getApiErrorMessage } from "../../../utils/apiError";
 
 export function useFacilityCategories(segment: "benas" | "manufacturing") {
   return useQuery<FacilityCategory[]>({
@@ -21,7 +22,7 @@ export function useCreateFacilityCategory(segment: "benas" | "manufacturing") {
       queryClient.invalidateQueries({ queryKey: ["facility-categories", segment] });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Failed to add category.");
+      toast.error(getApiErrorMessage(error, "Failed to add category."));
     },
   });
 }
@@ -34,7 +35,7 @@ export function useDeleteFacilityCategory(segment: "benas" | "manufacturing") {
       queryClient.invalidateQueries({ queryKey: ["facility-categories", segment] });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Failed to remove category.");
+      toast.error(getApiErrorMessage(error, "Failed to remove category."));
     },
   });
 }

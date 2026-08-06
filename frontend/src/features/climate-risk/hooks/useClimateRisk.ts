@@ -7,6 +7,7 @@ import {
   type ClimateRiskCreate,
   type ClimateRiskSummary,
 } from "../api/climateRiskApi";
+import { getApiErrorMessage } from "../../../utils/apiError";
 
 const RISK_KEY = ["climate-risks"] as const;
 
@@ -35,7 +36,7 @@ export function useCreateClimateRisk() {
       toast.success("Climate risk added.");
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Failed to add climate risk.");
+      toast.error(getApiErrorMessage(error, "Failed to add climate risk."));
     },
   });
 }
@@ -49,7 +50,7 @@ export function useDeleteClimateRisk() {
       toast.success("Climate risk removed.");
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Failed to remove climate risk.");
+      toast.error(getApiErrorMessage(error, "Failed to remove climate risk."));
     },
   });
 }

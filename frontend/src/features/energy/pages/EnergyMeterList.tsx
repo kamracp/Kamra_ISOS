@@ -4,6 +4,7 @@ import EnergyMeterForm from "../components/EnergyMeterForm";
 import {
   useEnergyMeters,
   useCreateEnergyMeter,
+  useUpdateEnergyMeter,
   useDeleteEnergyMeter,
 } from "../hooks/useEnergyMeters";
 import { useQuery } from "@tanstack/react-query";
@@ -51,11 +52,18 @@ function ScopeBadge({ scope }: { scope: string }) {
 
 export default function EnergyMeterList() {
   const [showForm, setShowForm] = useState(false);
+  const [editingMeter, setEditingMeter] = useState<any | null>(null);
 
   const { data: meters = [], isLoading, isError } = useEnergyMeters();
   const { data: buildings = [] } = useBuildings();
   const createMeter = useCreateEnergyMeter();
+  const updateMeter = useUpdateEnergyMeter();
   const deleteMeter = useDeleteEnergyMeter();
+
+  function closeForm() {
+    setShowForm(false);
+    setEditingMeter(null);
+  }
 
   if (isLoading) {
     return (
@@ -151,20 +159,31 @@ export default function EnergyMeterList() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => {
-                        if (
-                          confirm(
-                            `Delete meter "${meter.meter_name}"? This will also delete all its utility bills.`
-                          )
-                        ) {
-                          deleteMeter.mutate(meter.id);
-                        }
-                      }}
-                      className="text-sm text-red-600 hover:underline"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          setEditingMeter(meter);
+                          setShowForm(true);
+                        }}
+                        className="text-sm text-blue-600 hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (
+                            confirm(
+                              `Delete meter "${meter.meter_name}"? This will also delete all its utility bills.`
+                            )
+                          ) {
+                            deleteMeter.mutate(meter.id);
+                          }
+                        }}
+                        className="text-sm text-red-600 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -173,19 +192,25 @@ export default function EnergyMeterList() {
         </table>
       </div>
 
-      {/* Add Meter Form Modal */}
+      {/* Add / Edit Meter Form Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl">
             <EnergyMeterForm
               buildings={buildings}
+              initialData={editingMeter ?? undefined}
               onSubmit={(data) => {
-                createMeter.mutate(data, {
-                  onSuccess: () => setShowForm(false),
-                });
+                if (editingMeter) {
+                  updateMeter.mutate(
+                    { id: editingMeter.id, data },
+                    { onSuccess: closeForm }
+                  );
+                } else {
+                  createMeter.mutate(data, { onSuccess: closeForm });
+                }
               }}
-              onCancel={() => setShowForm(false)}
-              loading={createMeter.isPending}
+              onCancel={closeForm}
+              loading={createMeter.isPending || updateMeter.isPending}
             />
           </div>
         </div>

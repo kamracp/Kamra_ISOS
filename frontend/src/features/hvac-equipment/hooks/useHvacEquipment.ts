@@ -5,6 +5,7 @@ import hvacEquipmentApi, {
   type HvacEquipmentCreate,
   type HvacEquipmentUpdate,
 } from "../api/hvacEquipmentApi";
+import { getApiErrorMessage } from "../../../utils/apiError";
 
 const QUERY_KEY = ["hvac-equipment"] as const;
 
@@ -36,7 +37,7 @@ export function useCreateHvacEquipment() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to create equipment."
+        getApiErrorMessage(error, "Failed to create equipment.")
       );
     },
   });
@@ -53,7 +54,7 @@ export function useUpdateHvacEquipment() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to update equipment."
+        getApiErrorMessage(error, "Failed to update equipment.")
       );
     },
   });
@@ -69,7 +70,7 @@ export function useDeleteHvacEquipment() {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ?? "Failed to delete equipment."
+        getApiErrorMessage(error, "Failed to delete equipment.")
       );
     },
   });

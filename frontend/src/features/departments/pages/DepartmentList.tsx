@@ -1,17 +1,23 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
-
 import DepartmentForm from "../components/DepartmentForm";
-import { useDepartments } from "../hooks/useDepartments";
+import { useDepartments, useCreateDepartment } from "../hooks/useDepartments";
+import type { DepartmentCreate } from "../api/departmentApi";
 
 export default function DepartmentList() {
   const [open, setOpen] = useState(false);
-
   const {
-  data: departments = [],
-  isLoading,
-  isError,
-} = useDepartments();
+    data: departments = [],
+    isLoading,
+    isError,
+  } = useDepartments();
+  const createMutation = useCreateDepartment();
+
+  function handleSubmit(data: DepartmentCreate) {
+    createMutation.mutate(data, {
+      onSuccess: () => setOpen(false),
+    });
+  }
 
   if (isLoading) {
     return (
@@ -21,7 +27,6 @@ export default function DepartmentList() {
       </div>
     );
   }
-
   if (isError) {
     return (
       <div className="p-6">
@@ -32,7 +37,6 @@ export default function DepartmentList() {
       </div>
     );
   }
-
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -40,12 +44,10 @@ export default function DepartmentList() {
           <h1 className="text-3xl font-bold">
             Departments
           </h1>
-
           <p className="text-gray-500">
             Manage organization departments.
           </p>
         </div>
-
         <button
           onClick={() => setOpen(true)}
           className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
@@ -54,7 +56,6 @@ export default function DepartmentList() {
           Add Department
         </button>
       </div>
-
       <div className="overflow-hidden rounded-lg border bg-white shadow">
         <table className="min-w-full">
           <thead className="bg-slate-100">
@@ -62,17 +63,14 @@ export default function DepartmentList() {
               <th className="px-4 py-3 text-left">
                 Code
               </th>
-
               <th className="px-4 py-3 text-left">
                 Department Name
               </th>
-
               <th className="px-4 py-3 text-left">
                 Status
               </th>
             </tr>
           </thead>
-
           <tbody>
             {departments.length === 0 ? (
               <tr>
@@ -92,11 +90,9 @@ export default function DepartmentList() {
                   <td className="px-4 py-3">
                     {department.department_code}
                   </td>
-
                   <td className="px-4 py-3">
                     {department.department_name}
                   </td>
-
                   <td className="px-4 py-3">
                     {department.is_active
                       ? "Active"
@@ -108,10 +104,11 @@ export default function DepartmentList() {
           </tbody>
         </table>
       </div>
-
       {open && (
         <DepartmentForm
-          onClose={() => setOpen(false)}
+          onSubmit={handleSubmit}
+          onCancel={() => setOpen(false)}
+          loading={createMutation.isPending}
         />
       )}
     </div>

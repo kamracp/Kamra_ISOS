@@ -152,7 +152,13 @@ export default function TenantBillingPage() {
                 {billingResults.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-10 text-center text-gray-500">
-                      No billable occupants found for this floor.
+                      <p className="font-medium">No billable occupants found for this floor.</p>
+                      <p className="mt-2 text-sm">
+                        Tenant Billing splits a floor's total energy consumption between its
+                        Occupants, in proportion to each occupant's office area. This floor
+                        has no Occupants set up yet — Occupant management isn't available in
+                        the product yet, so this page will stay empty until that's built.
+                      </p>
                     </td>
                   </tr>
                 ) : (

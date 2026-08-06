@@ -5,6 +5,7 @@ import floorApi, {
   type FloorCreate,
   type FloorUpdate,
 } from "../api/floorApi";
+import { getApiErrorMessage } from "../../../utils/apiError";
 
 const QUERY_KEY = ["floors"] as const;
 
@@ -26,7 +27,7 @@ export function useCreateFloor() {
       toast.success("Floor created successfully.");
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Failed to create floor.");
+      toast.error(getApiErrorMessage(error, "Failed to create floor."));
     },
   });
 }
@@ -41,7 +42,7 @@ export function useUpdateFloor() {
       toast.success("Floor updated successfully.");
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Failed to update floor.");
+      toast.error(getApiErrorMessage(error, "Failed to update floor."));
     },
   });
 }
@@ -55,7 +56,7 @@ export function useDeleteFloor() {
       toast.success("Floor deleted successfully.");
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Failed to delete floor.");
+      toast.error(getApiErrorMessage(error, "Failed to delete floor."));
     },
   });
 }

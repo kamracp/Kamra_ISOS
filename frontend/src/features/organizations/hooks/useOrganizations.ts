@@ -6,6 +6,7 @@ import organizationApi, {
   type OrganizationCreate,
   type OrganizationUpdate,
 } from "../api/organizationApi";
+import { getApiErrorMessage } from "../../../utils/apiError";
 
 const QUERY_KEY = ["organizations"] as const;
 
@@ -44,8 +45,7 @@ export function useCreateOrganization() {
 
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ??
-          "Failed to create organization."
+        getApiErrorMessage(error, "Failed to create organization.")
       );
     },
   });
@@ -73,8 +73,7 @@ export function useUpdateOrganization() {
 
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ??
-          "Failed to update organization."
+        getApiErrorMessage(error, "Failed to update organization.")
       );
     },
   });
@@ -97,8 +96,7 @@ export function useDeleteOrganization() {
 
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.detail ??
-          "Failed to delete organization."
+        getApiErrorMessage(error, "Failed to delete organization.")
       );
     },
   });

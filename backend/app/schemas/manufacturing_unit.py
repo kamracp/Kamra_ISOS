@@ -13,6 +13,7 @@ class ManufacturingUnitBase(BaseModel):
     baseline_year: int = Field(..., ge=1990, le=2100)
     standards_applicable: str | None = Field(default=None, max_length=100)
     country_code: str = Field(default="IN", max_length=10)
+    category_id: int | None = None
     remarks: str | None = None
 
 
@@ -28,6 +29,7 @@ class ManufacturingUnitUpdate(BaseModel):
     baseline_year: int | None = Field(default=None, ge=1990, le=2100)
     standards_applicable: str | None = Field(default=None, max_length=100)
     country_code: str | None = Field(default=None, max_length=10)
+    category_id: int | None = None
     remarks: str | None = None
     is_active: bool | None = None
 
