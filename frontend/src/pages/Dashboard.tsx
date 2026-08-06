@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useCarbonSummary } from "../features/carbon/hooks/useCarbonSummary";
-import { useSegment } from "../context/SegmentContext";
+import { useSegment, type Segment } from "../context/SegmentContext";
+
+const LOCKED_SEGMENT = import.meta.env.VITE_APP_SEGMENT as Segment | undefined;
 import {
   useFacilityCategories,
   useCreateFacilityCategory,
@@ -9,7 +11,8 @@ import {
 
 export default function Dashboard() {
   const { data: carbon } = useCarbonSummary();
-  const { segment } = useSegment();
+  const { segment: contextSegment } = useSegment();
+  const segment = LOCKED_SEGMENT ?? contextSegment;
 
   const { data: categories = [] } = useFacilityCategories(segment);
   const createCategory = useCreateFacilityCategory(segment);
