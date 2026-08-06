@@ -1,6 +1,18 @@
 import { getCurrentUser, logout } from "../../services/api/auth";
+import type { Segment } from "../../context/SegmentContext";
+import { useSegment } from "../../context/SegmentContext";
+
+const LOCKED_SEGMENT = import.meta.env.VITE_APP_SEGMENT as Segment | undefined;
 export default function Header() {
   const user = getCurrentUser();
+  const { segment: contextSegment } = useSegment();
+  const segment = LOCKED_SEGMENT ?? contextSegment;
+  const appTitle =
+    segment === "benas"
+      ? "Kamra BENAS"
+      : segment === "manufacturing"
+        ? "Kamra ManufactureOS"
+        : "Kamra ClimateOS";
   function handleLogout() {
     logout();
   }
@@ -8,7 +20,7 @@ export default function Header() {
     <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-800">
-          Kamra ClimateOS
+          {appTitle}
         </h1>
         <p className="text-sm text-slate-500">
           Carbon Accounting. ESG Reporting. Net Zero.
