@@ -1,3 +1,4 @@
+import hashlib
 from collections import defaultdict
 from dataclasses import asdict, dataclass
 from datetime import date
@@ -28,6 +29,31 @@ class BillEmission:
     factor_value: float | None
     factor_source: str | None
     status: str  # "calculated" | "no_factor"
+    audit_hash: str | None = None
+
+
+def _compute_audit_hash(
+    bill_id: int,
+    meter_id: int,
+    consumption: float,
+    factor_id: int,
+    factor_value: float,
+    period_start: date,
+    period_end: date,
+) -> str:
+    """SHA-256 fingerprint of one bill's calculation inputs+output.
+
+    NOTE: computed fresh on every response, nothing is persisted yet.
+    Proves internal consistency of a given response (report/export) —
+    NOT that the underlying bill/factor rows were never altered in the
+    DB afterwards; that needs a persisted, append-only calculation
+    ledger (separate future item).
+    """
+    payload = (
+        f"{bill_id}|{meter_id}|{consumption}|{factor_id}|"
+        f"{factor_value}|{period_start.isoformat()}|{period_end.isoformat()}"
+    )
+    return hashlib.sha256(payload.encode()).hexdigest()
 
 
 class CarbonService:
@@ -95,6 +121,7 @@ class CarbonService:
                         factor_value=None,
                         factor_source=None,
                         status="no_factor",
+                        audit_hash=None,
                     )
                 )
                 continue
@@ -121,6 +148,15 @@ class CarbonService:
                     factor_value=factor.factor_kgco2e_per_unit,
                     factor_source=factor.source,
                     status="calculated",
+                    audit_hash=_compute_audit_hash(
+                        bill_id=bill.id,
+                        meter_id=meter.id,
+                        consumption=bill.consumption,
+                        factor_id=factor.id,
+                        factor_value=factor.factor_kgco2e_per_unit,
+                        period_start=bill.billing_period_start,
+                        period_end=bill.billing_period_end,
+                    ),
                 )
             )
 
