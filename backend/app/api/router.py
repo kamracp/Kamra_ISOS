@@ -9,6 +9,7 @@ from app.api.energy_meter import router as energy_meter_router
 from app.api.utility_bill import router as utility_bill_router
 from app.api.emission_factor import router as emission_factor_router
 from app.api.carbon import router as carbon_router
+from app.api.manufacturing_carbon import router as manufacturing_carbon_router
 from app.api.hvac_equipment import router as hvac_equipment_router
 from app.api.occupant import router as occupant_router
 from app.api.tenant_billing import router as tenant_billing_router
@@ -33,6 +34,7 @@ api_router.include_router(energy_meter_router)
 api_router.include_router(utility_bill_router)
 api_router.include_router(emission_factor_router)
 api_router.include_router(carbon_router)
+api_router.include_router(manufacturing_carbon_router)
 api_router.include_router(hvac_equipment_router)
 api_router.include_router(occupant_router)
 api_router.include_router(tenant_billing_router)
