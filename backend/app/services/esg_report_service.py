@@ -23,12 +23,30 @@ NOT_TRACKED = {
 }
 
 
-def _tracked(value, unit, source):
-    return {"value": value, "unit": unit, "status": "tracked", "source": source}
+def _tracked(value, unit, source, standard=None):
+    """standard: optional list of distinct emission-factor citations
+    (e.g. ["CEA CO2 Baseline Database ... Version 21.0"]) actually used
+    to compute this value. Only set for datapoints that trace directly
+    to the emission factor library -- never collapsed to a single
+    string when multiple factor versions contributed, so an auditor
+    always sees every standard actually in play, not an implied one.
+    """
+    result = {"value": value, "unit": unit, "status": "tracked", "source": source}
+    if standard:
+        result["standard"] = standard
+    return result
 
 
 def _get_scope_summary(db, organization_id, reporting_year):
-    """Shared helper: run CarbonService for one org/year, return (scope1_t, scope2_t, src)."""
+    """Shared helper: run CarbonService for one org/year, return
+    (scope1_t, scope2_t, src, scope1_standards, scope2_standards).
+
+    scope*_standards: sorted list of distinct emission_factors.source
+    strings actually used across that scope's calculated bills for the
+    year -- can have more than one entry if a factor version changed
+    mid-year (e.g. CEA v20 -> v21), and that is reported as-is rather
+    than picked down to one.
+    """
     carbon = CarbonService(
         bill_repository=UtilityBillRepository(db, organization_id=organization_id),
         meter_repository=EnergyMeterRepository(db, organization_id=organization_id),
@@ -39,7 +57,24 @@ def _get_scope_summary(db, organization_id, reporting_year):
     scope1_t = round(by_scope_kg.get("scope_1", 0.0) / 1000, 3)
     scope2_t = round(by_scope_kg.get("scope_2", 0.0) / 1000, 3)
     src = f"CarbonService (year {reporting_year} bills, org {organization_id})"
-    return scope1_t, scope2_t, src
+
+    line_items = summary.get("line_items", [])
+    scope1_standards = sorted({
+        item["factor_source"]
+        for item in line_items
+        if item["status"] == "calculated"
+        and item["scope"] == "scope_1"
+        and item["factor_source"]
+    })
+    scope2_standards = sorted({
+        item["factor_source"]
+        for item in line_items
+        if item["status"] == "calculated"
+        and item["scope"] == "scope_2"
+        and item["factor_source"]
+    })
+
+    return scope1_t, scope2_t, src, scope1_standards, scope2_standards
 
 
 def _get_intensity_metrics(db, organization_id, total_scope1_2_t):
@@ -72,7 +107,9 @@ def _get_intensity_metrics(db, organization_id, total_scope1_2_t):
 def generate_brsr_principle6(db: Session, organization_id: int,
                              reporting_year: int) -> dict:
     """BRSR Section C, Principle 6 (Environment) -- Essential Indicators."""
-    scope1_t, scope2_t, src = _get_scope_summary(db, organization_id, reporting_year)
+    scope1_t, scope2_t, src, scope1_std, scope2_std = _get_scope_summary(
+        db, organization_id, reporting_year
+    )
 
     return {
         "framework": "BRSR",
@@ -81,7 +118,7 @@ def generate_brsr_principle6(db: Session, organization_id: int,
         "organization_id": organization_id,
         "data_basis": f"Utility-bill data with billing period starting in calendar year {reporting_year}.",
         "essential_indicators": _build_brsr_indicators(
-            scope1_t, scope2_t, src,
+            scope1_t, scope2_t, src, scope1_std, scope2_std,
             intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
         ),
         "totals": {
@@ -89,12 +126,13 @@ def generate_brsr_principle6(db: Session, organization_id: int,
             "total_all_scopes": _tracked(
                 round(scope1_t + scope2_t, 3), "tCO2e",
                 src + " (Scope 1+2 only; Scope 3 not tracked)",
+                standard=sorted(set(scope1_std) | set(scope2_std)),
             ),
         },
     }
 
 
-def _build_brsr_indicators(scope1_t, scope2_t, src, intensity=None):
+def _build_brsr_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, intensity=None):
     intensity = intensity or {}
     """BRSR Principle 6 Essential Indicators. Emissions filled, rest not_tracked."""
     return {
@@ -111,11 +149,11 @@ def _build_brsr_indicators(scope1_t, scope2_t, src, intensity=None):
         },
         "EI_7_ghg_scope1": {
             "label": "Total Scope 1 emissions (tCO2e)",
-            "data": _tracked(scope1_t, "tCO2e", src),
+            "data": _tracked(scope1_t, "tCO2e", src, standard=scope1_std),
         },
         "EI_7_ghg_scope2": {
             "label": "Total Scope 2 emissions (tCO2e)",
-            "data": _tracked(scope2_t, "tCO2e", src),
+            "data": _tracked(scope2_t, "tCO2e", src, standard=scope2_std),
         },
         "EI_7_ghg_scope3": {
             "label": "Total Scope 3 emissions (tCO2e)",
@@ -149,7 +187,9 @@ def _build_brsr_indicators(scope1_t, scope2_t, src, intensity=None):
 def generate_gri_305(db: Session, organization_id: int,
                      reporting_year: int) -> dict:
     """GRI 305 (Emissions) -- core disclosures 305-1 to 305-7."""
-    scope1_t, scope2_t, src = _get_scope_summary(db, organization_id, reporting_year)
+    scope1_t, scope2_t, src, scope1_std, scope2_std = _get_scope_summary(
+        db, organization_id, reporting_year
+    )
 
     return {
         "framework": "GRI 305",
@@ -158,7 +198,7 @@ def generate_gri_305(db: Session, organization_id: int,
         "organization_id": organization_id,
         "data_basis": f"Utility-bill data with billing period starting in calendar year {reporting_year}.",
         "essential_indicators": _build_gri_indicators(
-            scope1_t, scope2_t, src,
+            scope1_t, scope2_t, src, scope1_std, scope2_std,
             intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
         ),
         "totals": {
@@ -166,22 +206,23 @@ def generate_gri_305(db: Session, organization_id: int,
             "total_all_scopes": _tracked(
                 round(scope1_t + scope2_t, 3), "tCO2e",
                 src + " (Scope 1+2 only; Scope 3 not tracked)",
+                standard=sorted(set(scope1_std) | set(scope2_std)),
             ),
         },
     }
 
 
-def _build_gri_indicators(scope1_t, scope2_t, src, intensity=None):
+def _build_gri_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, intensity=None):
     intensity = intensity or {}
     """GRI 305 core disclosures. Emissions filled, rest not_tracked."""
     return {
         "305_1_direct_ghg": {
             "label": "305-1 Direct (Scope 1) GHG emissions",
-            "data": _tracked(scope1_t, "tCO2e", src),
+            "data": _tracked(scope1_t, "tCO2e", src, standard=scope1_std),
         },
         "305_2_energy_indirect_ghg": {
             "label": "305-2 Energy indirect (Scope 2) GHG emissions, location-based",
-            "data": _tracked(scope2_t, "tCO2e", src),
+            "data": _tracked(scope2_t, "tCO2e", src, standard=scope2_std),
         },
         "305_3_other_indirect_ghg": {
             "label": "305-3 Other indirect (Scope 3) GHG emissions",
@@ -216,7 +257,9 @@ def _build_gri_indicators(scope1_t, scope2_t, src, intensity=None):
 def generate_esrs_e1(db: Session, organization_id: int,
                      reporting_year: int) -> dict:
     """ESRS E1 (Climate Change) -- CSRD disclosures, emissions-focused subset."""
-    scope1_t, scope2_t, src = _get_scope_summary(db, organization_id, reporting_year)
+    scope1_t, scope2_t, src, scope1_std, scope2_std = _get_scope_summary(
+        db, organization_id, reporting_year
+    )
 
     return {
         "framework": "ESRS E1",
@@ -225,7 +268,7 @@ def generate_esrs_e1(db: Session, organization_id: int,
         "organization_id": organization_id,
         "data_basis": f"Utility-bill data with billing period starting in calendar year {reporting_year}.",
         "essential_indicators": _build_esrs_indicators(
-            scope1_t, scope2_t, src,
+            scope1_t, scope2_t, src, scope1_std, scope2_std,
             intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
         ),
         "totals": {
@@ -233,12 +276,13 @@ def generate_esrs_e1(db: Session, organization_id: int,
             "total_all_scopes": _tracked(
                 round(scope1_t + scope2_t, 3), "tCO2e",
                 src + " (Scope 1+2 only; Scope 3 not tracked)",
+                standard=sorted(set(scope1_std) | set(scope2_std)),
             ),
         },
     }
 
 
-def _build_esrs_indicators(scope1_t, scope2_t, src, intensity=None):
+def _build_esrs_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, intensity=None):
     intensity = intensity or {}
     """ESRS E1 disclosures. Emissions filled, rest not_tracked."""
     return {
@@ -255,11 +299,11 @@ def _build_esrs_indicators(scope1_t, scope2_t, src, intensity=None):
         },
         "E1_6_scope1": {
             "label": "E1-6 Gross Scope 1 GHG emissions",
-            "data": _tracked(scope1_t, "tCO2e", src),
+            "data": _tracked(scope1_t, "tCO2e", src, standard=scope1_std),
         },
         "E1_6_scope2": {
             "label": "E1-6 Gross Scope 2 GHG emissions, location-based",
-            "data": _tracked(scope2_t, "tCO2e", src),
+            "data": _tracked(scope2_t, "tCO2e", src, standard=scope2_std),
         },
         "E1_6_scope3": {
             "label": "E1-6 Gross Scope 3 GHG emissions",
@@ -267,7 +311,10 @@ def _build_esrs_indicators(scope1_t, scope2_t, src, intensity=None):
         },
         "E1_6_total": {
             "label": "E1-6 Total GHG emissions (location-based)",
-            "data": _tracked(round(scope1_t + scope2_t, 3), "tCO2e", src),
+            "data": _tracked(
+                round(scope1_t + scope2_t, 3), "tCO2e", src,
+                standard=sorted(set(scope1_std) | set(scope2_std)),
+            ),
         },
         "E1_6_intensity_per_employee": {
             "label": "E1-6 GHG intensity per employee",
@@ -299,7 +346,9 @@ def generate_trend(db: Session, organization_id: int, years: list[int]) -> dict:
     trend_data = []
     for year in sorted(years):
         try:
-            scope1_t, scope2_t, src = _get_scope_summary(db, organization_id, year)
+            scope1_t, scope2_t, src, _scope1_std, _scope2_std = _get_scope_summary(
+                db, organization_id, year
+            )
             trend_data.append({
                 "year": year,
                 "scope1_tco2e": scope1_t,
