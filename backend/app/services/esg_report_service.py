@@ -2,8 +2,9 @@
 ESG Report generation service for Kamra ClimateOS.
 
 Aggregator + formatter, not a new calculator: maps existing platform
-data (CarbonService Scope 1/2) into standards report structures.
-Frameworks: BRSR Section C Principle 6 (Environment), GRI 305
+data (CarbonService Scope 1/2 from BENAS bills, ManufacturingCarbonService
+Scope 1 from ManufactureOS process emissions) into standards report
+structures. Frameworks: BRSR Section C Principle 6 (Environment), GRI 305
 (Emissions), ESRS E1 (Climate Change / CSRD). Untracked datapoints are
 marked "not_tracked", never guessed.
 """
@@ -12,8 +13,13 @@ from sqlalchemy.orm import Session
 
 from app.repositories.emission_factor_repository import EmissionFactorRepository
 from app.repositories.energy_meter_repository import EnergyMeterRepository
+from app.repositories.manufacturing_emission_record_repository import (
+    ManufacturingEmissionRecordRepository,
+)
+from app.repositories.manufacturing_unit_repository import ManufacturingUnitRepository
 from app.repositories.utility_bill_repository import UtilityBillRepository
 from app.services.carbon_service import CarbonService
+from app.services.manufacturing_carbon_service import ManufacturingCarbonService
 from app.models.organization import Organization
 
 NOT_TRACKED = {
@@ -38,34 +44,47 @@ def _tracked(value, unit, source, standard=None):
 
 
 def _get_scope_summary(db, organization_id, reporting_year):
-    """Shared helper: run CarbonService for one org/year, return
-    (scope1_t, scope2_t, src, scope1_standards, scope2_standards).
+    """Shared helper: consolidate CarbonService (BENAS bills, Scope 1+2)
+    with ManufacturingCarbonService (ManufactureOS process emissions,
+    Scope 1 only -- on-site combustion/process CO2 is always Scope 1
+    under GHG Protocol, never Scope 2) for one org/year.
 
-    scope*_standards: sorted list of distinct emission_factors.source
-    strings actually used across that scope's calculated bills for the
-    year -- can have more than one entry if a factor version changed
-    mid-year (e.g. CEA v20 -> v21), and that is reported as-is rather
-    than picked down to one.
+    Returns (scope1_t, scope2_t, src, scope1_standards, scope2_standards).
+
+    - scope1_t = BENAS Scope 1 (bills) + ManufactureOS Scope 1 (process,
+      fossil only -- biogenic CO2 is tracked separately and never summed
+      into this total, matching GHG Protocol convention).
+    - scope2_t = BENAS Scope 2 only. ManufactureOS does not separately
+      track purchased electricity for its units yet -- if a manufacturing
+      unit's own grid electricity needs to be counted, it should be
+      metered via the same energy_meters/utility_bills path BENAS uses
+      (a manufacturing unit can share an org with tracked buildings),
+      not a separate mechanism.
+    - scope1_standards / scope2_standards: sorted list of distinct
+      traceability citations. For Scope 1 this now merges BENAS's
+      emission_factors.source strings with ManufactureOS's
+      calculation_source strings (e.g. "cement_csi_stoichiometric") --
+      both are legitimate "what was this computed with" citations, just
+      from different calculation paths, and neither is dropped.
     """
     carbon = CarbonService(
         bill_repository=UtilityBillRepository(db, organization_id=organization_id),
         meter_repository=EnergyMeterRepository(db, organization_id=organization_id),
         factor_repository=EmissionFactorRepository(db),
     )
-    summary = carbon.get_summary(year=reporting_year)
-    by_scope_kg = summary.get("by_scope_kg", {})
-    scope1_t = round(by_scope_kg.get("scope_1", 0.0) / 1000, 3)
+    bills_summary = carbon.get_summary(year=reporting_year)
+    by_scope_kg = bills_summary.get("by_scope_kg", {})
+    bills_scope1_t = round(by_scope_kg.get("scope_1", 0.0) / 1000, 3)
     scope2_t = round(by_scope_kg.get("scope_2", 0.0) / 1000, 3)
-    src = f"CarbonService (year {reporting_year} bills, org {organization_id})"
 
-    line_items = summary.get("line_items", [])
-    scope1_standards = sorted({
+    line_items = bills_summary.get("line_items", [])
+    bills_scope1_standards = {
         item["factor_source"]
         for item in line_items
         if item["status"] == "calculated"
         and item["scope"] == "scope_1"
         and item["factor_source"]
-    })
+    }
     scope2_standards = sorted({
         item["factor_source"]
         for item in line_items
@@ -73,6 +92,31 @@ def _get_scope_summary(db, organization_id, reporting_year):
         and item["scope"] == "scope_2"
         and item["factor_source"]
     })
+
+    manufacturing = ManufacturingCarbonService(
+        emission_record_repository=ManufacturingEmissionRecordRepository(
+            db, organization_id=organization_id
+        ),
+        unit_repository=ManufacturingUnitRepository(db, organization_id=organization_id),
+    )
+    mfg_summary = manufacturing.get_summary(year=reporting_year)
+    mfg_scope1_t = round(mfg_summary.get("total_co2_tonnes", 0.0), 3)
+    # calculation_source lives per-record, not on ManufacturingCarbonService's
+    # aggregated by_unit summary -- pull it from the raw records directly.
+    mfg_records = ManufacturingEmissionRecordRepository(
+        db, organization_id=organization_id
+    ).get_all(year=reporting_year)
+    mfg_scope1_standards = {
+        record.calculation_source for record in mfg_records if not record.is_biogenic
+    }
+
+    scope1_t = round(bills_scope1_t + mfg_scope1_t, 3)
+    scope1_standards = sorted(bills_scope1_standards | mfg_scope1_standards)
+
+    src = (
+        f"CarbonService + ManufacturingCarbonService "
+        f"(year {reporting_year}, org {organization_id})"
+    )
 
     return scope1_t, scope2_t, src, scope1_standards, scope2_standards
 
@@ -116,7 +160,7 @@ def generate_brsr_principle6(db: Session, organization_id: int,
         "section": "Section C, Principle 6 (Environment)",
         "reporting_year": reporting_year,
         "organization_id": organization_id,
-        "data_basis": f"Utility-bill data with billing period starting in calendar year {reporting_year}.",
+        "data_basis": f"Utility-bill + manufacturing process-emission data for calendar year {reporting_year}.",
         "essential_indicators": _build_brsr_indicators(
             scope1_t, scope2_t, src, scope1_std, scope2_std,
             intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
@@ -150,6 +194,7 @@ def _build_brsr_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, inte
         "EI_7_ghg_scope1": {
             "label": "Total Scope 1 emissions (tCO2e)",
             "data": _tracked(scope1_t, "tCO2e", src, standard=scope1_std),
+            "note": "Includes BENAS fuel-combustion bills and ManufactureOS process emissions (fossil only; biogenic CO2 excluded per GHG Protocol convention).",
         },
         "EI_7_ghg_scope2": {
             "label": "Total Scope 2 emissions (tCO2e)",
@@ -196,7 +241,7 @@ def generate_gri_305(db: Session, organization_id: int,
         "section": "Emissions",
         "reporting_year": reporting_year,
         "organization_id": organization_id,
-        "data_basis": f"Utility-bill data with billing period starting in calendar year {reporting_year}.",
+        "data_basis": f"Utility-bill + manufacturing process-emission data for calendar year {reporting_year}.",
         "essential_indicators": _build_gri_indicators(
             scope1_t, scope2_t, src, scope1_std, scope2_std,
             intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
@@ -266,7 +311,7 @@ def generate_esrs_e1(db: Session, organization_id: int,
         "section": "Climate Change (CSRD)",
         "reporting_year": reporting_year,
         "organization_id": organization_id,
-        "data_basis": f"Utility-bill data with billing period starting in calendar year {reporting_year}.",
+        "data_basis": f"Utility-bill + manufacturing process-emission data for calendar year {reporting_year}.",
         "essential_indicators": _build_esrs_indicators(
             scope1_t, scope2_t, src, scope1_std, scope2_std,
             intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
