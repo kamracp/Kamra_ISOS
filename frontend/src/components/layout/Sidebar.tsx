@@ -18,6 +18,7 @@ import {
   ClipboardList,
   Target,
   AlertTriangle,
+  FileText,
 } from "lucide-react";
 import { useSegment, type Segment } from "../../context/SegmentContext";
 
@@ -58,6 +59,7 @@ const menu: MenuItem[] = [
   { title: "Net Zero", icon: Target, path: "/net-zero" },
   { title: "ESG Reports", icon: BarChart3, path: "/esg" },
   { title: "Climate Risk", icon: AlertTriangle, path: "/climate-risk" },
+  { title: "BRSR Section A", icon: FileText, path: "/brsr-profile" },
 ];
 
 // If VITE_APP_SEGMENT is set at build time, this deployment is locked to

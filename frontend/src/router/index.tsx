@@ -19,6 +19,7 @@ import NotFound from "../pages/NotFound";
 import Signup from "../pages/Signup";
 import ESGReportPage from "../features/esg-reports/ESGReportPage";
 import ClimateRiskPage from "../features/climate-risk/pages/ClimateRiskPage";
+import BrsrProfilePage from "../features/brsr-profile/pages/BrsrProfilePage";
 export default function AppRouter() {
   return (
     <Routes>
@@ -55,6 +56,7 @@ export default function AppRouter() {
           <Route path="carbon" element={<ComingSoon title="Carbon Accounting" />}/>
           <Route path="esg" element={<ESGReportPage />} />
           <Route path="climate-risk" element={<ClimateRiskPage />} />
+          <Route path="brsr-profile" element={<BrsrProfilePage />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFound />} />
