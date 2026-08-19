@@ -22,6 +22,7 @@ from app.api.climate_risk import router as climate_risk_router
 from app.api.countries import router as countries_router
 from app.api.fuel_library import router as fuel_library_router
 from app.api.esg_report import router as esg_report_router
+from app.api.brsr_profile import router as brsr_profile_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
@@ -47,3 +48,4 @@ api_router.include_router(climate_risk_router)
 api_router.include_router(countries_router)
 api_router.include_router(fuel_library_router)
 api_router.include_router(esg_report_router)
+api_router.include_router(brsr_profile_router)
