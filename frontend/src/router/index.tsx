@@ -20,6 +20,7 @@ import Signup from "../pages/Signup";
 import ESGReportPage from "../features/esg-reports/ESGReportPage";
 import ClimateRiskPage from "../features/climate-risk/pages/ClimateRiskPage";
 import BrsrProfilePage from "../features/brsr-profile/pages/BrsrProfilePage";
+import BrsrPolicyPage from "../features/brsr-policy/pages/BrsrPolicyPage";
 export default function AppRouter() {
   return (
     <Routes>
@@ -57,6 +58,7 @@ export default function AppRouter() {
           <Route path="esg" element={<ESGReportPage />} />
           <Route path="climate-risk" element={<ClimateRiskPage />} />
           <Route path="brsr-profile" element={<BrsrProfilePage />} />
+          <Route path="brsr-policy" element={<BrsrPolicyPage />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFound />} />
