@@ -7,6 +7,7 @@ import {
 } from "../hooks/useBrsrProfile";
 import type { BrsrProfileUpdate } from "../api/brsrProfileApi";
 import StringListField from "../components/StringListField";
+import ObjectListField, { type ObjectRow } from "../components/ObjectListField";
 
 type FormState = Record<string, string>;
 
@@ -87,6 +88,8 @@ export default function BrsrProfilePage() {
   // Repeating blocks keep their own state: FormState is Record<string, string>
   // and cannot hold an array without stringifying it.
   const [stockExchanges, setStockExchanges] = useState<string[]>([]);
+  const [businessActivities, setBusinessActivities] = useState<ObjectRow[]>([]);
+  const [productsSold, setProductsSold] = useState<ObjectRow[]>([]);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({ a1: true });
 
   useEffect(() => {
@@ -100,6 +103,8 @@ export default function BrsrProfilePage() {
     );
     setForm(next);
     setStockExchanges(profile.stock_exchanges_listed ?? []);
+    setBusinessActivities((profile.business_activities as ObjectRow[]) ?? []);
+    setProductsSold((profile.products_sold as ObjectRow[]) ?? []);
   }, [profile]);
 
   const handleChange = (name: string, value: string) =>
@@ -126,6 +131,14 @@ export default function BrsrProfilePage() {
     payload.stock_exchanges_listed = stockExchanges
       .map((s) => s.trim())
       .filter((s) => s !== "");
+    // A row counts as real only if its first column is filled - that is
+    // the identifying field in both blocks (description / product name).
+    payload.business_activities = businessActivities.filter(
+      (row) => String(row.description ?? "").trim() !== ""
+    );
+    payload.products_sold = productsSold.filter(
+      (row) => String(row.product_service ?? "").trim() !== ""
+    );
     saveProfile.mutate(payload);
   };
 
@@ -251,6 +264,32 @@ export default function BrsrProfilePage() {
           value={stockExchanges}
           onChange={setStockExchanges}
           placeholder="e.g. BSE"
+        />
+      </div>
+
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
+        <ObjectListField
+          label="Q14  Business activities accounting for 90% of turnover"
+          fields={[
+            { name: "description", label: "Description of main activity" },
+            { name: "nic_code", label: "NIC code" },
+            { name: "turnover_percent", label: "% of turnover", type: "number" },
+          ]}
+          value={businessActivities}
+          onChange={setBusinessActivities}
+        />
+      </div>
+
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
+        <ObjectListField
+          label="Q15  Products/services sold (90% of turnover)"
+          fields={[
+            { name: "product_service", label: "Product / service" },
+            { name: "nic_code", label: "NIC code" },
+            { name: "turnover_percent", label: "% of total turnover", type: "number" },
+          ]}
+          value={productsSold}
+          onChange={setProductsSold}
         />
       </div>
 
