@@ -8,6 +8,7 @@ import {
 import type { BrsrProfileUpdate } from "../api/brsrProfileApi";
 import StringListField from "../components/StringListField";
 import ObjectListField, { type ObjectRow } from "../components/ObjectListField";
+import NestedFieldsGroup, { type NestedValue } from "../components/NestedFieldsGroup";
 
 type FormState = Record<string, string>;
 
@@ -93,6 +94,10 @@ export default function BrsrProfilePage() {
   const [turnoverRates, setTurnoverRates] = useState<ObjectRow[]>([]);
   const [groupCompanies, setGroupCompanies] = useState<ObjectRow[]>([]);
   const [grievances, setGrievances] = useState<ObjectRow[]>([]);
+  const [locationCounts, setLocationCounts] = useState<NestedValue>({});
+  const [marketsServed, setMarketsServed] = useState<NestedValue>({});
+  const [employeeCounts, setEmployeeCounts] = useState<NestedValue>({});
+  const [womenParticipation, setWomenParticipation] = useState<NestedValue>({});
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({ a1: true });
 
   useEffect(() => {
@@ -111,6 +116,10 @@ export default function BrsrProfilePage() {
     setTurnoverRates((profile.turnover_rates as ObjectRow[]) ?? []);
     setGroupCompanies((profile.group_companies as ObjectRow[]) ?? []);
     setGrievances((profile.grievance_redressal as ObjectRow[]) ?? []);
+    setLocationCounts((profile.location_counts as NestedValue) ?? {});
+    setMarketsServed((profile.markets_served as NestedValue) ?? {});
+    setEmployeeCounts((profile.employee_worker_counts as NestedValue) ?? {});
+    setWomenParticipation((profile.women_participation as NestedValue) ?? {});
   }, [profile]);
 
   const handleChange = (name: string, value: string) =>
@@ -154,6 +163,16 @@ export default function BrsrProfilePage() {
     payload.grievance_redressal = grievances.filter(
       (row) => String(row.stakeholder_group ?? "").trim() !== ""
     );
+    // Sent only when something was actually entered. An empty object would
+    // occupy the column while still reading as unanswered - dirty for nothing.
+    if (Object.keys(locationCounts).length > 0)
+      payload.location_counts = locationCounts as never;
+    if (Object.keys(marketsServed).length > 0)
+      payload.markets_served = marketsServed as never;
+    if (Object.keys(employeeCounts).length > 0)
+      payload.employee_worker_counts = employeeCounts as never;
+    if (Object.keys(womenParticipation).length > 0)
+      payload.women_participation = womenParticipation as never;
     saveProfile.mutate(payload);
   };
 
@@ -344,6 +363,72 @@ export default function BrsrProfilePage() {
           ]}
           value={grievances}
           onChange={setGrievances}
+        />
+      </div>
+
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
+        <NestedFieldsGroup
+          label="Q16  Number of plants and offices"
+          columns={4}
+          fields={[
+            { path: "plants.national", label: "Plants - national", type: "number" },
+            { path: "plants.international", label: "Plants - international", type: "number" },
+            { path: "offices.national", label: "Offices - national", type: "number" },
+            { path: "offices.international", label: "Offices - international", type: "number" },
+          ]}
+          value={locationCounts}
+          onChange={setLocationCounts}
+        />
+      </div>
+
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
+        <NestedFieldsGroup
+          label="Q17  Markets served"
+          fields={[
+            { path: "national_states", label: "States covered", type: "number" },
+            { path: "international_countries", label: "Countries covered", type: "number" },
+            { path: "exports_percent", label: "Exports as % of turnover", type: "number" },
+            { path: "customer_types", label: "Types of customers" },
+          ]}
+          value={marketsServed}
+          onChange={setMarketsServed}
+        />
+      </div>
+
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
+        <NestedFieldsGroup
+          label="Q18  Employees and workers"
+          fields={[
+            { path: "employees.permanent.total", label: "Permanent employees - total", type: "number" },
+            { path: "employees.permanent.male", label: "Permanent employees - male", type: "number" },
+            { path: "employees.permanent.female", label: "Permanent employees - female", type: "number" },
+            { path: "employees.other.total", label: "Other employees - total", type: "number" },
+            { path: "employees.other.male", label: "Other employees - male", type: "number" },
+            { path: "employees.other.female", label: "Other employees - female", type: "number" },
+            { path: "workers.permanent.total", label: "Permanent workers - total", type: "number" },
+            { path: "workers.permanent.male", label: "Permanent workers - male", type: "number" },
+            { path: "workers.permanent.female", label: "Permanent workers - female", type: "number" },
+            { path: "workers.other.total", label: "Other workers - total", type: "number" },
+            { path: "workers.other.male", label: "Other workers - male", type: "number" },
+            { path: "workers.other.female", label: "Other workers - female", type: "number" },
+          ]}
+          value={employeeCounts}
+          onChange={setEmployeeCounts}
+        />
+      </div>
+
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
+        <NestedFieldsGroup
+          label="Q19  Participation of women"
+          columns={4}
+          fields={[
+            { path: "board_total", label: "Board - total", type: "number" },
+            { path: "board_female", label: "Board - female", type: "number" },
+            { path: "kmp_total", label: "KMP - total", type: "number" },
+            { path: "kmp_female", label: "KMP - female", type: "number" },
+          ]}
+          value={womenParticipation}
+          onChange={setWomenParticipation}
         />
       </div>
 
