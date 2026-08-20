@@ -23,6 +23,7 @@ from app.models.net_zero_target import NetZeroTarget
 from app.models.decarbonization_project import DecarbonizationProject
 from app.models.climate_risk import ClimateRisk
 from app.models.brsr_organization_profile import BrsrOrganizationProfile
+from app.models.brsr_policy_disclosure import BrsrPolicyDisclosure
 
 
 
