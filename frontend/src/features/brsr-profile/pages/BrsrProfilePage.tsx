@@ -6,6 +6,7 @@ import {
   useSaveBrsrProfile,
 } from "../hooks/useBrsrProfile";
 import type { BrsrProfileUpdate } from "../api/brsrProfileApi";
+import StringListField from "../components/StringListField";
 
 type FormState = Record<string, string>;
 
@@ -83,6 +84,9 @@ export default function BrsrProfilePage() {
   const saveProfile = useSaveBrsrProfile();
 
   const [form, setForm] = useState<FormState>({});
+  // Repeating blocks keep their own state: FormState is Record<string, string>
+  // and cannot hold an array without stringifying it.
+  const [stockExchanges, setStockExchanges] = useState<string[]>([]);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({ a1: true });
 
   useEffect(() => {
@@ -95,6 +99,7 @@ export default function BrsrProfilePage() {
       })
     );
     setForm(next);
+    setStockExchanges(profile.stock_exchanges_listed ?? []);
   }, [profile]);
 
   const handleChange = (name: string, value: string) =>
@@ -116,6 +121,11 @@ export default function BrsrProfilePage() {
       }
       (payload as Record<string, unknown>)[name] = value.trim();
     });
+    // Blank rows are dropped; an all-blank list sends an empty array, which
+    // the completeness check treats as unanswered - correct, not a false tick.
+    payload.stock_exchanges_listed = stockExchanges
+      .map((s) => s.trim())
+      .filter((s) => s !== "");
     saveProfile.mutate(payload);
   };
 
@@ -234,6 +244,15 @@ export default function BrsrProfilePage() {
           </div>
         );
       })}
+
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
+        <StringListField
+          label="Q10  Stock exchanges where listed"
+          value={stockExchanges}
+          onChange={setStockExchanges}
+          placeholder="e.g. BSE"
+        />
+      </div>
 
       <div className="flex justify-end">
         <button
