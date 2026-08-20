@@ -90,6 +90,9 @@ export default function BrsrProfilePage() {
   const [stockExchanges, setStockExchanges] = useState<string[]>([]);
   const [businessActivities, setBusinessActivities] = useState<ObjectRow[]>([]);
   const [productsSold, setProductsSold] = useState<ObjectRow[]>([]);
+  const [turnoverRates, setTurnoverRates] = useState<ObjectRow[]>([]);
+  const [groupCompanies, setGroupCompanies] = useState<ObjectRow[]>([]);
+  const [grievances, setGrievances] = useState<ObjectRow[]>([]);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({ a1: true });
 
   useEffect(() => {
@@ -105,6 +108,9 @@ export default function BrsrProfilePage() {
     setStockExchanges(profile.stock_exchanges_listed ?? []);
     setBusinessActivities((profile.business_activities as ObjectRow[]) ?? []);
     setProductsSold((profile.products_sold as ObjectRow[]) ?? []);
+    setTurnoverRates((profile.turnover_rates as ObjectRow[]) ?? []);
+    setGroupCompanies((profile.group_companies as ObjectRow[]) ?? []);
+    setGrievances((profile.grievance_redressal as ObjectRow[]) ?? []);
   }, [profile]);
 
   const handleChange = (name: string, value: string) =>
@@ -138,6 +144,15 @@ export default function BrsrProfilePage() {
     );
     payload.products_sold = productsSold.filter(
       (row) => String(row.product_service ?? "").trim() !== ""
+    );
+    payload.turnover_rates = turnoverRates.filter(
+      (row) => String(row.year ?? "").trim() !== ""
+    );
+    payload.group_companies = groupCompanies.filter(
+      (row) => String(row.name ?? "").trim() !== ""
+    );
+    payload.grievance_redressal = grievances.filter(
+      (row) => String(row.stakeholder_group ?? "").trim() !== ""
     );
     saveProfile.mutate(payload);
   };
@@ -290,6 +305,45 @@ export default function BrsrProfilePage() {
           ]}
           value={productsSold}
           onChange={setProductsSold}
+        />
+      </div>
+
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
+        <ObjectListField
+          label="Q20  Turnover rate for employees and workers"
+          fields={[
+            { name: "year", label: "Financial year" },
+            { name: "category", label: "Category" },
+            { name: "total_turnover_percent", label: "Total turnover %", type: "number" },
+          ]}
+          value={turnoverRates}
+          onChange={setTurnoverRates}
+        />
+      </div>
+
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
+        <ObjectListField
+          label="Q21  Holding, subsidiary and associate companies"
+          fields={[
+            { name: "name", label: "Company name" },
+            { name: "relationship", label: "Holding / Subsidiary / Associate" },
+            { name: "shareholding_percent", label: "Shareholding %", type: "number" },
+          ]}
+          value={groupCompanies}
+          onChange={setGroupCompanies}
+        />
+      </div>
+
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
+        <ObjectListField
+          label="Q23  Grievance redressal by stakeholder group"
+          fields={[
+            { name: "stakeholder_group", label: "Stakeholder group" },
+            { name: "filed_current_year", label: "Filed this year", type: "number" },
+            { name: "pending_current_year", label: "Pending this year", type: "number" },
+          ]}
+          value={grievances}
+          onChange={setGrievances}
         />
       </div>
 
