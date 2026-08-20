@@ -1,6 +1,11 @@
 import client from "../../../services/api/client";
 
 export type ReportingBoundary = "standalone" | "consolidated";
+export type PolicyReviewFrequency =
+  | "annually"
+  | "half_yearly"
+  | "quarterly"
+  | "other";
 
 export interface LocationSplit {
   national: number;
@@ -83,6 +88,12 @@ export interface BrsrProfile {
   // A.VIII Assurance
   assurance_provider_name?: string;
   assurance_type?: string;
+
+  // Section B, entity-level (Q10-Q12). Stored on the profile because they
+  // are asked once for the whole entity, but edited on the Section B page.
+  has_sustainability_committee?: boolean;
+  policy_review_frequency?: PolicyReviewFrequency;
+  independent_assessment_agency?: string;
 
   created_at?: string;
   updated_at?: string;

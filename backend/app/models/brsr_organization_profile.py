@@ -110,6 +110,14 @@ class BrsrOrganizationProfile(Base):
     assurance_provider_name = Column(String(255), nullable=True)
     assurance_type = Column(String(100), nullable=True)
 
+    # --- Section B, entity-level questions (Q10-Q12) ---
+    # These three are asked once for the whole entity, not per principle, so
+    # they live here rather than in brsr_policy_disclosures. They are counted
+    # in Section B's completeness, NOT in SECTION_A_QUESTIONS.
+    has_sustainability_committee = Column(Boolean, nullable=True)
+    policy_review_frequency = Column(String(50), nullable=True)
+    independent_assessment_agency = Column(String(255), nullable=True)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

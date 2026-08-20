@@ -150,6 +150,15 @@ class BrsrOrganizationProfileBase(BaseModel):
     assurance_provider_name: Optional[str] = None
     assurance_type: Optional[str] = None
 
+    # Section B, entity-level (Q10-Q12): asked once for the whole entity
+    # rather than per principle, so they sit on the profile. Counted in
+    # Section B's completeness, not Section A's.
+    has_sustainability_committee: Optional[bool] = None
+    policy_review_frequency: Optional[
+        Literal["annually", "half_yearly", "quarterly", "other"]
+    ] = None
+    independent_assessment_agency: Optional[str] = None
+
 
 class BrsrOrganizationProfileCreate(BrsrOrganizationProfileBase):
     """All fields optional: BRSR Section A is filled progressively, not in one sitting."""

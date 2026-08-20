@@ -7,6 +7,13 @@ import {
   useSaveBrsrPolicy,
 } from "../hooks/useBrsrPolicy";
 import type { BrsrPolicyDisclosureUpdate } from "../api/brsrPolicyApi";
+// Section B's three entity-level questions are stored on the Section A
+// profile row (they are asked once for the whole entity), so this page
+// reads and writes them through the profile hooks.
+import {
+  useBrsrProfile,
+  useSaveBrsrProfile,
+} from "../../brsr-profile/hooks/useBrsrProfile";
 
 type TriState = "" | "true" | "false";
 
@@ -63,6 +70,19 @@ export default function BrsrPolicyPage() {
   const [active, setActive] = useState(1);
   const [forms, setForms] = useState<Record<number, PrincipleForm>>({});
 
+  const { data: profile } = useBrsrProfile();
+  const saveProfile = useSaveBrsrProfile();
+  const [committee, setCommittee] = useState<TriState>("");
+  const [reviewFrequency, setReviewFrequency] = useState("");
+  const [assessmentAgency, setAssessmentAgency] = useState("");
+
+  useEffect(() => {
+    if (!profile) return;
+    setCommittee(toTri(profile.has_sustainability_committee));
+    setReviewFrequency(profile.policy_review_frequency ?? "");
+    setAssessmentAgency(profile.independent_assessment_agency ?? "");
+  }, [profile]);
+
   useEffect(() => {
     const next: Record<number, PrincipleForm> = {};
     for (let n = 1; n <= 9; n++) next[n] = emptyForm();
@@ -112,6 +132,16 @@ export default function BrsrPolicyPage() {
           form.performance_against_targets.trim() || undefined,
         reason_no_policy: form.reason_no_policy.trim() || undefined,
       });
+    });
+    // Two writes: principles go to the Section B table, the three
+    // entity-level answers to the profile row. Separate endpoints because
+    // they are separate shapes, not because they are separate concerns.
+    saveProfile.mutate({
+      has_sustainability_committee: fromTri(committee),
+      policy_review_frequency:
+        (reviewFrequency as "annually" | "half_yearly" | "quarterly" | "other") ||
+        undefined,
+      independent_assessment_agency: assessmentAgency.trim() || undefined,
     });
     if (payload.length === 0) {
       return;
@@ -164,6 +194,56 @@ export default function BrsrPolicyPage() {
           )}
         </div>
       )}
+
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
+        <h2 className="font-medium text-gray-900 mb-4">
+          Entity-level disclosures
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Board committee overseeing sustainability?
+            </label>
+            <select
+              value={committee}
+              onChange={(e) => setCommittee(e.target.value as TriState)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="">Not stated</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Frequency of policy review
+            </label>
+            <select
+              value={reviewFrequency}
+              onChange={(e) => setReviewFrequency(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="">Not stated</option>
+              <option value="annually">Annually</option>
+              <option value="half_yearly">Half-yearly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Independent assessment agency
+            </label>
+            <input
+              type="text"
+              value={assessmentAgency}
+              onChange={(e) => setAssessmentAgency(e.target.value)}
+              placeholder="Leave blank if not assessed"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+        </div>
+      </div>
 
       <div className="flex flex-wrap gap-2">
         {(principles ?? []).map((p) => {
