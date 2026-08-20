@@ -20,6 +20,7 @@ import {
   AlertTriangle,
   FileText,
   ShieldCheck,
+  Recycle,
 } from "lucide-react";
 import { useSegment, type Segment } from "../../context/SegmentContext";
 
@@ -62,6 +63,7 @@ const menu: MenuItem[] = [
   { title: "Climate Risk", icon: AlertTriangle, path: "/climate-risk" },
   { title: "BRSR Section A", icon: FileText, path: "/brsr-profile" },
   { title: "BRSR Section B", icon: ShieldCheck, path: "/brsr-policy" },
+  { title: "Water & Waste", icon: Recycle, path: "/water-waste" },
 ];
 
 // If VITE_APP_SEGMENT is set at build time, this deployment is locked to
