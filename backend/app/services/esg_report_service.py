@@ -20,6 +20,7 @@ from app.repositories.manufacturing_unit_repository import ManufacturingUnitRepo
 from app.repositories.utility_bill_repository import UtilityBillRepository
 from app.services.carbon_service import CarbonService
 from app.services.manufacturing_carbon_service import ManufacturingCarbonService
+from app.services.water_waste_service import WaterWasteService
 from app.models.organization import Organization
 
 NOT_TRACKED = {
@@ -164,6 +165,11 @@ def generate_brsr_principle6(db: Session, organization_id: int,
         "essential_indicators": _build_brsr_indicators(
             scope1_t, scope2_t, src, scope1_std, scope2_std,
             intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
+            # P6 also covers water and waste, which are metered rather than
+            # derived from emission factors - hence a separate service.
+            water_waste=WaterWasteService(
+                db, organization_id
+            ).get_summary(reporting_year),
         ),
         "totals": {
             "scope1_plus_2_tCO2e": round(scope1_t + scope2_t, 3),
@@ -176,8 +182,12 @@ def generate_brsr_principle6(db: Session, organization_id: int,
     }
 
 
-def _build_brsr_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, intensity=None):
+def _build_brsr_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, intensity=None,
+                           water_waste=None):
     intensity = intensity or {}
+    water_waste = water_waste or {}
+    water = water_waste.get("water", {})
+    waste = water_waste.get("waste", {})
     """BRSR Principle 6 Essential Indicators. Emissions filled, rest not_tracked."""
     return {
         "EI_1_energy_consumption": {
@@ -216,7 +226,27 @@ def _build_brsr_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, inte
         },
         "EI_2_water_withdrawal": {
             "label": "Water withdrawal by source (kL)",
-            "data": NOT_TRACKED,
+            # Measured quantities, so no `standard` - that field carries
+            # emission-factor citations, and water is metered, not derived
+            # from a factor. Claiming a standard here would mislead.
+            "data": _tracked(
+                float(water["total_withdrawal_kl"]), "kL",
+                f"Water records for {water.get('record_count', 0)} period(s).",
+            ) if water.get("total_withdrawal_kl") is not None else NOT_TRACKED,
+        },
+        "EI_3_water_discharge": {
+            "label": "Water discharge by destination (kL)",
+            "data": _tracked(
+                float(water["total_discharge_kl"]), "kL",
+                f"Water records for {water.get('record_count', 0)} period(s).",
+            ) if water.get("total_discharge_kl") is not None else NOT_TRACKED,
+        },
+        "EI_4_water_consumption": {
+            "label": "Total water consumption (kL)",
+            "data": _tracked(
+                float(water["total_consumption_kl"]), "kL",
+                "Withdrawal minus discharge, per SEBI definition.",
+            ) if water.get("total_consumption_kl") is not None else NOT_TRACKED,
         },
         "EI_5_air_emissions": {
             "label": "Air emissions NOx / SOx / PM (excl. GHG)",
@@ -224,7 +254,31 @@ def _build_brsr_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, inte
         },
         "EI_8_waste_generated": {
             "label": "Total waste generated (MT)",
-            "data": NOT_TRACKED,
+            "data": _tracked(
+                float(waste["total_generated_mt"]), "MT",
+                f"Waste records for {waste.get('record_count', 0)} period(s).",
+            ) if waste.get("total_generated_mt") is not None else NOT_TRACKED,
+        },
+        "EI_8b_hazardous_waste": {
+            "label": "Hazardous waste generated (MT)",
+            "data": _tracked(
+                float(waste["hazardous_generated_mt"]), "MT",
+                "Bio-medical, battery, radioactive and other hazardous categories.",
+            ) if waste.get("hazardous_generated_mt") is not None else NOT_TRACKED,
+        },
+        "EI_9_waste_recovered": {
+            "label": "Waste recovered / diverted from disposal (MT)",
+            "data": _tracked(
+                float(waste["total_recovered_mt"]), "MT",
+                "Recycled, re-used and other recovery operations.",
+            ) if waste.get("total_recovered_mt") is not None else NOT_TRACKED,
+        },
+        "EI_9b_waste_disposed": {
+            "label": "Waste disposed (MT)",
+            "data": _tracked(
+                float(waste["total_disposed_mt"]), "MT",
+                "Incineration, landfilling and other disposal operations.",
+            ) if waste.get("total_disposed_mt") is not None else NOT_TRACKED,
         },
     }
 
