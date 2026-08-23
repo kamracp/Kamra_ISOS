@@ -8,6 +8,7 @@ import MyOrganization from "../features/organizations/pages/MyOrganization";
 import BuildingList from "../features/buildings/pages/BuildingList";
 import HvacEquipmentList from "../features/hvac-equipment/pages/HvacEquipmentList";
 import TenantBillingPage from "../features/tenant-billing/pages/TenantBillingPage";
+import PatEnergyPage from "../features/pat-energy/pages/PatEnergyPage";
 import FloorList from "../features/floors/pages/FloorList";
 import ManufacturingUnitList from "../features/manufacturing-units/pages/ManufacturingUnitList";
 import ProductionRecordList from "../features/production-records/pages/ProductionRecordList";
@@ -46,6 +47,7 @@ export default function AppRouter() {
           />
           <Route path="hvac" element={<HvacEquipmentList />} />
           <Route path="tenant-billing" element={<TenantBillingPage />} />
+          <Route path="pat-energy" element={<PatEnergyPage />} />
           <Route path="floors" element={<FloorList />} />
           <Route path="manufacturing-units" element={<ManufacturingUnitList />} />
           <Route path="production-records" element={<ProductionRecordList />} />
