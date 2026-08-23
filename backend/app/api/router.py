@@ -26,6 +26,7 @@ from app.api.brsr_profile import router as brsr_profile_router
 from app.api.brsr_policy import router as brsr_policy_router
 from app.api.water_waste import router as water_waste_router
 from app.api.brsr_filing import router as brsr_filing_router
+from app.api.pat_energy import router as pat_energy_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
@@ -55,3 +56,4 @@ api_router.include_router(brsr_profile_router)
 api_router.include_router(brsr_policy_router)
 api_router.include_router(water_waste_router)
 api_router.include_router(brsr_filing_router)
+api_router.include_router(pat_energy_router)
