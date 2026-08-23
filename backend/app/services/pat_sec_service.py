@@ -1,23 +1,17 @@
 """
 PAT SEC Service (Manufacturing / Energy module)
-Computes actual Specific Energy Consumption (SEC) per manufacturing
-unit per year from measured EnergyProductionRecord rows, compares
-against the applicable PatCycleTarget's derived target SEC.
-Conversion constant: 1 toe = 41.868 GJ (IPCC/BEE standard).
+Adds BEE PAT compliance on top of the EXISTING sec_calculation_service
+(which already derives SEC automatically from utility bills + ProductionRecord).
+This service does NOT recompute energy/production -- it only manages
+PatCycleTarget (BEE-notified baseline + mandated reduction%) and
+compares the existing engine's actual SEC against the derived target.
 """
 from __future__ import annotations
+from sqlalchemy.orm import Session
+
 from app.repositories.pat_cycle_target_repository import PatCycleTargetRepository
-from app.repositories.energy_production_record_repository import (
-    EnergyProductionRecordRepository,
-)
 from app.models.pat_cycle_target import PatCycleTarget
-from app.models.energy_production_record import EnergyProductionRecord
-
-GJ_PER_TOE = 41.868
-
-
-def _to_toe(energy_gj: float) -> float:
-    return energy_gj / GJ_PER_TOE
+from app.services import sec_calculation_service
 
 
 def _target_sec(target: PatCycleTarget) -> tuple[float, float]:
@@ -28,10 +22,10 @@ def _target_sec(target: PatCycleTarget) -> tuple[float, float]:
 
 
 class PatSecService:
-    def __init__(self, db, organization_id: int):
+    def __init__(self, db: Session, organization_id: int):
+        self.db = db
         self.organization_id = organization_id
         self.target_repo = PatCycleTargetRepository(db, organization_id)
-        self.record_repo = EnergyProductionRecordRepository(db, organization_id)
 
     # ---- PAT Cycle Targets ----
 
@@ -81,75 +75,27 @@ class PatSecService:
             "updated_at": target.updated_at,
         }
 
-    # ---- Energy/Production Records ----
+    # ---- PAT-aware summary: reuses existing sec_calculation_service ----
 
-    def create_record(self, manufacturing_unit_id: int, data: dict) -> dict:
-        record = EnergyProductionRecord(
-            organization_id=self.organization_id,
-            manufacturing_unit_id=manufacturing_unit_id,
-            **data,
+    def get_pat_summary(self, manufacturing_unit_id: int, year: int) -> dict:
+        # Existing engine: bills + ProductionRecord -> actual SEC per period.
+        engine_summary = sec_calculation_service.get_sec_summary(
+            self.db, self.organization_id, manufacturing_unit_id
         )
-        record = self.record_repo.create(record)
-        return self._serialize_record(record)
 
-    def list_records(self, manufacturing_unit_id: int, year: int | None = None) -> list[dict]:
-        records = self.record_repo.get_by_unit(manufacturing_unit_id, year)
-        return [self._serialize_record(r) for r in records]
+        year_periods = [
+            p
+            for p in engine_summary.get("periods", [])
+            if p.get("period_start") and p["period_start"].year == year
+        ]
 
-    def update_record(self, record_id: int, data: dict) -> dict | None:
-        record = self.record_repo.get_by_id(record_id)
-        if record is None:
-            return None
-        record = self.record_repo.update(record, data)
-        return self._serialize_record(record)
+        total_energy = sum(p["total_energy_gj"] for p in year_periods if p.get("total_energy_gj") is not None)
+        total_production = sum(
+            p["production_quantity"] for p in year_periods if p.get("production_quantity") is not None
+        )
+        actual_sec = round(total_energy / total_production, 6) if total_production else None
 
-    def delete_record(self, record_id: int) -> bool:
-        record = self.record_repo.get_by_id(record_id)
-        if record is None:
-            return False
-        self.record_repo.delete(record)
-        return True
-
-    def _serialize_record(self, record: EnergyProductionRecord) -> dict:
-        sec = record.energy_consumed_gj / record.production_quantity
-        return {
-            "id": record.id,
-            "organization_id": record.organization_id,
-            "manufacturing_unit_id": record.manufacturing_unit_id,
-            "period_start": record.period_start,
-            "period_end": record.period_end,
-            "energy_consumed_gj": record.energy_consumed_gj,
-            "production_quantity": record.production_quantity,
-            "production_unit": record.production_unit,
-            "energy_consumed_toe": round(_to_toe(record.energy_consumed_gj), 4),
-            "sec_gj_per_unit": round(sec, 6),
-            "created_at": record.created_at,
-            "updated_at": record.updated_at,
-        }
-
-    # ---- Summary: actual SEC vs target for a year ----
-
-    def get_sec_summary(self, manufacturing_unit_id: int, year: int) -> dict:
-        records = self.record_repo.get_by_unit(manufacturing_unit_id, year)
         target = self.target_repo.get_active_for_unit(manufacturing_unit_id, year)
-
-        if not records:
-            return {
-                "manufacturing_unit_id": manufacturing_unit_id,
-                "year": year,
-                "actual_energy_gj": None,
-                "actual_production_qty": None,
-                "actual_sec_gj_per_unit": None,
-                "actual_energy_toe": None,
-                "target": self._serialize_target(target) if target else None,
-                "on_track": None,
-                "message": "No energy/production records for this year.",
-            }
-
-        total_energy = sum(r.energy_consumed_gj for r in records)
-        total_production = sum(r.production_quantity for r in records)
-        actual_sec = total_energy / total_production if total_production else None
-
         on_track = None
         if target is not None and actual_sec is not None:
             _, target_sec = _target_sec(target)
@@ -158,11 +104,14 @@ class PatSecService:
         return {
             "manufacturing_unit_id": manufacturing_unit_id,
             "year": year,
-            "actual_energy_gj": round(total_energy, 4),
-            "actual_production_qty": round(total_production, 4),
-            "actual_sec_gj_per_unit": round(actual_sec, 6) if actual_sec else None,
-            "actual_energy_toe": round(_to_toe(total_energy), 4),
+            "actual_energy_gj": round(total_energy, 4) if year_periods else None,
+            "actual_production_qty": round(total_production, 4) if year_periods else None,
+            "actual_sec_gj_per_unit": actual_sec,
             "target": self._serialize_target(target) if target else None,
             "on_track": on_track,
-            "message": None if target else "No PAT cycle target covers this year.",
+            "message": (
+                None
+                if year_periods
+                else "No production/energy periods found for this year (add via /production-records)."
+            ),
         }

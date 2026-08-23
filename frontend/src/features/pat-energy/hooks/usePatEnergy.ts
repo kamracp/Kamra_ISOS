@@ -1,0 +1,146 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import patEnergyApi, {
+  type PatCycleTarget,
+  type PatCycleTargetCreate,
+  type PatCycleTargetUpdate,
+  type EnergyProductionRecord,
+  type EnergyProductionRecordCreate,
+  type EnergyProductionRecordUpdate,
+  type PatSecSummary,
+} from "../api/patEnergyApi";
+import { getApiErrorMessage } from "../../../utils/apiError";
+
+const TARGETS_KEY = ["pat-cycle-targets"] as const;
+const RECORDS_KEY = ["energy-production-records"] as const;
+const SUMMARY_KEY = ["pat-sec-summary"] as const;
+
+// ---- Targets ----
+
+export function usePatCycleTargets(unitId?: number) {
+  return useQuery<PatCycleTarget[]>({
+    queryKey: [...TARGETS_KEY, unitId ?? "none"],
+    queryFn: () => patEnergyApi.getTargets(unitId as number),
+    enabled: !!unitId,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useCreatePatCycleTarget() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ unitId, data }: { unitId: number; data: PatCycleTargetCreate }) =>
+      patEnergyApi.createTarget(unitId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TARGETS_KEY });
+      queryClient.invalidateQueries({ queryKey: SUMMARY_KEY });
+      toast.success("PAT cycle target created successfully.");
+    },
+    onError: (error: any) => {
+      toast.error(getApiErrorMessage(error, "Failed to create PAT cycle target."));
+    },
+  });
+}
+
+export function useUpdatePatCycleTarget() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ targetId, data }: { targetId: number; data: PatCycleTargetUpdate }) =>
+      patEnergyApi.updateTarget(targetId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TARGETS_KEY });
+      queryClient.invalidateQueries({ queryKey: SUMMARY_KEY });
+      toast.success("PAT cycle target updated successfully.");
+    },
+    onError: (error: any) => {
+      toast.error(getApiErrorMessage(error, "Failed to update PAT cycle target."));
+    },
+  });
+}
+
+export function useDeletePatCycleTarget() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (targetId: number) => patEnergyApi.deleteTarget(targetId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TARGETS_KEY });
+      queryClient.invalidateQueries({ queryKey: SUMMARY_KEY });
+      toast.success("PAT cycle target deleted successfully.");
+    },
+    onError: (error: any) => {
+      toast.error(getApiErrorMessage(error, "Failed to delete PAT cycle target."));
+    },
+  });
+}
+
+// ---- Energy/Production Records ----
+
+export function useEnergyProductionRecords(unitId?: number, year?: number) {
+  return useQuery<EnergyProductionRecord[]>({
+    queryKey: [...RECORDS_KEY, unitId ?? "none", year ?? "all"],
+    queryFn: () => patEnergyApi.getRecords(unitId as number, year),
+    enabled: !!unitId,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useCreateEnergyProductionRecord() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ unitId, data }: { unitId: number; data: EnergyProductionRecordCreate }) =>
+      patEnergyApi.createRecord(unitId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: RECORDS_KEY });
+      queryClient.invalidateQueries({ queryKey: SUMMARY_KEY });
+      toast.success("Energy/production record created successfully.");
+    },
+    onError: (error: any) => {
+      toast.error(getApiErrorMessage(error, "Failed to create record."));
+    },
+  });
+}
+
+export function useUpdateEnergyProductionRecord() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ recordId, data }: { recordId: number; data: EnergyProductionRecordUpdate }) =>
+      patEnergyApi.updateRecord(recordId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: RECORDS_KEY });
+      queryClient.invalidateQueries({ queryKey: SUMMARY_KEY });
+      toast.success("Record updated successfully.");
+    },
+    onError: (error: any) => {
+      toast.error(getApiErrorMessage(error, "Failed to update record."));
+    },
+  });
+}
+
+export function useDeleteEnergyProductionRecord() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (recordId: number) => patEnergyApi.deleteRecord(recordId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: RECORDS_KEY });
+      queryClient.invalidateQueries({ queryKey: SUMMARY_KEY });
+      toast.success("Record deleted successfully.");
+    },
+    onError: (error: any) => {
+      toast.error(getApiErrorMessage(error, "Failed to delete record."));
+    },
+  });
+}
+
+// ---- Summary ----
+
+export function usePatSecSummary(unitId?: number, year?: number) {
+  return useQuery<PatSecSummary>({
+    queryKey: [...SUMMARY_KEY, unitId ?? "none", year ?? "none"],
+    queryFn: () => patEnergyApi.getSummary(unitId as number, year as number),
+    enabled: !!unitId && !!year,
+    staleTime: 2 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}

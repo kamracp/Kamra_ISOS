@@ -19,7 +19,6 @@ from app.models.manufacturing_unit import ManufacturingUnit
 from app.models.production_record import ProductionRecord
 from app.models.manufacturing_emission_record import ManufacturingEmissionRecord
 from app.models.pat_cycle_target import PatCycleTarget
-from app.models.energy_production_record import EnergyProductionRecord
 from app.models.facility_category import FacilityCategory
 from app.models.net_zero_target import NetZeroTarget
 from app.models.decarbonization_project import DecarbonizationProject
