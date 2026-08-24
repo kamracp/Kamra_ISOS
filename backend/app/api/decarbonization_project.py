@@ -79,8 +79,14 @@ def delete_project(
 
 @router.get("/reports/macc")
 def get_macc(
+    manufacturing_unit_id: int | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Standalone MACC list (all projects, cheapest-first), no target needed."""
-    return net_zero_service.calculate_macc(db=db, organization_id=current_user.organization_id)
+    """Standalone MACC list (cheapest-first), no target needed. Optional
+    manufacturing_unit_id scopes to that unit's own projects only."""
+    return net_zero_service.calculate_macc(
+        db=db,
+        organization_id=current_user.organization_id,
+        manufacturing_unit_id=manufacturing_unit_id,
+    )
