@@ -21,7 +21,7 @@ from app.api.deps import get_current_user
 from app.database.session import get_db
 from app.models.user import User
 from app.repositories.emission_factor_repository import EmissionFactorRepository
-from app.services.esg_report_service import generate_brsr_principle6, generate_gri_305, generate_esrs_e1
+from app.services.esg_report_service import generate_brsr_principle6, generate_gri_305, generate_esrs_e1, generate_trend
 from app.services.esg_report_pdf import generate_brsr_principle6_pdf
 
 router = APIRouter(prefix="/esg-reports", tags=["ESG Reports"])
@@ -170,9 +170,6 @@ def emission_factor_sources(
     ]
 
 
-from app.services.esg_report_service import generate_trend
-from typing import List
-
 @router.get("/trend")
 def esg_trend(
     years: str = "2022,2023,2024",
@@ -187,19 +184,3 @@ def esg_trend(
         years=year_list,
     )
 
-
-from app.services.esg_report_service import generate_trend
-
-@router.get("/trend")
-def esg_trend(
-    years: str = "2022,2023,2024",
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """Multi-year emissions trend. Pass years as comma-separated: ?years=2022,2023,2024"""
-    year_list = [int(y.strip()) for y in years.split(",")]
-    return generate_trend(
-        db=db,
-        organization_id=current_user.organization_id,
-        years=year_list,
-    )
