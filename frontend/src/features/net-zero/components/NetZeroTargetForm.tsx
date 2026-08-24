@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import type { NetZeroTargetCreate } from "../api/netZeroApi";
+import { useManufacturingUnits } from "../../manufacturing-units/hooks/useManufacturingUnits";
 
 interface NetZeroTargetFormProps {
   onSubmit: (data: NetZeroTargetCreate) => void;
@@ -12,6 +13,8 @@ export default function NetZeroTargetForm({
   onCancel,
   loading = false,
 }: NetZeroTargetFormProps) {
+  const { data: units = [] } = useManufacturingUnits();
+
   const {
     register,
     handleSubmit,
@@ -47,6 +50,28 @@ export default function NetZeroTargetForm({
           {errors.target_name && (
             <p className="mt-1 text-sm text-red-600">{errors.target_name.message}</p>
           )}
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Manufacturing Unit (optional)
+          </label>
+          <select
+            {...register("manufacturing_unit_id", {
+              setValueAs: (v) => (v === "" ? undefined : Number(v)),
+            })}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+          >
+            <option value="">Organization-wide</option>
+            {units.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.unit_name} ({u.unit_code})
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-gray-400">
+            Leave as Organization-wide unless this target is specific to one manufacturing unit.
+          </p>
         </div>
 
         <div>

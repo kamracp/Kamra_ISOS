@@ -13,6 +13,7 @@ import {
 
 import NetZeroTargetForm from "../components/NetZeroTargetForm";
 import DecarbonizationProjectForm from "../components/DecarbonizationProjectForm";
+import { useManufacturingUnits } from "../../manufacturing-units/hooks/useManufacturingUnits";
 
 import type {
   NetZeroTarget,
@@ -21,6 +22,9 @@ import type {
 } from "../api/netZeroApi";
 
 export default function NetZeroPage() {
+  const { data: units = [] } = useManufacturingUnits();
+  const unitNameById = new Map(units.map((u) => [u.id, `${u.unit_name} (${u.unit_code})`]));
+
   const { data: targets = [] } = useNetZeroTargets();
   const createTarget = useCreateNetZeroTarget();
   const deleteTarget = useDeleteNetZeroTarget();
@@ -90,6 +94,11 @@ export default function NetZeroPage() {
                 }`}
               >
                 {t.target_name} ({t.baseline_year}→{t.target_year}, -{t.reduction_percentage}%)
+                {t.manufacturing_unit_id && (
+                  <span className="ml-2 rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                    {unitNameById.get(t.manufacturing_unit_id) ?? "Unit-scoped"}
+                  </span>
+                )}
                 <span
                   onClick={(e) => {
                     e.stopPropagation();
