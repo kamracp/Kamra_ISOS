@@ -69,3 +69,39 @@ production org "Kamra Engineering Solutions", code 1904):**
     (no production data for this org yet -- expected, not a bug).
 
 **Status:** Deployed and verified working. No rollback needed.
+
+---
+
+## 2026-08-24 (later) — BRSR Principle 8 (CSR) production deploy
+
+**Commits deployed:** `947ba25..da0dc5d`
+- `fb03960` CSR backend (CsrRecord + CsrProject, full CRUD, derived percent-spent/total-project-spend)
+- `b3d1149` CSR frontend (CsrPage, forms, sidebar/router entries)
+- `da0dc5d` CSR wired into BRSR Principle 8 ESG report section
+
+**Pre-deploy backup:** `/home/ubuntu/benas_backup_pre_csr_20260824_174723.dump`
+(122,977 bytes, verified via `pg_restore --list`, 331 objects listed)
+
+**Note:** production repo had uncommitted dist-* changes from the prior
+manual deploy session (never committed back) -- discarded via
+`git checkout -- .` + `git clean -fd` before pulling, since fresh
+builds were being made anyway.
+
+**Schema changes:** new tables `csr_records` + `csr_projects`,
+auto-created via `Base.metadata.create_all` on app import (no manual
+migration -- new tables, not new columns).
+
+**Steps:** git pull (fast-forward, no conflicts) -> verified app import
+created both tables -> restarted backend service -> built both frontend
+targets (.env.benas -> dist-benas, .env.manufactureos -> dist-manufactureos)
+-> backed up both web roots -> rsync deployed -> verified HTTPS 200 on
+both domains and 401 (not 404) on `/api/v1/csr-records/`.
+
+**Post-deploy browser verification:** logged into BENAS, created a real
+CSR record for 2025 (budget 20,00,000, spent 18,50,000 -> correctly
+showed 92.50%) with one project (Community Health Camp, Health,
+Bhilwara Rajasthan, 800 beneficiaries) -- Total Project Spend correctly
+matched the project's own amount, confirming the derivation logic works
+identically in production. Kept as demo data.
+
+**Status:** Deployed and verified working. No rollback needed.
