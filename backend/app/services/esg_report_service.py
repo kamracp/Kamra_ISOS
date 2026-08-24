@@ -21,6 +21,7 @@ from app.repositories.utility_bill_repository import UtilityBillRepository
 from app.services.carbon_service import CarbonService
 from app.services.manufacturing_carbon_service import ManufacturingCarbonService
 from app.services.water_waste_service import WaterWasteService
+from app.services.csr_record_service import CsrRecordService
 from app.models.organization import Organization
 
 NOT_TRACKED = {
@@ -179,6 +180,74 @@ def generate_brsr_principle6(db: Session, organization_id: int,
                 standard=sorted(set(scope1_std) | set(scope2_std)),
             ),
         },
+    }
+
+
+def generate_brsr_principle8(db: Session, organization_id: int,
+                             reporting_year: int) -> dict:
+    """BRSR Section C, Principle 8 (Transparent & Inclusive Growth) --
+    CSR spend and project indicators. Applicability (whether CSR is
+    mandated for this org) lives in BrsrOrganizationProfile Section A
+    Q22, deliberately not repeated here -- this section reports actual
+    spend/projects for whichever year the caller asks for."""
+    csr_service = CsrRecordService(db, organization_id)
+    record = csr_service.get_by_year(reporting_year)
+
+    if record is None:
+        essential_indicators = {
+            "EI_2_csr_amount_spent": {
+                "label": "Total CSR amount spent (Rs)",
+                "data": NOT_TRACKED,
+            },
+            "EI_2_csr_percent_spent": {
+                "label": "CSR amount spent as % of prescribed budget",
+                "data": NOT_TRACKED,
+            },
+            "EI_3_csr_projects": {
+                "label": "CSR projects undertaken",
+                "data": NOT_TRACKED,
+            },
+        }
+    else:
+        src = f"CSR records for reporting year {reporting_year}."
+        essential_indicators = {
+            "EI_2_csr_amount_spent": {
+                "label": "Total CSR amount spent (Rs)",
+                "data": _tracked(
+                    float(record["csr_amount_spent_inr"]), "INR", src
+                ) if record.get("csr_amount_spent_inr") is not None else NOT_TRACKED,
+            },
+            "EI_2_csr_percent_spent": {
+                "label": "CSR amount spent as % of prescribed budget",
+                "data": _tracked(
+                    record["percent_spent_vs_budget"], "%", src
+                ) if record.get("percent_spent_vs_budget") is not None else NOT_TRACKED,
+            },
+            "EI_3_csr_projects": {
+                "label": "CSR projects undertaken",
+                "data": _tracked(
+                    len(record["projects"]), "projects", src
+                ) if record.get("projects") else NOT_TRACKED,
+                "projects": [
+                    {
+                        "project_name": p["project_name"],
+                        "activity_category": p.get("activity_category"),
+                        "location": p.get("location"),
+                        "amount_spent_inr": p.get("amount_spent_inr"),
+                        "direct_beneficiaries_count": p.get("direct_beneficiaries_count"),
+                    }
+                    for p in record["projects"]
+                ],
+            },
+        }
+
+    return {
+        "framework": "BRSR",
+        "section": "Section C, Principle 8 (Transparent & Inclusive Growth)",
+        "reporting_year": reporting_year,
+        "organization_id": organization_id,
+        "data_basis": f"CSR spend and project records for calendar year {reporting_year}.",
+        "essential_indicators": essential_indicators,
     }
 
 
