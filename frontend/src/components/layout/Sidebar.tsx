@@ -22,6 +22,7 @@ import {
   FileText,
   ShieldCheck,
   Recycle,
+  Heart,
 } from "lucide-react";
 import { useSegment, type Segment } from "../../context/SegmentContext";
 
@@ -71,6 +72,7 @@ const menu: MenuItem[] = [
   { title: "BRSR Section A", icon: FileText, path: "/brsr-profile" },
   { title: "BRSR Section B", icon: ShieldCheck, path: "/brsr-policy" },
   { title: "Water & Waste", icon: Recycle, path: "/water-waste" },
+  { title: "CSR", icon: Heart, path: "/csr" },
 ];
 
 // If VITE_APP_SEGMENT is set at build time, this deployment is locked to
