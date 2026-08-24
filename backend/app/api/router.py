@@ -24,6 +24,7 @@ from app.api.fuel_library import router as fuel_library_router
 from app.api.esg_report import router as esg_report_router
 from app.api.brsr_profile import router as brsr_profile_router
 from app.api.brsr_policy import router as brsr_policy_router
+from app.api.csr_record import router as csr_record_router
 from app.api.water_waste import router as water_waste_router
 from app.api.brsr_filing import router as brsr_filing_router
 from app.api.pat_energy import router as pat_energy_router
@@ -54,6 +55,7 @@ api_router.include_router(fuel_library_router)
 api_router.include_router(esg_report_router)
 api_router.include_router(brsr_profile_router)
 api_router.include_router(brsr_policy_router)
+api_router.include_router(csr_record_router)
 api_router.include_router(water_waste_router)
 api_router.include_router(brsr_filing_router)
 api_router.include_router(pat_energy_router)

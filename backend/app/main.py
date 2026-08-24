@@ -26,6 +26,7 @@ from app.models.climate_risk import ClimateRisk
 from app.models.brsr_organization_profile import BrsrOrganizationProfile
 from app.models.brsr_policy_disclosure import BrsrPolicyDisclosure
 from app.models.water_record import WaterRecord
+from app.models.csr_record import CsrRecord, CsrProject
 from app.models.waste_record import WasteRecord
 
 
