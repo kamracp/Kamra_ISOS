@@ -105,3 +105,61 @@ matched the project's own amount, confirming the derivation logic works
 identically in production. Kept as demo data.
 
 **Status:** Deployed and verified working. No rollback needed.
+
+---
+
+## 2026-08-25 — BRSR Principle 1 (Ethics) production deploy
+
+**Commits deployed:** fa90a18..666369e
+- Ethics backend (EthicsRecord model, full CRUD, derived training-coverage percentages)
+- Ethics frontend (EthicsPage, sidebar/router entries)
+- generate_brsr_principle1() wired into ESG report, new endpoint GET /esg-reports/brsr-principle1
+
+**Pre-deploy backup:** /home/ubuntu/benas_backup_pre_p1_25aug26.dump (130,311 bytes)
+
+**Note:** production repo had uncommitted DEPLOYMENT_HISTORY.md changes and stray
+dist-* artifacts from the prior manual deploy session (never committed back) --
+discarded via git checkout -- . + git clean -fd before pulling, since fresh
+builds were being made anyway. Verified via diff first that nothing new was
+being lost (it was the already-committed CSR entry).
+
+**Schema changes:** new table ethics_records, auto-created via
+Base.metadata.create_all on app import (no manual migration -- new table,
+not new columns). Confirmed via \d ethics_records post-restart.
+
+**Steps:** pg_dump backup -> git checkout/clean -> git pull (fa90a18..666369e)
+-> restart backend service (confirmed ethics_records table created in logs
+and via psql) -> built both frontend targets (.env.benas -> dist-benas,
+.env.manufactureos -> dist-manufactureos) -> rsync deployed both -> verified
+401 (not 404) on /api/v1/esg-reports/brsr-principle1 and 200 on both domains.
+
+**Status:** Deployed and verified working. No rollback needed.
+
+---
+
+## 2026-08-25 — BRSR Principle 1 (Ethics) production deploy
+
+**Commits deployed:** fa90a18..666369e
+- Ethics backend (EthicsRecord model, full CRUD, derived training-coverage percentages)
+- Ethics frontend (EthicsPage, sidebar/router entries)
+- generate_brsr_principle1() wired into ESG report, new endpoint GET /esg-reports/brsr-principle1
+
+**Pre-deploy backup:** /home/ubuntu/benas_backup_pre_p1_25aug26.dump (130,311 bytes)
+
+**Note:** production repo had uncommitted DEPLOYMENT_HISTORY.md changes and stray
+dist-* artifacts from the prior manual deploy session (never committed back) --
+discarded via git checkout -- . + git clean -fd before pulling, since fresh
+builds were being made anyway. Verified via diff first that nothing new was
+being lost (it was the already-committed CSR entry).
+
+**Schema changes:** new table ethics_records, auto-created via
+Base.metadata.create_all on app import (no manual migration -- new table,
+not new columns). Confirmed via \d ethics_records post-restart.
+
+**Steps:** pg_dump backup -> git checkout/clean -> git pull (fa90a18..666369e)
+-> restart backend service (confirmed ethics_records table created in logs
+and via psql) -> built both frontend targets (.env.benas -> dist-benas,
+.env.manufactureos -> dist-manufactureos) -> rsync deployed both -> verified
+401 (not 404) on /api/v1/esg-reports/brsr-principle1 and 200 on both domains.
+
+**Status:** Deployed and verified working. No rollback needed.
