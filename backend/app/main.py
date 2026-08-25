@@ -27,6 +27,7 @@ from app.models.brsr_organization_profile import BrsrOrganizationProfile
 from app.models.brsr_policy_disclosure import BrsrPolicyDisclosure
 from app.models.water_record import WaterRecord
 from app.models.policy_advocacy_record import PolicyAdvocacyRecord, TradeAssociation
+from app.models.stakeholder_engagement_record import StakeholderEngagementRecord, StakeholderGroup
 from app.models.csr_record import CsrRecord, CsrProject
 from app.models.ethics_record import EthicsRecord
 from app.models.waste_record import WasteRecord
