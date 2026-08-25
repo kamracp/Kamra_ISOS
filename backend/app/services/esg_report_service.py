@@ -24,6 +24,7 @@ from app.services.water_waste_service import WaterWasteService
 from app.services.csr_record_service import CsrRecordService
 from app.services.ethics_record_service import EthicsRecordService
 from app.services.policy_advocacy_record_service import PolicyAdvocacyRecordService
+from app.services.stakeholder_engagement_record_service import StakeholderEngagementRecordService
 from app.models.organization import Organization
 
 NOT_TRACKED = {
@@ -399,6 +400,62 @@ def generate_brsr_principle7(db: Session, organization_id: int,
         "reporting_year": reporting_year,
         "organization_id": organization_id,
         "data_basis": f"Policy advocacy records for calendar year {reporting_year}.",
+        "essential_indicators": essential_indicators,
+    }
+
+
+def generate_brsr_principle4(db: Session, organization_id: int,
+                             reporting_year: int) -> dict:
+    """BRSR Section C, Principle 4 (Stakeholder Responsiveness) --
+    stakeholder group identification and consultation process for one
+    reporting year."""
+    stakeholder_service = StakeholderEngagementRecordService(db, organization_id)
+    record = stakeholder_service.get_by_year(reporting_year)
+    if record is None:
+        essential_indicators = {
+            "EI_1_stakeholder_groups": {
+                "label": "Stakeholder groups identified",
+                "data": NOT_TRACKED,
+            },
+            "EI_2_consultation_process": {
+                "label": "Consultation on economic, environmental, and social topics",
+                "data": NOT_TRACKED,
+            },
+        }
+    else:
+        src = f"Stakeholder engagement records for reporting year {reporting_year}."
+        essential_indicators = {
+            "EI_1_stakeholder_groups": {
+                "label": "Stakeholder groups identified",
+                "data": _tracked(len(record["stakeholder_groups"]), "groups", src)
+                if record.get("stakeholder_groups") else NOT_TRACKED,
+                "stakeholder_groups": [
+                    {
+                        "group_name": g["group_name"],
+                        "is_vulnerable_marginalized": g.get("is_vulnerable_marginalized"),
+                        "communication_channels": g.get("communication_channels"),
+                        "frequency_of_engagement": g.get("frequency_of_engagement"),
+                    }
+                    for g in record["stakeholder_groups"]
+                ],
+            },
+            "EI_2_consultation_process": {
+                "label": "Consultation on economic, environmental, and social topics",
+                "data": _tracked(
+                    "Yes" if record["has_consultation_process"] else "No",
+                    "yes/no", src,
+                ) if record.get("has_consultation_process") is not None else NOT_TRACKED,
+                "details": record.get("consultation_process_details"),
+                "resulted_in_policy_change": record.get("resulted_in_policy_change"),
+                "policy_change_details": record.get("policy_change_details"),
+            },
+        }
+    return {
+        "framework": "BRSR",
+        "section": "Section C, Principle 4 (Stakeholder Responsiveness)",
+        "reporting_year": reporting_year,
+        "organization_id": organization_id,
+        "data_basis": f"Stakeholder engagement records for calendar year {reporting_year}.",
         "essential_indicators": essential_indicators,
     }
 
