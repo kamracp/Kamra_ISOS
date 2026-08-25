@@ -192,3 +192,33 @@ and via \dt) -> built both frontend targets (.env.benas -> dist-benas,
 /api/v1/policy-advocacy-records/, and 200 on both domains.
 
 **Status:** Deployed and verified working. No rollback needed.
+
+---
+
+## 2026-08-25 (later still) — BRSR Principle 4 (Stakeholder Responsiveness) production deploy
+
+**Commits deployed:** d8249a3..b187318
+- Stakeholder engagement backend (StakeholderEngagementRecord + StakeholderGroup, full CRUD)
+- Stakeholder engagement frontend (StakeholderEngagementPage, sidebar/router entries)
+- generate_brsr_principle4() wired into ESG report, new endpoint GET /esg-reports/brsr-principle4
+
+**Pre-deploy backup:** /home/ubuntu/benas_backup_pre_p4_25aug26.dump (142,887 bytes)
+
+**Note:** production repo again had stray dist-* artifacts and an already-
+committed DEPLOYMENT_HISTORY.md entry (the P7 deploy log) from the prior
+manual build session -- discarded via git checkout -- . + git clean -fd
+before pulling. Verified via diff first that nothing new was being lost.
+
+**Schema changes:** new tables stakeholder_engagement_records +
+stakeholder_groups, auto-created via Base.metadata.create_all on app
+import (no manual migration -- new tables, not new columns). Confirmed
+via \dt post-restart.
+
+**Steps:** pg_dump backup -> git checkout/clean -> git pull (d8249a3..b187318,
+17 files) -> restart backend service (confirmed both tables created in logs
+and via \dt) -> built both frontend targets (.env.benas -> dist-benas,
+.env.manufactureos -> dist-manufactureos) -> rsync deployed both -> verified
+401 (not 404) on /api/v1/esg-reports/brsr-principle4 and
+/api/v1/stakeholder-engagement-records/, and 200 on both domains.
+
+**Status:** Deployed and verified working. No rollback needed.
