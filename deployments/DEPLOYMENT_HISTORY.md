@@ -163,3 +163,32 @@ and via psql) -> built both frontend targets (.env.benas -> dist-benas,
 401 (not 404) on /api/v1/esg-reports/brsr-principle1 and 200 on both domains.
 
 **Status:** Deployed and verified working. No rollback needed.
+
+---
+
+## 2026-08-25 (later) — BRSR Principle 7 (Policy Advocacy) production deploy
+
+**Commits deployed:** 666369e..d8249a3
+- Policy advocacy backend (PolicyAdvocacyRecord + TradeAssociation, full CRUD)
+- Policy advocacy frontend (PolicyAdvocacyPage, sidebar/router entries)
+- generate_brsr_principle7() wired into ESG report, new endpoint GET /esg-reports/brsr-principle7
+
+**Pre-deploy backup:** /home/ubuntu/benas_backup_pre_p7_25aug26.dump (135,039 bytes)
+
+**Note:** production repo had a duplicate-appended P1 deployment log entry and
+stray dist-* artifacts from the prior manual deploy session (never committed
+back) -- discarded via git checkout -- . + git clean -fd before pulling.
+Verified via diff first that nothing new was being lost.
+
+**Schema changes:** new tables policy_advocacy_records + trade_associations,
+auto-created via Base.metadata.create_all on app import (no manual migration
+-- new tables, not new columns). Confirmed via \dt post-restart.
+
+**Steps:** pg_dump backup -> git checkout/clean -> git pull (666369e..d8249a3,
+17 files) -> restart backend service (confirmed both tables created in logs
+and via \dt) -> built both frontend targets (.env.benas -> dist-benas,
+.env.manufactureos -> dist-manufactureos) -> rsync deployed both -> verified
+401 (not 404) on /api/v1/esg-reports/brsr-principle7 and
+/api/v1/policy-advocacy-records/, and 200 on both domains.
+
+**Status:** Deployed and verified working. No rollback needed.
