@@ -25,6 +25,7 @@ import BrsrPolicyPage from "../features/brsr-policy/pages/BrsrPolicyPage";
 import WaterWastePage from "../features/water-waste/pages/WaterWastePage";
 import CsrPage from "../features/csr/pages/CsrPage";
 import PolicyAdvocacyPage from "../features/policy-advocacy/pages/PolicyAdvocacyPage";
+import StakeholderEngagementPage from "../features/stakeholder-engagement/pages/StakeholderEngagementPage";
 import EthicsPage from "../features/ethics/pages/EthicsPage";
 export default function AppRouter() {
   return (
@@ -68,6 +69,7 @@ export default function AppRouter() {
           <Route path="water-waste" element={<WaterWastePage />} />
           <Route path="csr" element={<CsrPage />} />
           <Route path="policy-advocacy" element={<PolicyAdvocacyPage />} />
+          <Route path="stakeholder-engagement" element={<StakeholderEngagementPage />} />
           <Route path="ethics" element={<EthicsPage />} />
         </Route>
       </Route>

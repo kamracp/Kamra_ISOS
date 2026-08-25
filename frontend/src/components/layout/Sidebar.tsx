@@ -25,6 +25,7 @@ import {
   Heart,
   Scale,
   Landmark,
+  Handshake,
 } from "lucide-react";
 import { useSegment, type Segment } from "../../context/SegmentContext";
 
@@ -77,6 +78,7 @@ const menu: MenuItem[] = [
   { title: "CSR", icon: Heart, path: "/csr" },
   { title: "Ethics", icon: Scale, path: "/ethics" },
   { title: "Policy Advocacy", icon: Landmark, path: "/policy-advocacy" },
+  { title: "Stakeholder Engagement", icon: Handshake, path: "/stakeholder-engagement" },
 ];
 
 // If VITE_APP_SEGMENT is set at build time, this deployment is locked to
