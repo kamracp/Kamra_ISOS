@@ -23,6 +23,7 @@ from app.services.manufacturing_carbon_service import ManufacturingCarbonService
 from app.services.water_waste_service import WaterWasteService
 from app.services.csr_record_service import CsrRecordService
 from app.services.ethics_record_service import EthicsRecordService
+from app.services.policy_advocacy_record_service import PolicyAdvocacyRecordService
 from app.models.organization import Organization
 
 NOT_TRACKED = {
@@ -345,6 +346,59 @@ def generate_brsr_principle1(db: Session, organization_id: int,
         "reporting_year": reporting_year,
         "organization_id": organization_id,
         "data_basis": f"Ethics/anti-corruption records for calendar year {reporting_year}.",
+        "essential_indicators": essential_indicators,
+    }
+
+
+def generate_brsr_principle7(db: Session, organization_id: int,
+                             reporting_year: int) -> dict:
+    """BRSR Section C, Principle 7 (Public and Regulatory Policy Advocacy) --
+    trade/industry association memberships and anti-competitive conduct
+    disclosures for one reporting year."""
+    policy_service = PolicyAdvocacyRecordService(db, organization_id)
+    record = policy_service.get_by_year(reporting_year)
+    if record is None:
+        essential_indicators = {
+            "EI_1_trade_associations": {
+                "label": "Trade and industry chamber/association affiliations",
+                "data": NOT_TRACKED,
+            },
+            "EI_2_anti_competitive_conduct": {
+                "label": "Anti-competitive conduct corrective actions",
+                "data": NOT_TRACKED,
+            },
+        }
+    else:
+        src = f"Policy advocacy records for reporting year {reporting_year}."
+        essential_indicators = {
+            "EI_1_trade_associations": {
+                "label": "Trade and industry chamber/association affiliations",
+                "data": _tracked(len(record["associations"]), "associations", src)
+                if record.get("associations") else NOT_TRACKED,
+                "associations": [
+                    {
+                        "association_name": a["association_name"],
+                        "reach": a.get("reach"),
+                    }
+                    for a in record["associations"]
+                ],
+            },
+            "EI_2_anti_competitive_conduct": {
+                "label": "Anti-competitive conduct corrective actions",
+                "data": _tracked(
+                    "Yes" if record["has_anti_competitive_conduct_issue"] else "No",
+                    "yes/no", src,
+                ) if record.get("has_anti_competitive_conduct_issue") is not None else NOT_TRACKED,
+                "details": record.get("anti_competitive_conduct_details"),
+                "corrective_action_taken": record.get("corrective_action_taken"),
+            },
+        }
+    return {
+        "framework": "BRSR",
+        "section": "Section C, Principle 7 (Public and Regulatory Policy Advocacy)",
+        "reporting_year": reporting_year,
+        "organization_id": organization_id,
+        "data_basis": f"Policy advocacy records for calendar year {reporting_year}.",
         "essential_indicators": essential_indicators,
     }
 
