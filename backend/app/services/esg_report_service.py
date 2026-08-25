@@ -22,6 +22,7 @@ from app.services.carbon_service import CarbonService
 from app.services.manufacturing_carbon_service import ManufacturingCarbonService
 from app.services.water_waste_service import WaterWasteService
 from app.services.csr_record_service import CsrRecordService
+from app.services.ethics_record_service import EthicsRecordService
 from app.models.organization import Organization
 
 NOT_TRACKED = {
@@ -247,6 +248,103 @@ def generate_brsr_principle8(db: Session, organization_id: int,
         "reporting_year": reporting_year,
         "organization_id": organization_id,
         "data_basis": f"CSR spend and project records for calendar year {reporting_year}.",
+        "essential_indicators": essential_indicators,
+    }
+
+
+def generate_brsr_principle1(db: Session, organization_id: int,
+                             reporting_year: int) -> dict:
+    """BRSR Section C, Principle 1 (Ethics, Transparency & Accountability) --
+    anti-corruption training coverage, disciplinary actions, conflict of
+    interest process, and corruption complaints for one reporting year."""
+    ethics_service = EthicsRecordService(db, organization_id)
+    record = ethics_service.get_by_year(reporting_year)
+    if record is None:
+        essential_indicators = {
+            "EI_1_training_board_kmp": {
+                "label": "Anti-corruption training coverage - Board/KMP (%)",
+                "data": NOT_TRACKED,
+            },
+            "EI_1_training_employees": {
+                "label": "Anti-corruption training coverage - Employees (%)",
+                "data": NOT_TRACKED,
+            },
+            "EI_1_training_workers": {
+                "label": "Anti-corruption training coverage - Workers (%)",
+                "data": NOT_TRACKED,
+            },
+            "EI_2_disciplinary_actions": {
+                "label": "Disciplinary actions for corruption/conflict of interest",
+                "data": NOT_TRACKED,
+            },
+            "EI_2_fines_penalties": {
+                "label": "Fines/penalties amount (Rs)",
+                "data": NOT_TRACKED,
+            },
+            "EI_3_conflict_of_interest_process": {
+                "label": "Process exists to avoid conflict of interest (Board/KMP)",
+                "data": NOT_TRACKED,
+            },
+            "EI_4_corruption_complaints": {
+                "label": "Corruption complaints received",
+                "data": NOT_TRACKED,
+            },
+        }
+    else:
+        src = f"Ethics records for reporting year {reporting_year}."
+        disc_vals = [
+            record.get("disciplinary_actions_directors"),
+            record.get("disciplinary_actions_kmp"),
+            record.get("disciplinary_actions_employees"),
+            record.get("disciplinary_actions_workers"),
+        ]
+        total_disciplinary = (
+            sum(v for v in disc_vals if v is not None)
+            if any(v is not None for v in disc_vals) else None
+        )
+        essential_indicators = {
+            "EI_1_training_board_kmp": {
+                "label": "Anti-corruption training coverage - Board/KMP (%)",
+                "data": _tracked(record["board_kmp_trained_percent"], "%", src)
+                if record.get("board_kmp_trained_percent") is not None else NOT_TRACKED,
+            },
+            "EI_1_training_employees": {
+                "label": "Anti-corruption training coverage - Employees (%)",
+                "data": _tracked(record["employees_trained_percent"], "%", src)
+                if record.get("employees_trained_percent") is not None else NOT_TRACKED,
+            },
+            "EI_1_training_workers": {
+                "label": "Anti-corruption training coverage - Workers (%)",
+                "data": _tracked(record["workers_trained_percent"], "%", src)
+                if record.get("workers_trained_percent") is not None else NOT_TRACKED,
+            },
+            "EI_2_disciplinary_actions": {
+                "label": "Disciplinary actions for corruption/conflict of interest",
+                "data": _tracked(total_disciplinary, "actions", src)
+                if total_disciplinary is not None else NOT_TRACKED,
+            },
+            "EI_2_fines_penalties": {
+                "label": "Fines/penalties amount (Rs)",
+                "data": _tracked(float(record["fines_penalties_amount_inr"]), "INR", src)
+                if record.get("fines_penalties_amount_inr") is not None else NOT_TRACKED,
+            },
+            "EI_3_conflict_of_interest_process": {
+                "label": "Process exists to avoid conflict of interest (Board/KMP)",
+                "data": _tracked(record["has_conflict_of_interest_process"], "yes/no", src)
+                if record.get("has_conflict_of_interest_process") is not None else NOT_TRACKED,
+            },
+            "EI_4_corruption_complaints": {
+                "label": "Corruption complaints received",
+                "data": _tracked(record["corruption_complaints_received"], "complaints", src)
+                if record.get("corruption_complaints_received") is not None else NOT_TRACKED,
+            },
+        }
+    return {
+        "framework": "BRSR",
+        "section": "Section C, Principle 1 (Ethics, Transparency & Accountability)",
+        "reporting_year": reporting_year,
+        "organization_id": organization_id,
+        "data_basis": f"Ethics/anti-corruption records for calendar year {reporting_year}.",
         "essential_indicators": essential_indicators,
     }
 
