@@ -24,6 +24,8 @@ class Region(str, Enum):
     ASIA = "asia"
     MIDDLE_EAST = "middle_east"
     EUROPE = "europe"
+    NORTH_AMERICA = "north_america"
+    OCEANIA = "oceania"
 
 
 class CountryConfig:
@@ -136,6 +138,24 @@ COUNTRY_REGISTRY = {
         "Ember European Electricity Review, full-year CY2024 generation emissions "
         "intensity, as reported by Carbon Brief (Jan 2025), location-based Scope 2",
         "EU ETS + CSRD / ESRS",
+    ),
+    "US": CountryConfig(
+        "US", "United States", Region.NORTH_AMERICA,
+        0.366,
+        "US EIA (Energy Information Administration), 2023 national electricity "
+        "generation data: 1.53 billion metric tons CO2 / 4.18 trillion kWh "
+        "(location-based, CO2 only -- EPA eGRID national CO2e figure is close "
+        "to this and pending official 2023 eGRID release verification)",
+        "SEC Climate Disclosure Rule + state-level requirements (e.g. California SB 253/261)",
+    ),
+    "AU": CountryConfig(
+        "AU", "Australia", Region.OCEANIA,
+        0.62,
+        "Australian Government DCCEEW, National Greenhouse Accounts (NGA) "
+        "Factors 2025 workbook, national average of state-level location-based "
+        "Scope 2 factors (state factors vary widely, e.g. Victoria 0.78, "
+        "South Australia 0.22 -- national average is a coarse figure)",
+        "NGER Act 2007 + AASB S2 (ISSB-aligned climate disclosure)",
     ),
 }
 

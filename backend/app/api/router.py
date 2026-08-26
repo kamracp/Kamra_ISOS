@@ -26,6 +26,7 @@ from app.api.brsr_profile import router as brsr_profile_router
 from app.api.brsr_policy import router as brsr_policy_router
 from app.api.policy_advocacy_record import router as policy_advocacy_router
 from app.api.stakeholder_engagement_record import router as stakeholder_engagement_router
+from app.api.manufacturing_electricity_record import router as manufacturing_electricity_router
 from app.api.csr_record import router as csr_record_router
 from app.api.ethics_record import router as ethics_record_router
 from app.api.water_waste import router as water_waste_router
@@ -60,6 +61,7 @@ api_router.include_router(brsr_profile_router)
 api_router.include_router(brsr_policy_router)
 api_router.include_router(policy_advocacy_router)
 api_router.include_router(stakeholder_engagement_router)
+api_router.include_router(manufacturing_electricity_router)
 api_router.include_router(csr_record_router)
 api_router.include_router(ethics_record_router)
 api_router.include_router(water_waste_router)
