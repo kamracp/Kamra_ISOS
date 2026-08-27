@@ -322,3 +322,36 @@ built ONLY dist-manufactureos, rsync deployed ONLY to manufactureos
 domain, verified 200 on the domain. dist-benas intentionally NOT touched.
 
 **Status:** Deployed and verified working, ManufactureOS only. No rollback needed.
+
+---
+
+## 2026-08-27 (critical fix, same day) -- ESG report Scope 2 aggregation gap (ManufactureOS-only, backend-only deploy)
+
+**Commits deployed:** b1858a3..0b9a45c
+
+**Severity:** Critical -- caught during due-diligence check of the demo
+account built earlier this session. Manufacturing Carbon summary
+endpoint correctly showed the new Scope 2 electricity totals, but the
+actual GRI/ESRS/BRSR ESG reports (the real client-facing deliverable)
+still showed Scope 2 = 0, because _get_scope_summary() predated
+yesterday's electricity-tracking work and built ManufacturingCarbonService
+without an electricity repository.
+
+- _get_scope_summary() now builds a second ManufacturingCarbonService
+  instance WITH electricity_record_repository, pulls
+  total_scope2_co2e_kg, and adds it into scope2_t. Flows into all three
+  frameworks + trend endpoint automatically (one shared helper).
+
+**Pre-deploy backup:** /home/ubuntu/benas_backup_pre_esgscope2fix_27aug26.dump, 158014 bytes
+
+**Schema changes:** none.
+
+**Steps:** pg_dump backup, git pull to 0b9a45c (backend only, no
+frontend rebuild needed), restart backend service, verified directly
+against the demo account (org 4, 5-country data seeded this session):
+GET /esg-reports/gri-305?year=2024 now correctly shows Scope 2 =
+1812.98 tCO2e (matches 1,812,980 kg / 1000 exactly). dist-manufactureos
+NOT rebuilt this deploy (no frontend changes).
+
+**Status:** Deployed and verified working against the live demo
+account. No rollback needed.
