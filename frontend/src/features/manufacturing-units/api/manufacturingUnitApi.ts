@@ -24,6 +24,11 @@ export interface ManufacturingUnit {
   sector: PatSector;
   baseline_year: number;
   standards_applicable?: string;
+  // ISO country code (e.g. "IN", "GB", "AE") -- selects this unit's
+  // Scope 2 grid factor + applicable standards via /countries. Backend
+  // defaults to "IN" if omitted.
+  country_code?: string;
+  category_id?: number;
   remarks?: string;
   is_active: boolean;
 }
@@ -35,6 +40,8 @@ export interface ManufacturingUnitCreate {
   sector: PatSector;
   baseline_year: number;
   standards_applicable?: string;
+  country_code?: string;
+  category_id?: number;
   remarks?: string;
 }
 
@@ -45,6 +52,8 @@ export interface ManufacturingUnitUpdate {
   sector?: PatSector;
   baseline_year?: number;
   standards_applicable?: string;
+  country_code?: string;
+  category_id?: number;
   remarks?: string;
   is_active?: boolean;
 }
