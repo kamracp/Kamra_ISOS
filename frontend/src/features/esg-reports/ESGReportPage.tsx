@@ -8,6 +8,7 @@ import esgReportApi, {
 } from "./api/esgReportApi";
 import { useCountries } from "../countries/hooks/useCountries";
 import CountrySelector from "../countries/components/CountrySelector";
+import MaterialityPanel from "./components/MaterialityPanel";
 
 const FRAMEWORK_ORDER: ReportFramework[] = ["gri-305", "esrs-e1", "brsr"];
 
@@ -115,7 +116,9 @@ export default function ESGReportPage() {
         </button>
       </div>
 
-      {selectedCountry && (
+<MaterialityPanel />
+
+            {selectedCountry && (
         <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-600">
           <span className="font-medium text-gray-700">
             {selectedCountry.name}
