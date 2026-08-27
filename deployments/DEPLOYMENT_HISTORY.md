@@ -222,3 +222,35 @@ and via \dt) -> built both frontend targets (.env.benas -> dist-benas,
 /api/v1/stakeholder-engagement-records/, and 200 on both domains.
 
 **Status:** Deployed and verified working. No rollback needed.
+
+---
+
+## 2026-08-27 -- Global Scope 2 electricity tracking, ManufactureOS-only deploy
+
+**Commits deployed:** b187318..0b62b5f
+
+**Strategic context:** BENAS is on hold per the 25 Aug 2026 pivot -- this
+deploy built and rsynced ONLY dist-manufactureos, deliberately leaving
+BENAS production bundle untouched, since this feature is Manufacturing
+segment only and safe to skip for BENAS.
+
+- country_config.py: added US and Australia grid factors, registry now
+  covers 14 countries. New Region enum values NORTH_AMERICA, OCEANIA.
+- ManufacturingElectricityRecord: Scope 2 counterpart to
+  ManufacturingEmissionRecord Scope 1. CO2e is derived at read time via
+  the unit country_code lookup, never stored.
+- Full CRUD API at /manufacturing-electricity-records.
+- Frontend: features/manufacturing-electricity, route
+  /manufacturing-electricity, sidebar entry Electricity Scope 2.
+
+**Pre-deploy backup:** /home/ubuntu/benas_backup_pre_scope2_27aug26.dump, 151217 bytes
+
+**Schema changes:** new table manufacturing_electricity_records, auto
+created via create_all on app import.
+
+**Steps:** pg_dump backup, git pull to 0b62b5f, restart backend service,
+confirmed table created, built ONLY dist-manufactureos, rsync deployed
+ONLY to manufactureos domain, verified 401 on the new endpoint and 200
+on the domain. dist-benas intentionally NOT touched this deploy.
+
+**Status:** Deployed and verified working, ManufactureOS only. No rollback needed.
