@@ -294,3 +294,31 @@ rsync deployed ONLY to manufactureos domain, verified 401 on
 intentionally NOT touched.
 
 **Status:** Deployed and verified working, ManufactureOS only. No rollback needed.
+
+---
+
+## 2026-08-27 (later still) -- ManufacturingUnit TS type fix + SASB-lite materiality panel (ManufactureOS-only, frontend-only deploy)
+
+**Commits deployed:** 086d8c4..b1858a3
+
+- Fixed a pre-existing TS type gap: country_code and category_id were
+  used at runtime by ManufacturingUnitForm/List but missing from the
+  ManufacturingUnit/Create/Update TS interfaces in
+  manufacturingUnitApi.ts. No functional change, type-safety only.
+- New SASB-lite materiality panel on the ESG Report page: static
+  Record<PatSector, MaterialTopic[]> (data/sasbMaterialTopics.ts)
+  scoped to the platform's 13 existing PatSector values rather than
+  a full 77-industry taxonomy, displayed via a new dropdown component
+  (components/MaterialityPanel.tsx). Purely informational, does not
+  feed into any calculation.
+
+**Pre-deploy backup:** /home/ubuntu/benas_backup_pre_materiality_27aug26.dump, 157291 bytes (no schema change expected -- frontend only)
+
+**Schema changes:** none.
+
+**Steps:** pg_dump backup (precautionary, no DB changes), git pull to
+b1858a3 (5 files), no backend restart needed (no backend code changed),
+built ONLY dist-manufactureos, rsync deployed ONLY to manufactureos
+domain, verified 200 on the domain. dist-benas intentionally NOT touched.
+
+**Status:** Deployed and verified working, ManufactureOS only. No rollback needed.
