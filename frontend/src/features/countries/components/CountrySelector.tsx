@@ -12,9 +12,11 @@ const REGION_LABELS: Record<Region, string> = {
   asia: "Asia",
   middle_east: "Middle East",
   europe: "Europe",
+  north_america: "North America",
+  oceania: "Oceania",
 };
 
-const REGION_ORDER: Region[] = ["india", "asia", "middle_east", "europe"];
+const REGION_ORDER: Region[] = ["india", "asia", "middle_east", "europe", "north_america", "oceania"];
 
 export default function CountrySelector({ value, onChange, label }: CountrySelectorProps) {
   const { data: countries, isLoading } = useCountries();
@@ -23,9 +25,12 @@ export default function CountrySelector({ value, onChange, label }: CountrySelec
   if (!countries) return null;
 
   const byRegion: Record<Region, Country[]> = {
-    india: [], asia: [], middle_east: [], europe: [],
+    india: [], asia: [], middle_east: [], europe: [], north_america: [], oceania: [],
   };
-  countries.forEach((c) => byRegion[c.region].push(c));
+  countries.forEach((c) => {
+    if (!byRegion[c.region]) byRegion[c.region] = [];
+    byRegion[c.region].push(c);
+  });
 
   return (
     <div className="flex flex-col gap-1">

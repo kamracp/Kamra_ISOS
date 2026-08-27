@@ -9,7 +9,7 @@ import esgReportApi, {
 import { useCountries } from "../countries/hooks/useCountries";
 import CountrySelector from "../countries/components/CountrySelector";
 
-const FRAMEWORK_ORDER: ReportFramework[] = ["brsr", "gri-305", "esrs-e1"];
+const FRAMEWORK_ORDER: ReportFramework[] = ["gri-305", "esrs-e1", "brsr"];
 
 function DatapointCell({ dp }: { dp?: Datapoint }) {
   if (!dp) return <span className="text-gray-400">—</span>;
@@ -33,7 +33,7 @@ function DatapointCell({ dp }: { dp?: Datapoint }) {
 }
 
 export default function ESGReportPage() {
-  const [framework, setFramework] = useState<ReportFramework>("brsr");
+  const [framework, setFramework] = useState<ReportFramework>("gri-305");
   const [year, setYear] = useState(2024);
   const [countryCode, setCountryCode] = useState("IN");
   const [downloading, setDownloading] = useState(false);
@@ -65,20 +65,21 @@ export default function ESGReportPage() {
         </p>
       </div>
 
-      <div className="flex gap-2 border-b border-gray-200">
-        {FRAMEWORK_ORDER.map((fw) => (
-          <button
-            key={fw}
-            onClick={() => setFramework(fw)}
-            className={`px-4 py-2 text-sm font-medium ${
-              framework === fw
-                ? "border-b-2 border-blue-600 text-blue-700"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            {REPORT_FRAMEWORK_LABELS[fw]}
-          </button>
-        ))}
+      <div className="flex items-center gap-3">
+        <label className="text-sm font-medium text-gray-700">
+          Reporting Framework
+        </label>
+        <select
+          value={framework}
+          onChange={(e) => setFramework(e.target.value as ReportFramework)}
+          className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none"
+        >
+          {FRAMEWORK_ORDER.map((fw) => (
+            <option key={fw} value={fw}>
+              {REPORT_FRAMEWORK_LABELS[fw]}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex flex-wrap items-end gap-6">
