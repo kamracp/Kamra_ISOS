@@ -15,7 +15,7 @@ from app.repositories.manufacturing_electricity_record_repository import (
 )
 from app.repositories.manufacturing_unit_repository import ManufacturingUnitRepository
 from app.models.manufacturing_electricity_record import ManufacturingElectricityRecord
-from app.services.country_config import get_country_config
+from app.services.scope2_calculator import calculate_scope2
 
 
 class ManufacturingElectricityService:
@@ -63,19 +63,13 @@ class ManufacturingElectricityService:
         verified grid factor yet -- never guess a number.
         """
         unit = self.unit_repository.get_by_id(record.manufacturing_unit_id)
-        country_cfg = get_country_config(unit.country_code) if unit else None
-
-        scope2_co2e_kg = None
-        grid_factor = None
-        grid_factor_source = None
-        if country_cfg and country_cfg.get("grid_factor_kgco2e_per_kwh") is not None:
-            grid_factor = country_cfg["grid_factor_kgco2e_per_kwh"]
-            grid_factor_source = country_cfg["grid_factor_source"]
-            billed_kwh = max(
-                (record.electricity_consumed_kwh or 0.0) - (record.renewable_kwh or 0.0),
-                0.0,
-            )
-            scope2_co2e_kg = round(billed_kwh * grid_factor, 3)
+        country_code = unit.country_code if unit else "IN"
+        scope2 = calculate_scope2(
+            country_code, record.electricity_consumed_kwh, record.renewable_kwh
+        )
+        scope2_co2e_kg = scope2["scope2_co2e_kg"]
+        grid_factor = scope2["grid_factor_kgco2e_per_kwh"]
+        grid_factor_source = scope2["grid_factor_source"]
 
         return {
             "id": record.id,

@@ -18,6 +18,10 @@ from app.repositories.manufacturing_emission_record_repository import (
     ManufacturingEmissionRecordRepository,
 )
 from app.repositories.manufacturing_unit_repository import ManufacturingUnitRepository
+from app.repositories.manufacturing_electricity_record_repository import (
+    ManufacturingElectricityRecordRepository,
+)
+from app.services.scope2_calculator import calculate_scope2
 
 
 @dataclass
@@ -31,6 +35,11 @@ class UnitEmission:
     co2_tonnes: float
     biogenic_co2_tonnes: float
     record_count: int
+    # Scope 2 (purchased electricity) -- None (not 0) when this unit's
+    # country has no verified grid factor, or it has no electricity
+    # records yet. Kept separate from Scope 1 process emissions, never
+    # summed together, per GHG Protocol convention.
+    scope2_co2e_kg: float | None = None
 
 
 class ManufacturingCarbonService:
@@ -52,9 +61,11 @@ class ManufacturingCarbonService:
         self,
         emission_record_repository: ManufacturingEmissionRecordRepository,
         unit_repository: ManufacturingUnitRepository,
+        electricity_record_repository: ManufacturingElectricityRecordRepository | None = None,
     ):
         self.emission_record_repository = emission_record_repository
         self.unit_repository = unit_repository
+        self.electricity_record_repository = electricity_record_repository
 
     def get_summary(self, year: int | None = None) -> dict:
         """Organization-wide Scope 1 process-emissions summary.
@@ -88,12 +99,43 @@ class ManufacturingCarbonService:
                 entry.co2_tonnes += record.co2_tonnes
             entry.record_count += 1
 
+        # Scope 2: sum electricity records per unit, deriving CO2e via
+        # each unit's country grid factor -- same calculate_scope2()
+        # used by ManufacturingElectricityService, so a unit's Scope 2
+        # here always matches its own record-level totals.
+        if self.electricity_record_repository is not None:
+            electricity_records = self.electricity_record_repository.get_all(year=year)
+            scope2_by_unit: dict[int, float] = defaultdict(float)
+            scope2_tracked_units: set[int] = set()
+            for erecord in electricity_records:
+                unit = units.get(erecord.manufacturing_unit_id)
+                if unit is None:
+                    continue
+                result = calculate_scope2(
+                    unit.country_code, erecord.electricity_consumed_kwh, erecord.renewable_kwh
+                )
+                if result["scope2_co2e_kg"] is not None:
+                    scope2_by_unit[erecord.manufacturing_unit_id] += result["scope2_co2e_kg"]
+                    scope2_tracked_units.add(erecord.manufacturing_unit_id)
+            for unit_id, kg in scope2_by_unit.items():
+                entry = by_unit.get(unit_id)
+                if entry is not None:
+                    entry.scope2_co2e_kg = round(kg, 3)
+
         total_co2_tonnes = round(
             sum(e.co2_tonnes for e in by_unit.values()), 3
         )
         total_biogenic_co2_tonnes = round(
             sum(e.biogenic_co2_tonnes for e in by_unit.values()), 3
         )
+
+        # Total Scope 2 only sums units where at least one electricity
+        # record resolved to a real CO2e figure -- units with no records,
+        # or whose country lacks a verified grid factor, are excluded
+        # from the sum (not counted as zero) so the total never implies
+        # more coverage than the data actually has.
+        scope2_values = [e.scope2_co2e_kg for e in by_unit.values() if e.scope2_co2e_kg is not None]
+        total_scope2_co2e_kg = round(sum(scope2_values), 3) if scope2_values else None
 
         by_sector: dict[str, float] = defaultdict(float)
         for entry in by_unit.values():
@@ -102,6 +144,7 @@ class ManufacturingCarbonService:
         return {
             "total_co2_tonnes": total_co2_tonnes,
             "total_biogenic_co2_tonnes": total_biogenic_co2_tonnes,
+            "total_scope2_co2e_kg": total_scope2_co2e_kg,
             "by_sector_tonnes": {
                 k: round(v, 3) for k, v in sorted(by_sector.items())
             },

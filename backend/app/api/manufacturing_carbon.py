@@ -8,6 +8,9 @@ from app.repositories.manufacturing_emission_record_repository import (
     ManufacturingEmissionRecordRepository,
 )
 from app.repositories.manufacturing_unit_repository import ManufacturingUnitRepository
+from app.repositories.manufacturing_electricity_record_repository import (
+    ManufacturingElectricityRecordRepository,
+)
 from app.services.manufacturing_carbon_service import ManufacturingCarbonService
 
 router = APIRouter(
@@ -28,6 +31,9 @@ def get_service(
             db, organization_id=org_id
         ),
         unit_repository=ManufacturingUnitRepository(db, organization_id=org_id),
+        electricity_record_repository=ManufacturingElectricityRecordRepository(
+            db, organization_id=org_id
+        ),
     )
 
 
