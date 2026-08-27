@@ -16,6 +16,9 @@ from app.repositories.energy_meter_repository import EnergyMeterRepository
 from app.repositories.manufacturing_emission_record_repository import (
     ManufacturingEmissionRecordRepository,
 )
+from app.repositories.manufacturing_electricity_record_repository import (
+    ManufacturingElectricityRecordRepository,
+)
 from app.repositories.manufacturing_unit_repository import ManufacturingUnitRepository
 from app.repositories.utility_bill_repository import UtilityBillRepository
 from app.services.carbon_service import CarbonService
@@ -59,12 +62,13 @@ def _get_scope_summary(db, organization_id, reporting_year):
     - scope1_t = BENAS Scope 1 (bills) + ManufactureOS Scope 1 (process,
       fossil only -- biogenic CO2 is tracked separately and never summed
       into this total, matching GHG Protocol convention).
-    - scope2_t = BENAS Scope 2 only. ManufactureOS does not separately
-      track purchased electricity for its units yet -- if a manufacturing
-      unit's own grid electricity needs to be counted, it should be
-      metered via the same energy_meters/utility_bills path BENAS uses
-      (a manufacturing unit can share an org with tracked buildings),
-      not a separate mechanism.
+    - scope2_t = BENAS Scope 2 (bills) + ManufactureOS Scope 2 (purchased
+      electricity per manufacturing unit, via ManufacturingElectricityRecord
+      + each unit's country grid factor -- see scope2_calculator.py).
+      Units with no electricity records, or whose country lacks a
+      verified grid factor, contribute nothing to this total (never
+      silently zeroed) -- same discipline as ManufacturingCarbonService's
+      own total_scope2_co2e_kg.
     - scope1_standards / scope2_standards: sorted list of distinct
       traceability citations. For Scope 1 this now merges BENAS's
       emission_factors.source strings with ManufactureOS's
@@ -117,6 +121,23 @@ def _get_scope_summary(db, organization_id, reporting_year):
 
     scope1_t = round(bills_scope1_t + mfg_scope1_t, 3)
     scope1_standards = sorted(bills_scope1_standards | mfg_scope1_standards)
+
+    # ManufactureOS Scope 2: rebuild the service with an electricity
+    # repository (the earlier instance above was built without one,
+    # for the Scope 1 pull) so the summary includes total_scope2_co2e_kg.
+    manufacturing_with_electricity = ManufacturingCarbonService(
+        emission_record_repository=ManufacturingEmissionRecordRepository(
+            db, organization_id=organization_id
+        ),
+        unit_repository=ManufacturingUnitRepository(db, organization_id=organization_id),
+        electricity_record_repository=ManufacturingElectricityRecordRepository(
+            db, organization_id=organization_id
+        ),
+    )
+    mfg_summary_with_scope2 = manufacturing_with_electricity.get_summary(year=reporting_year)
+    mfg_scope2_kg = mfg_summary_with_scope2.get("total_scope2_co2e_kg")
+    if mfg_scope2_kg is not None:
+        scope2_t = round(scope2_t + (mfg_scope2_kg / 1000), 3)
 
     src = (
         f"CarbonService + ManufacturingCarbonService "
