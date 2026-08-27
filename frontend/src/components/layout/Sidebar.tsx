@@ -26,6 +26,7 @@ import {
   Scale,
   Landmark,
   Handshake,
+  Plug,
 } from "lucide-react";
 import { useSegment, type Segment } from "../../context/SegmentContext";
 
@@ -62,6 +63,12 @@ const menu: MenuItem[] = [
     title: "PAT Energy",
     icon: TrendingDown,
     path: "/pat-energy",
+    segment: "manufacturing",
+  },
+  {
+    title: "Electricity (Scope 2)",
+    icon: Plug,
+    path: "/manufacturing-electricity",
     segment: "manufacturing",
   },
   { title: "Energy Meters", icon: Activity, path: "/energy-meters" },
