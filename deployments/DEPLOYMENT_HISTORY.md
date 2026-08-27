@@ -254,3 +254,43 @@ ONLY to manufactureos domain, verified 401 on the new endpoint and 200
 on the domain. dist-benas intentionally NOT touched this deploy.
 
 **Status:** Deployed and verified working, ManufactureOS only. No rollback needed.
+
+---
+
+## 2026-08-27 (later) -- Scope 2 consolidation, framework dropdown, CountrySelector regression fix (ManufactureOS-only deploy)
+
+**Commits deployed:** 0b62b5f..086d8c4
+
+**Strategic context:** BENAS remains on hold -- only dist-manufactureos
+built and rsynced.
+
+- Fixed a real gap: ManufacturingCarbonService.get_summary() only
+  summed Scope 1 process emissions, ignoring yesterday's new Scope 2
+  electricity records entirely. New shared helper
+  app/services/scope2_calculator.py (calculate_scope2) used by both
+  ManufacturingElectricityService and ManufacturingCarbonService so the
+  country-grid-factor logic lives in one place. Summary now returns
+  total_scope2_co2e_kg and per-unit scope2_co2e_kg, correctly excluding
+  (not zeroing) units with no electricity records or unverified grid
+  factors.
+- ESGReportPage.tsx: framework tabs replaced with a dropdown, reordered
+  to GRI 305 / ESRS E1 / BRSR, default changed from BRSR to GRI 305 --
+  the global-market positioning decided 25 Aug 2026.
+- FIX: CountrySelector.tsx was crashing on every page using it (ESG
+  Reports, Manufacturing Unit form) because yesterday's new
+  Region.NORTH_AMERICA / Region.OCEANIA values were not in this
+  component's REGION_LABELS/REGION_ORDER/byRegion init -- caught during
+  browser testing of the dropdown change, fixed same session.
+
+**Pre-deploy backup:** /home/ubuntu/benas_backup_pre_scope2fix_27aug26.dump, 157291 bytes
+
+**Schema changes:** none -- code only, no new tables or columns.
+
+**Steps:** pg_dump backup, git checkout/clean (stray prior-deploy dist
+artifacts, already committed), git pull to 086d8c4 (7 files), restart
+backend service (confirmed responding), built ONLY dist-manufactureos,
+rsync deployed ONLY to manufactureos domain, verified 401 on
+/api/v1/manufacturing-carbon/summary and 200 on the domain. dist-benas
+intentionally NOT touched.
+
+**Status:** Deployed and verified working, ManufactureOS only. No rollback needed.
