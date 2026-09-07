@@ -355,3 +355,29 @@ NOT rebuilt this deploy (no frontend changes).
 
 **Status:** Deployed and verified working against the live demo
 account. No rollback needed.
+
+---
+
+## 2026-09-07 -- Closure step 1: TypeScript debt cleared (ManufactureOS frontend-only deploy)
+
+**Commit deployed:** b3308a8
+
+**Context:** Kamra_ISOS is being driven to total completion before Compressor
+OS work resumes. Step 1 = zero type debt so every remaining feature lands
+on a clean build.
+
+- 27 tsc errors -> 0. Dead multi-org CRUD UI removed (16 errors),
+  Building types gained category_id, Region type gained
+  north_america/oceania, two BrsrProfilePage casts, one unused import.
+- frontend build script restored to `tsc -b && vite build`; type errors
+  now block a build again.
+
+**Pre-deploy backup:** none taken -- no backend or schema change.
+
+**Schema changes:** none.
+
+**Steps:** git pull on server (repo parity), rsync dist-manufactureos,
+verified live bundle index-TSg97vIh.js via curl. Backend service not
+restarted. dist-benas NOT rebuilt (BENAS on hold).
+
+**Status:** Deployed and verified.
