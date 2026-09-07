@@ -105,7 +105,7 @@ export default function BrsrProfilePage() {
     const next: FormState = {};
     SECTIONS.forEach((section) =>
       section.fields.forEach((field) => {
-        const value = (profile as Record<string, unknown>)[field.name];
+        const value = (profile as unknown as Record<string, unknown>)[field.name];
         next[field.name] = value === null || value === undefined ? "" : String(value);
       })
     );
@@ -116,7 +116,7 @@ export default function BrsrProfilePage() {
     setTurnoverRates((profile.turnover_rates as ObjectRow[]) ?? []);
     setGroupCompanies((profile.group_companies as ObjectRow[]) ?? []);
     setGrievances((profile.grievance_redressal as ObjectRow[]) ?? []);
-    setLocationCounts((profile.location_counts as NestedValue) ?? {});
+    setLocationCounts((profile.location_counts as unknown as NestedValue) ?? {});
     setMarketsServed((profile.markets_served as NestedValue) ?? {});
     setEmployeeCounts((profile.employee_worker_counts as NestedValue) ?? {});
     setWomenParticipation((profile.women_participation as NestedValue) ?? {});

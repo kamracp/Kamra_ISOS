@@ -1,6 +1,7 @@
 import client from "../../../services/api/client";
 
 export interface Building {
+  category_id?: number | null;
   id: number;
   organization_id: number;
   building_code: string;
@@ -22,6 +23,7 @@ export interface Building {
 }
 
 export interface BuildingCreate {
+  category_id?: number | null;
   building_code: string;
   building_name: string;
   description?: string;
@@ -39,6 +41,7 @@ export interface BuildingCreate {
 }
 
 export interface BuildingUpdate {
+  category_id?: number | null;
   building_code?: string;
   building_name?: string;
   description?: string;

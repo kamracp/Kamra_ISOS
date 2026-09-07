@@ -1,6 +1,6 @@
 import client from "../../../services/api/client";
 
-export type Region = "india" | "asia" | "middle_east" | "europe";
+export type Region = "india" | "asia" | "middle_east" | "europe" | "north_america" | "oceania";
 
 export interface Country {
   code: string;
