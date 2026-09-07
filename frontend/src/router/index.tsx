@@ -25,6 +25,7 @@ import BrsrPolicyPage from "../features/brsr-policy/pages/BrsrPolicyPage";
 import WaterWastePage from "../features/water-waste/pages/WaterWastePage";
 import CsrPage from "../features/csr/pages/CsrPage";
 import PolicyAdvocacyPage from "../features/policy-advocacy/pages/PolicyAdvocacyPage";
+import SustainableProductsPage from "../features/sustainable-products/pages/SustainableProductsPage";
 import StakeholderEngagementPage from "../features/stakeholder-engagement/pages/StakeholderEngagementPage";
 import ManufacturingElectricityPage from "../features/manufacturing-electricity/pages/ManufacturingElectricityPage";
 import EthicsPage from "../features/ethics/pages/EthicsPage";
@@ -70,6 +71,7 @@ export default function AppRouter() {
           <Route path="water-waste" element={<WaterWastePage />} />
           <Route path="csr" element={<CsrPage />} />
           <Route path="policy-advocacy" element={<PolicyAdvocacyPage />} />
+          <Route path="sustainable-products" element={<SustainableProductsPage />} />
           <Route path="stakeholder-engagement" element={<StakeholderEngagementPage />} />
           <Route path="manufacturing-electricity" element={<ManufacturingElectricityPage />} />
           <Route path="ethics" element={<EthicsPage />} />
