@@ -27,6 +27,7 @@ from app.services.water_waste_service import WaterWasteService
 from app.services.csr_record_service import CsrRecordService
 from app.services.ethics_record_service import EthicsRecordService
 from app.services.policy_advocacy_record_service import PolicyAdvocacyRecordService
+from app.services.sustainable_product_record_service import SustainableProductRecordService
 from app.services.stakeholder_engagement_record_service import StakeholderEngagementRecordService
 from app.models.organization import Organization
 
@@ -766,4 +767,98 @@ def generate_trend(db: Session, organization_id: int, years: list[int]) -> dict:
         "organization_id": organization_id,
         "years": sorted(years),
         "trend": trend_data,
+    }
+
+
+def generate_brsr_principle2(db: Session, organization_id: int,
+                             reporting_year: int) -> dict:
+    """BRSR Section C, Principle 2 (Sustainable and Safe Goods and Services)
+    for one reporting year. Every indicator tests `is not None`, never
+    truthiness, so a disclosed 0% or an explicit 'No' reports as tracked.
+    Reclaimed-material totals come from the service (derived on read),
+    never from a stored column."""
+    service = SustainableProductRecordService(db, organization_id)
+    record = service.get_by_year(reporting_year)
+    src = f"Principle 2 sustainable product records for reporting year {reporting_year}."
+
+    def _ind(label, value, unit, **extra):
+        # None -> NOT_TRACKED; anything else (including 0 / False) -> tracked.
+        if isinstance(value, bool):
+            value = "Yes" if value else "No"
+        out = {"label": label, "data": _tracked(value, unit, src) if value is not None else NOT_TRACKED}
+        out.update({k: v for k, v in extra.items() if v is not None})
+        return out
+
+    g = (lambda k: record.get(k)) if record else (lambda k: None)
+
+    essential_indicators = {
+        "EI_1a_rnd_percent_current": _ind(
+            "R&D on sustainable technologies (% of total, current FY)",
+            g("rnd_sustainable_percent_current"), "%"),
+        "EI_1b_rnd_percent_previous": _ind(
+            "R&D on sustainable technologies (% of total, previous FY)",
+            g("rnd_sustainable_percent_previous"), "%"),
+        "EI_1c_capex_percent_current": _ind(
+            "Capex on sustainable technologies (% of total, current FY)",
+            g("capex_sustainable_percent_current"), "%"),
+        "EI_1d_capex_percent_previous": _ind(
+            "Capex on sustainable technologies (% of total, previous FY)",
+            g("capex_sustainable_percent_previous"), "%", details=g("rnd_capex_details")),
+        "EI_2a_sustainable_sourcing_procedure": _ind(
+            "Procedures in place for sustainable sourcing",
+            g("has_sustainable_sourcing_procedure"), "yes/no",
+            details=g("sustainable_sourcing_details")),
+        "EI_2b_sustainable_sourcing_percent": _ind(
+            "Inputs sourced sustainably (% of total)",
+            g("sustainable_sourcing_percent"), "%"),
+        "EI_3_reclaim_processes": {
+            "label": "Processes to safely reclaim products at end of life",
+            "data": _tracked(
+                sum(1 for k in ("plastics", "e_waste", "hazardous", "other") if g(f"reclaim_process_{k}")),
+                "material categories described", src,
+            ) if record else NOT_TRACKED,
+            "plastics": g("reclaim_process_plastics"),
+            "e_waste": g("reclaim_process_e_waste"),
+            "hazardous": g("reclaim_process_hazardous"),
+            "other": g("reclaim_process_other"),
+        },
+        "EI_4a_epr_applicable": _ind(
+            "Extended Producer Responsibility applicable",
+            g("epr_applicable"), "yes/no", details=g("epr_details")),
+        "EI_4b_epr_plan_in_line": _ind(
+            "Waste collection plan in line with EPR",
+            g("epr_plan_in_line"), "yes/no"),
+    }
+
+    leadership_indicators = {
+        "LI_1_lca_conducted": _ind(
+            "Life Cycle Assessment conducted", g("has_conducted_lca"), "yes/no",
+            details=g("lca_details")),
+        "LI_3_recycled_input_percent": _ind(
+            "Recycled or re-used input material (% of total)",
+            g("recycled_input_percent"), "%"),
+        "LI_4_reclaimed_reused_mt": _ind(
+            "Reclaimed products/packaging re-used", g("total_reused_mt"), "MT"),
+        "LI_4_reclaimed_recycled_mt": _ind(
+            "Reclaimed products/packaging recycled", g("total_recycled_mt"), "MT"),
+        "LI_4_reclaimed_disposed_mt": _ind(
+            "Reclaimed products/packaging safely disposed", g("total_disposed_mt"), "MT",
+            by_category=[
+                {"material_category": m["material_category"], "reused_mt": m.get("reused_mt"),
+                 "recycled_mt": m.get("recycled_mt"), "disposed_mt": m.get("disposed_mt")}
+                for m in (record or {}).get("reclaimed_materials", [])
+            ] or None),
+        "LI_5_reclaimed_percent_of_products_sold": _ind(
+            "Reclaimed products and packaging as % of products sold",
+            g("reclaimed_products_percent_details"), "narrative"),
+    }
+
+    return {
+        "framework": "BRSR",
+        "section": "Section C, Principle 2 (Sustainable and Safe Goods and Services)",
+        "reporting_year": reporting_year,
+        "organization_id": organization_id,
+        "data_basis": src,
+        "essential_indicators": essential_indicators,
+        "leadership_indicators": leadership_indicators,
     }
