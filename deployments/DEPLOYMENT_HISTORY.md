@@ -381,3 +381,24 @@ verified live bundle index-TSg97vIh.js via curl. Backend service not
 restarted. dist-benas NOT rebuilt (BENAS on hold).
 
 **Status:** Deployed and verified.
+
+---
+
+## 2026-09-07 -- BRSR Section C, Principle 2 (Sustainable Products) -- full-stack deploy (ManufactureOS)
+
+**Commits deployed:** d65c6f1 (backend), 91bb11c (frontend), cb0cc70 (ESG report), dist build commit after cb0cc70
+
+**Pre-deploy backup:** /home/ubuntu/benas_backup_pre_p2_08sep26.dump, 158014 bytes
+
+**Schema changes:** two NEW tables created on startup by create_all()
+(sustainable_product_records, reclaimed_material_records). No ALTER TABLE.
+
+**Steps:** pg_dump backup -> git pull to cb0cc70 -> restart backend
+(active) -> confirmed both tables exist -> /sustainable-product-records/
+and /esg-reports/brsr-principle2 return 401 -> npm run build --mode
+manufactureos (tsc now part of build, 0 errors) -> rsync
+dist-manufactureos -> live bundle index-BmufGFzi.js confirmed via curl.
+dist-benas NOT rebuilt (BENAS on hold).
+
+**Status:** Deployed and verified. Section C now live: P1, P2, P4, P6, P7, P8.
+Remaining: P3, P5, P9.
