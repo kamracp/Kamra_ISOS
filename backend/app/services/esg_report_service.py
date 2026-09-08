@@ -28,6 +28,7 @@ from app.services.csr_record_service import CsrRecordService
 from app.services.ethics_record_service import EthicsRecordService
 from app.services.policy_advocacy_record_service import PolicyAdvocacyRecordService
 from app.services.sustainable_product_record_service import SustainableProductRecordService
+from app.services.human_rights_record_service import HumanRightsRecordService
 from app.services.stakeholder_engagement_record_service import StakeholderEngagementRecordService
 from app.models.organization import Organization
 
@@ -856,6 +857,97 @@ def generate_brsr_principle2(db: Session, organization_id: int,
     return {
         "framework": "BRSR",
         "section": "Section C, Principle 2 (Sustainable and Safe Goods and Services)",
+        "reporting_year": reporting_year,
+        "organization_id": organization_id,
+        "data_basis": src,
+        "essential_indicators": essential_indicators,
+        "leadership_indicators": leadership_indicators,
+    }
+
+
+def generate_brsr_principle5(db: Session, organization_id: int,
+                             reporting_year: int) -> dict:
+    """BRSR Section C, Principle 5 (Human Rights) for one reporting year.
+    Tabular indicators (EI 1-3, EI 6) are reported as the row lists the
+    entity entered plus derived aggregates from the service (training
+    coverage %, complaint totals); nothing is re-derived here."""
+    service = HumanRightsRecordService(db, organization_id)
+    record = service.get_by_year(reporting_year)
+    src = f"Principle 5 human rights records for reporting year {reporting_year}."
+
+    def _ind(label, value, unit, **extra):
+        if isinstance(value, bool):
+            value = "Yes" if value else "No"
+        out = {"label": label, "data": _tracked(value, unit, src) if value is not None else NOT_TRACKED}
+        out.update({k: v for k, v in extra.items() if v is not None})
+        return out
+
+    g = (lambda k: record.get(k)) if record else (lambda k: None)
+    rows = (lambda k: record.get(k, [])) if record else (lambda k: [])
+
+    def _table(label, key, unit_label):
+        items = rows(key)
+        return {
+            "label": label,
+            "data": _tracked(len(items), unit_label, src) if items else NOT_TRACKED,
+            "rows": items or None,
+        }
+
+    essential_indicators = {
+        "EI_1_2_workforce_training_and_wages": _table(
+            "Training on human rights and minimum-wage bands, by workforce category",
+            "workforce_coverage", "workforce categories disclosed"),
+        "EI_3_median_remuneration": _table(
+            "Median remuneration/salary/wages by gender",
+            "remuneration", "remuneration categories disclosed"),
+        "EI_4_focal_point": _ind("Focal point for human rights impacts",
+                                 g("has_human_rights_focal_point"), "yes/no", details=g("focal_point_details")),
+        "EI_5_grievance_mechanism": _ind("Internal grievance redressal mechanism",
+                                         g("grievance_mechanism_details"), "narrative"),
+        "EI_6_complaints": {
+            **_table("Complaints on human rights issues", "complaints", "complaint categories disclosed"),
+            "total_filed": g("total_complaints_filed"),
+            "total_pending": g("total_complaints_pending"),
+        },
+        "EI_7_complainant_protection": _ind("Mechanisms preventing adverse consequences to the complainant",
+                                            g("complainant_protection_details"), "narrative"),
+        "EI_8_hr_in_contracts": _ind("Human rights requirements in business agreements and contracts",
+                                     g("hr_requirements_in_contracts"), "yes/no", details=g("hr_requirements_details")),
+        "EI_9_assessments": {
+            "label": "Plants and offices assessed (% of total), by topic",
+            "data": _tracked(
+                sum(1 for k in ("child_labour", "forced_labour", "sexual_harassment", "discrimination", "wages", "other")
+                    if g(f"assessed_{k}_percent") is not None),
+                "topics disclosed", src) if record else NOT_TRACKED,
+            "child_labour_percent": g("assessed_child_labour_percent"),
+            "forced_labour_percent": g("assessed_forced_labour_percent"),
+            "sexual_harassment_percent": g("assessed_sexual_harassment_percent"),
+            "discrimination_percent": g("assessed_discrimination_percent"),
+            "wages_percent": g("assessed_wages_percent"),
+            "other_percent": g("assessed_other_percent"),
+            "other_description": g("assessed_other_description"),
+        },
+        "EI_10_corrective_actions": _ind("Corrective actions arising from assessments",
+                                         g("corrective_actions_from_assessments"), "narrative"),
+    }
+
+    leadership_indicators = {
+        "LI_1_process_modifications": _ind("Business process modifications from human rights grievances",
+                                           g("process_modifications_from_grievances"), "narrative"),
+        "LI_2_due_diligence": _ind("Scope and coverage of human rights due diligence",
+                                   g("human_rights_due_diligence_details"), "narrative"),
+        "LI_3_accessibility": _ind("Premises accessible to differently abled visitors",
+                                   g("premises_accessible_to_differently_abled"), "yes/no", details=g("accessibility_details")),
+        "LI_4_value_chain_assessed": _ind("Value chain partners assessed (% of total)",
+                                          g("value_chain_partners_assessed_percent"), "%",
+                                          details=g("value_chain_assessment_details")),
+        "LI_5_value_chain_corrective_actions": _ind("Corrective actions from value chain assessments",
+                                                    g("value_chain_corrective_actions"), "narrative"),
+    }
+
+    return {
+        "framework": "BRSR",
+        "section": "Section C, Principle 5 (Human Rights)",
         "reporting_year": reporting_year,
         "organization_id": organization_id,
         "data_basis": src,
