@@ -21,15 +21,7 @@ import {
   AlertTriangle,
   FileText,
   ShieldCheck,
-  Recycle,
-  Heart,
-  Scale,
-  Landmark,
-  Package,
-  HeartHandshake,
-  MessageSquareWarning,
-  HeartPulse,
-  Handshake,
+  ListChecks,
   Plug,
 } from "lucide-react";
 import { useSegment, type Segment } from "../../context/SegmentContext";
@@ -85,15 +77,7 @@ const menu: MenuItem[] = [
   { title: "Climate Risk", icon: AlertTriangle, path: "/climate-risk" },
   { title: "BRSR Section A", icon: FileText, path: "/brsr-profile" },
   { title: "BRSR Section B", icon: ShieldCheck, path: "/brsr-policy" },
-  { title: "Water & Waste", icon: Recycle, path: "/water-waste" },
-  { title: "CSR", icon: Heart, path: "/csr" },
-  { title: "Ethics", icon: Scale, path: "/ethics" },
-  { title: "Policy Advocacy", icon: Landmark, path: "/policy-advocacy" },
-  { title: "Sustainable Products", icon: Package, path: "/sustainable-products" },
-  { title: "Human Rights", icon: HeartHandshake, path: "/human-rights" },
-  { title: "Consumer Responsibility", icon: MessageSquareWarning, path: "/consumer-responsibility" },
-  { title: "Employee Well-being", icon: HeartPulse, path: "/employee-wellbeing" },
-  { title: "Stakeholder Engagement", icon: Handshake, path: "/stakeholder-engagement" },
+  { title: "BRSR Section C", icon: ListChecks, path: "/brsr-section-c" },
 ];
 
 // If VITE_APP_SEGMENT is set at build time, this deployment is locked to
