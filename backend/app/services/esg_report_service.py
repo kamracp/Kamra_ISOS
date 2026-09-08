@@ -30,6 +30,7 @@ from app.services.policy_advocacy_record_service import PolicyAdvocacyRecordServ
 from app.services.sustainable_product_record_service import SustainableProductRecordService
 from app.services.human_rights_record_service import HumanRightsRecordService
 from app.services.consumer_responsibility_record_service import ConsumerResponsibilityRecordService
+from app.services.employee_wellbeing_record_service import EmployeeWellbeingRecordService
 from app.services.stakeholder_engagement_record_service import StakeholderEngagementRecordService
 from app.models.organization import Organization
 
@@ -1022,6 +1023,109 @@ def generate_brsr_principle9(db: Session, organization_id: int,
     return {
         "framework": "BRSR",
         "section": "Section C, Principle 9 (Responsible Engagement with Consumers)",
+        "reporting_year": reporting_year,
+        "organization_id": organization_id,
+        "data_basis": src,
+        "essential_indicators": essential_indicators,
+        "leadership_indicators": leadership_indicators,
+    }
+
+
+def generate_brsr_principle3(db: Session, organization_id: int,
+                             reporting_year: int) -> dict:
+    """BRSR Section C, Principle 3 (Employee Well-being) for one reporting
+    year. Tabular indicators (EI 1, 6, 8-9, 13) carry the entity's rows with
+    the service's derived percentages; scalar indicators use the None ->
+    NOT_TRACKED rule (0 and 'No' are tracked)."""
+    service = EmployeeWellbeingRecordService(db, organization_id)
+    record = service.get_by_year(reporting_year)
+    src = f"Principle 3 employee well-being records for reporting year {reporting_year}."
+
+    def _ind(label, value, unit, **extra):
+        if isinstance(value, bool):
+            value = "Yes" if value else "No"
+        out = {"label": label, "data": _tracked(value, unit, src) if value is not None else NOT_TRACKED}
+        out.update({k: v for k, v in extra.items() if v is not None})
+        return out
+
+    g = (lambda k: record.get(k)) if record else (lambda k: None)
+
+    def _table(label, key, unit_label, **extra):
+        items = record.get(key, []) if record else []
+        out = {"label": label, "data": _tracked(len(items), unit_label, src) if items else NOT_TRACKED, "rows": items or None}
+        out.update({k: v for k, v in extra.items() if v is not None})
+        return out
+
+    def _pair(label, emp_key, wkr_key, unit):
+        # Employees / workers pairs: tracked if either side is disclosed.
+        e, w = g(emp_key), g(wkr_key)
+        count = sum(v is not None for v in (e, w))
+        return {"label": label, "data": _tracked(count, "of 2 groups disclosed", src) if count else NOT_TRACKED,
+                "employees": e, "workers": w, "unit": unit}
+
+    essential_indicators = {
+        "EI_1_wellbeing_measures": _table("Well-being measures by workforce category and gender", "wellbeing_measures", "categories disclosed"),
+        "EI_2_wellbeing_spend": _ind("Spending on well-being measures", g("wellbeing_spend_percent_revenue"), "% of revenue"),
+        "EI_3_retirement_benefits": {
+            "label": "Retirement benefits (% covered, deposited with authority)",
+            "data": _tracked(sum(1 for b in ("pf", "gratuity", "esi", "other_benefit")
+                                 if g(f"{b}_employees_percent") is not None or g(f"{b}_workers_percent") is not None),
+                             "benefits disclosed", src) if record else NOT_TRACKED,
+            "benefits": [
+                {"benefit": b, "employees_percent": g(f"{b}_employees_percent"), "workers_percent": g(f"{b}_workers_percent"),
+                 "deposited": g(f"{b}_deposited"), **({"name": g("other_benefit_name")} if b == "other_benefit" else {})}
+                for b in ("pf", "gratuity", "esi", "other_benefit")
+            ] if record else None,
+        },
+        "EI_4_accessibility": _ind("Premises accessible to differently abled employees and workers",
+                                   g("premises_accessible_to_differently_abled"), "yes/no", details=g("accessibility_details")),
+        "EI_5_equal_opportunity_policy": _ind("Equal opportunity policy under the RPwD Act 2016",
+                                              g("has_equal_opportunity_policy"), "yes/no", web_link=g("equal_opportunity_policy_link")),
+        "EI_6_parental_leave": _table("Return to work and retention rates after parental leave", "parental_leave", "categories disclosed"),
+        "EI_7_union_membership": _pair("Permanent employees / workers in associations or unions (%)",
+                                       "permanent_employees_union_percent", "permanent_workers_union_percent", "%"),
+        "EI_8_9_training_and_reviews": _table("Training (H&S, skill upgradation) and performance reviews", "training", "categories disclosed"),
+        "EI_10_ohs_management_system": _ind("Occupational health and safety management system",
+                                            g("has_ohs_management_system"), "yes/no", coverage=g("ohs_system_coverage"),
+                                            hazard_identification=g("hazard_identification_process"),
+                                            non_routine_risk_reporting=g("non_routine_risk_reporting_process"),
+                                            medical_facilities=g("has_medical_facilities")),
+        "EI_11a_ltifr": _pair("Lost Time Injury Frequency Rate (per one million person-hours)", "ltifr_employees", "ltifr_workers", "LTIFR"),
+        "EI_11b_recordable_injuries": _pair("Total recordable work-related injuries", "recordable_injuries_employees", "recordable_injuries_workers", "count"),
+        "EI_11c_fatalities": _pair("Fatalities", "fatalities_employees", "fatalities_workers", "count"),
+        "EI_11d_high_consequence_injuries": _pair("High-consequence work-related injuries (excluding fatalities)",
+                                                  "high_consequence_injuries_employees", "high_consequence_injuries_workers", "count"),
+        "EI_12_safe_workplace": _ind("Measures to ensure a safe and healthy workplace", g("safe_workplace_measures"), "narrative"),
+        "EI_13_complaints": _table("Complaints on working conditions and health & safety", "complaints", "categories disclosed",
+                                   total_filed=g("total_complaints_filed"), total_pending=g("total_complaints_pending")),
+        "EI_14_complainant_protection": _ind("Mechanisms preventing adverse consequences to the complainant",
+                                             g("complainant_protection_details"), "narrative"),
+        "EI_15_assessments": _pair("Plants and offices assessed (% of total): health & safety / working conditions",
+                                   "assessed_health_safety_percent", "assessed_working_conditions_percent", "%"),
+    }
+    # _pair keys read 'employees'/'workers'; EI 15 is health-safety/working-conditions -- relabel.
+    ei15 = essential_indicators["EI_15_assessments"]
+    ei15["health_safety_percent"], ei15["working_conditions_percent"] = ei15.pop("employees"), ei15.pop("workers")
+    ei15["corrective_actions"] = g("corrective_actions_from_assessments")
+
+    leadership_indicators = {
+        "LI_1_life_insurance": _pair("Life insurance or compensatory package in the event of death",
+                                     "life_insurance_employees", "life_insurance_workers", "yes/no"),
+        "LI_2_value_chain_statutory_dues": _ind("Measures ensuring statutory dues are deducted and deposited by value chain partners",
+                                                g("value_chain_statutory_dues_details"), "narrative"),
+        "LI_3_rehabilitated": _pair("Employees / workers rehabilitated and placed in suitable employment after injury",
+                                    "rehabilitated_employees_count", "rehabilitated_workers_count", "count"),
+        "LI_4_transition_assistance": _ind("Transition assistance programs on retirement or termination",
+                                           g("has_transition_assistance"), "yes/no"),
+        "LI_5_value_chain_assessed": _pair("Value chain partners assessed (% of total): health & safety / working conditions",
+                                           "value_chain_assessed_health_safety_percent", "value_chain_assessed_working_conditions_percent", "%"),
+        "LI_6_value_chain_corrective_actions": _ind("Corrective actions from value chain assessments",
+                                                    g("value_chain_corrective_actions"), "narrative"),
+    }
+
+    return {
+        "framework": "BRSR",
+        "section": "Section C, Principle 3 (Employee Well-being)",
         "reporting_year": reporting_year,
         "organization_id": organization_id,
         "data_basis": src,
