@@ -28,6 +28,7 @@ import {
   Package,
   HeartHandshake,
   MessageSquareWarning,
+  HeartPulse,
   Handshake,
   Plug,
 } from "lucide-react";
@@ -91,6 +92,7 @@ const menu: MenuItem[] = [
   { title: "Sustainable Products", icon: Package, path: "/sustainable-products" },
   { title: "Human Rights", icon: HeartHandshake, path: "/human-rights" },
   { title: "Consumer Responsibility", icon: MessageSquareWarning, path: "/consumer-responsibility" },
+  { title: "Employee Well-being", icon: HeartPulse, path: "/employee-wellbeing" },
   { title: "Stakeholder Engagement", icon: Handshake, path: "/stakeholder-engagement" },
 ];
 

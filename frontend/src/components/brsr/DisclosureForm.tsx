@@ -11,13 +11,14 @@ import { useForm } from "react-hook-form";
  * backend's exclude_unset PUT. Yes/no fields are three-option selects so a
  * nullable boolean stays "not stated" until the user answers.
  */
-export type FieldKind = "pct" | "int" | "text" | "textarea" | "yesno";
+export type FieldKind = "pct" | "int" | "num" | "text" | "textarea" | "yesno" | "select";
 
 export interface FieldDef<K extends string = string> {
   name: K;
   label: string;
   kind: FieldKind;
   hint?: string;
+  options?: { value: string; label: string }[]; // for kind "select"
 }
 
 export interface SectionDef<K extends string = string> {
@@ -53,7 +54,8 @@ export function normaliseDisclosure(values: Record<string, unknown>, fields: Fie
     const raw = values[def.name];
     let v: unknown;
     if (def.kind === "yesno") v = raw === "" || raw === undefined ? null : raw === "true";
-    else if (def.kind === "pct" || def.kind === "int") v = raw === "" || raw === undefined || Number.isNaN(raw) ? null : Number(raw);
+    else if (def.kind === "pct" || def.kind === "int" || def.kind === "num") v = raw === "" || raw === undefined || Number.isNaN(raw) ? null : Number(raw);
+    else if (def.kind === "select") v = raw === "" || raw === undefined ? null : raw;
     else v = typeof raw === "string" && raw.trim() === "" ? null : raw;
     if (v === null && !isEdit) continue;
     out[def.name] = v;
@@ -86,6 +88,17 @@ export default function DisclosureForm<T extends Record<string, unknown>>({
     }
     if (def.kind === "pct") {
       return <input type="number" step="0.01" min={0} max={100} placeholder="0 - 100" {...register(def.name, { valueAsNumber: true })} className={inputCls} />;
+    }
+    if (def.kind === "select") {
+      return (
+        <select {...register(def.name)} className={inputCls}>
+          <option value="">Not stated</option>
+          {(def.options ?? []).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      );
+    }
+    if (def.kind === "num") {
+      return <input type="number" step="0.001" min={0} placeholder="Not disclosed" {...register(def.name, { valueAsNumber: true })} className={inputCls} />;
     }
     if (def.kind === "int") {
       return <input type="number" step="1" min={0} placeholder="Not disclosed" {...register(def.name, { valueAsNumber: true })} className={inputCls} />;

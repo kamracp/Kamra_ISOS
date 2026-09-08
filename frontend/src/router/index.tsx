@@ -28,6 +28,7 @@ import PolicyAdvocacyPage from "../features/policy-advocacy/pages/PolicyAdvocacy
 import SustainableProductsPage from "../features/sustainable-products/pages/SustainableProductsPage";
 import HumanRightsPage from "../features/human-rights/pages/HumanRightsPage";
 import ConsumerResponsibilityPage from "../features/consumer-responsibility/pages/ConsumerResponsibilityPage";
+import EmployeeWellbeingPage from "../features/employee-wellbeing/pages/EmployeeWellbeingPage";
 import StakeholderEngagementPage from "../features/stakeholder-engagement/pages/StakeholderEngagementPage";
 import ManufacturingElectricityPage from "../features/manufacturing-electricity/pages/ManufacturingElectricityPage";
 import EthicsPage from "../features/ethics/pages/EthicsPage";
@@ -76,6 +77,7 @@ export default function AppRouter() {
           <Route path="sustainable-products" element={<SustainableProductsPage />} />
           <Route path="human-rights" element={<HumanRightsPage />} />
           <Route path="consumer-responsibility" element={<ConsumerResponsibilityPage />} />
+          <Route path="employee-wellbeing" element={<EmployeeWellbeingPage />} />
           <Route path="stakeholder-engagement" element={<StakeholderEngagementPage />} />
           <Route path="manufacturing-electricity" element={<ManufacturingElectricityPage />} />
           <Route path="ethics" element={<EthicsPage />} />
