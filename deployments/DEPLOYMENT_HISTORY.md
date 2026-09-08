@@ -443,3 +443,27 @@ index-BMTfyG7A.js confirmed via curl. dist-benas NOT rebuilt (BENAS on hold).
 
 **Status:** Deployed and verified. Section C live: P1, P2, P4, P5, P6, P7, P8, P9.
 Remaining: P3 (Employee Well-being) -- last principle.
+
+---
+
+## 2026-09-08 -- BRSR Section C, Principle 3 (Employee Well-being) -- full-stack deploy (ManufactureOS). SECTION C COMPLETE.
+
+**Commits deployed:** b34377b, 4b6d445 (backend), b87f88e (frontend + shared CategoryRowForm / DisclosureForm select+num), 6cb054e (ESG report), dist build commit after 6cb054e
+
+**Pre-deploy backup:** /home/ubuntu/benas_backup_pre_p3_08sep26.dump
+
+**Schema changes:** five NEW tables created on startup by create_all()
+(employee_wellbeing_records + measures / parental_leave / training /
+complaints children). No ALTER TABLE.
+
+**Steps:** pg_dump backup -> git pull to 6cb054e -> restart backend
+(active) -> 5 employee_wellbeing_* tables confirmed ->
+/employee-wellbeing-records/ and /esg-reports/brsr-principle3 return
+401 -> npm run build --mode manufactureos (0 tsc errors) -> rsync
+dist-manufactureos -> live bundle index-gHTy0eY4.js confirmed via curl. dist-benas
+NOT rebuilt (BENAS on hold).
+
+**Status:** Deployed and verified. **All nine BRSR Section C principles
+are live full-stack (P1-P9), each with a per-principle report endpoint.**
+Closure plan next: BENAS-side Scope 2 country_code, Scope 3, CBAM,
+consolidated dashboard, server hygiene, final QA.
