@@ -423,3 +423,23 @@ index-BvPMMbsu.js confirmed via curl. dist-benas NOT rebuilt (BENAS on hold).
 
 **Status:** Deployed and verified. Section C live: P1, P2, P4, P5, P6, P7, P8.
 Remaining: P9, P3.
+
+---
+
+## 2026-09-08 -- BRSR Section C, Principle 9 (Consumer Responsibility) -- full-stack deploy (ManufactureOS)
+
+**Commits deployed:** 3589fe4 (backend), fb8269f (frontend), 2eaaaf2 (ESG report), dist build commit after 2eaaaf2
+
+**Pre-deploy backup:** /home/ubuntu/benas_backup_pre_p9_08sep26.dump, 190666 bytes
+
+**Schema changes:** two NEW tables created on startup by create_all()
+(consumer_responsibility_records, consumer_complaints). No ALTER TABLE.
+
+**Steps:** pg_dump backup -> git pull to 2eaaaf2 -> restart backend
+(active) -> both tables confirmed -> /consumer-responsibility-records/
+and /esg-reports/brsr-principle9 return 401 -> npm run build --mode
+manufactureos (0 tsc errors) -> rsync dist-manufactureos -> live bundle
+index-BMTfyG7A.js confirmed via curl. dist-benas NOT rebuilt (BENAS on hold).
+
+**Status:** Deployed and verified. Section C live: P1, P2, P4, P5, P6, P7, P8, P9.
+Remaining: P3 (Employee Well-being) -- last principle.
