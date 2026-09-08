@@ -30,6 +30,7 @@ from app.models.policy_advocacy_record import PolicyAdvocacyRecord, TradeAssocia
 from app.models.sustainable_product_record import SustainableProductRecord, ReclaimedMaterialRecord
 from app.models.human_rights_record import HumanRightsRecord, HumanRightsWorkforceCoverage, HumanRightsRemuneration, HumanRightsComplaint
 from app.models.consumer_responsibility_record import ConsumerResponsibilityRecord, ConsumerComplaint
+from app.models.employee_wellbeing_record import EmployeeWellbeingRecord, EmployeeWellbeingMeasure, EmployeeWellbeingParentalLeave, EmployeeWellbeingTraining, EmployeeWellbeingComplaint
 from app.models.stakeholder_engagement_record import StakeholderEngagementRecord, StakeholderGroup
 from app.models.manufacturing_electricity_record import ManufacturingElectricityRecord
 from app.models.csr_record import CsrRecord, CsrProject
