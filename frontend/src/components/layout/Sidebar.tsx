@@ -26,6 +26,7 @@ import {
   Scale,
   Landmark,
   Package,
+  HeartHandshake,
   Handshake,
   Plug,
 } from "lucide-react";
@@ -87,6 +88,7 @@ const menu: MenuItem[] = [
   { title: "Ethics", icon: Scale, path: "/ethics" },
   { title: "Policy Advocacy", icon: Landmark, path: "/policy-advocacy" },
   { title: "Sustainable Products", icon: Package, path: "/sustainable-products" },
+  { title: "Human Rights", icon: HeartHandshake, path: "/human-rights" },
   { title: "Stakeholder Engagement", icon: Handshake, path: "/stakeholder-engagement" },
 ];
 
