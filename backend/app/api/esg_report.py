@@ -21,7 +21,7 @@ from app.api.deps import get_current_user
 from app.database.session import get_db
 from app.models.user import User
 from app.repositories.emission_factor_repository import EmissionFactorRepository
-from app.services.esg_report_service import generate_brsr_principle1, generate_brsr_principle4, generate_brsr_principle6, generate_brsr_principle7, generate_brsr_principle2, generate_brsr_principle5, generate_brsr_principle8, generate_gri_305, generate_esrs_e1, generate_trend
+from app.services.esg_report_service import generate_brsr_principle1, generate_brsr_principle4, generate_brsr_principle6, generate_brsr_principle7, generate_brsr_principle2, generate_brsr_principle5, generate_brsr_principle9, generate_brsr_principle8, generate_gri_305, generate_esrs_e1, generate_trend
 from app.services.esg_report_pdf import generate_brsr_principle6_pdf
 
 router = APIRouter(prefix="/esg-reports", tags=["ESG Reports"])
@@ -263,6 +263,20 @@ def brsr_principle5(
 ):
     """BRSR Principle 5 (Human Rights) report for the caller's organization."""
     return generate_brsr_principle5(
+        db=db,
+        organization_id=current_user.organization_id,
+        reporting_year=year,
+    )
+
+
+@router.get("/brsr-principle9")
+def brsr_principle9(
+    year: int = 2024,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """BRSR Principle 9 (Responsible Engagement with Consumers) report for the caller's organization."""
+    return generate_brsr_principle9(
         db=db,
         organization_id=current_user.organization_id,
         reporting_year=year,

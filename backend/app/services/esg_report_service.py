@@ -29,6 +29,7 @@ from app.services.ethics_record_service import EthicsRecordService
 from app.services.policy_advocacy_record_service import PolicyAdvocacyRecordService
 from app.services.sustainable_product_record_service import SustainableProductRecordService
 from app.services.human_rights_record_service import HumanRightsRecordService
+from app.services.consumer_responsibility_record_service import ConsumerResponsibilityRecordService
 from app.services.stakeholder_engagement_record_service import StakeholderEngagementRecordService
 from app.models.organization import Organization
 
@@ -948,6 +949,79 @@ def generate_brsr_principle5(db: Session, organization_id: int,
     return {
         "framework": "BRSR",
         "section": "Section C, Principle 5 (Human Rights)",
+        "reporting_year": reporting_year,
+        "organization_id": organization_id,
+        "data_basis": src,
+        "essential_indicators": essential_indicators,
+        "leadership_indicators": leadership_indicators,
+    }
+
+
+def generate_brsr_principle9(db: Session, organization_id: int,
+                             reporting_year: int) -> dict:
+    """BRSR Section C, Principle 9 (Responsible Engagement with Consumers)
+    for one reporting year. Complaint rows are the entity's own; totals
+    come from the service (derived on read)."""
+    service = ConsumerResponsibilityRecordService(db, organization_id)
+    record = service.get_by_year(reporting_year)
+    src = f"Principle 9 consumer responsibility records for reporting year {reporting_year}."
+
+    def _ind(label, value, unit, **extra):
+        if isinstance(value, bool):
+            value = "Yes" if value else "No"
+        out = {"label": label, "data": _tracked(value, unit, src) if value is not None else NOT_TRACKED}
+        out.update({k: v for k, v in extra.items() if v is not None})
+        return out
+
+    g = (lambda k: record.get(k)) if record else (lambda k: None)
+    complaints = record.get("complaints", []) if record else []
+
+    essential_indicators = {
+        "EI_1_complaint_mechanism": _ind("Mechanisms to receive and respond to consumer complaints and feedback",
+                                         g("complaint_mechanism_details"), "narrative"),
+        "EI_2a_turnover_env_social_info": _ind("Turnover of products/services carrying environmental and social information",
+                                               g("turnover_percent_env_social_info"), "% of turnover"),
+        "EI_2b_turnover_safe_usage_info": _ind("Turnover of products/services carrying safe and responsible usage information",
+                                               g("turnover_percent_safe_usage_info"), "% of turnover"),
+        "EI_2c_turnover_recycling_info": _ind("Turnover of products/services carrying recycling / safe disposal information",
+                                              g("turnover_percent_recycling_info"), "% of turnover"),
+        "EI_3a_voluntary_recalls": _ind("Voluntary product recalls", g("voluntary_recalls_count"), "recalls",
+                                        reasons=g("voluntary_recalls_reasons")),
+        "EI_3b_forced_recalls": _ind("Forced product recalls", g("forced_recalls_count"), "recalls",
+                                     reasons=g("forced_recalls_reasons")),
+        "EI_4_cyber_security_policy": _ind("Framework / policy on cyber security and data privacy",
+                                           g("has_cyber_security_policy"), "yes/no", web_link=g("cyber_security_policy_link")),
+        "EI_5_corrective_actions": _ind("Corrective actions on advertising, delivery, recalls, cyber / data privacy issues",
+                                        g("corrective_actions_details"), "narrative"),
+        "EI_6_consumer_complaints": {
+            "label": "Consumer complaints by category (received / pending)",
+            "data": _tracked(len(complaints), "complaint categories disclosed", src) if complaints else NOT_TRACKED,
+            "rows": complaints or None,
+            "total_received": g("total_complaints_received"),
+            "total_pending": g("total_complaints_pending"),
+        },
+    }
+
+    leadership_indicators = {
+        "LI_1_product_information_channels": _ind("Channels where product/service information is available",
+                                                  g("product_information_channels"), "narrative"),
+        "LI_2_consumer_education": _ind("Steps to inform and educate consumers on safe and responsible usage",
+                                        g("consumer_education_details"), "narrative"),
+        "LI_3_disruption_disclosure": _ind("Mechanisms to inform consumers of risk of disruption / discontinuation",
+                                           g("service_disruption_disclosure_details"), "narrative"),
+        "LI_4a_info_beyond_mandate": _ind("Product information displayed beyond what is mandated",
+                                          g("displays_product_info_beyond_mandate"), "yes/no"),
+        "LI_4b_consumer_survey": _ind("Consumer satisfaction survey conducted", g("consumer_survey_conducted"), "yes/no",
+                                      details=g("consumer_survey_details")),
+        "LI_5a_data_breaches": _ind("Instances of data breaches", g("data_breaches_count"), "breaches",
+                                    impact=g("data_breach_impact_details")),
+        "LI_5b_data_breaches_pii": _ind("Data breaches involving personally identifiable information",
+                                        g("data_breach_pii_percent"), "% of breaches"),
+    }
+
+    return {
+        "framework": "BRSR",
+        "section": "Section C, Principle 9 (Responsible Engagement with Consumers)",
         "reporting_year": reporting_year,
         "organization_id": organization_id,
         "data_basis": src,
