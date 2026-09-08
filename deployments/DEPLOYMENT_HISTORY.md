@@ -402,3 +402,24 @@ dist-benas NOT rebuilt (BENAS on hold).
 
 **Status:** Deployed and verified. Section C now live: P1, P2, P4, P6, P7, P8.
 Remaining: P3, P5, P9.
+
+---
+
+## 2026-09-08 -- BRSR Section C, Principle 5 (Human Rights) -- full-stack deploy (ManufactureOS)
+
+**Commits deployed:** 652149f, e074cc0 (backend), 6fddc42 (frontend + shared DisclosureForm), 0d763c8 (ESG report), dist build commit after 0d763c8
+
+**Pre-deploy backup:** /home/ubuntu/benas_backup_pre_p5_08sep26.dump, 169685 bytes
+
+**Schema changes:** four NEW tables created on startup by create_all()
+(human_rights_records + workforce_coverage / remuneration / complaints
+children). No ALTER TABLE.
+
+**Steps:** pg_dump backup -> git pull to 0d763c8 -> restart backend
+(active) -> 4 human_rights_* tables confirmed -> /human-rights-records/
+and /esg-reports/brsr-principle5 return 401 -> npm run build --mode
+manufactureos (0 tsc errors) -> rsync dist-manufactureos -> live bundle
+index-BvPMMbsu.js confirmed via curl. dist-benas NOT rebuilt (BENAS on hold).
+
+**Status:** Deployed and verified. Section C live: P1, P2, P4, P5, P6, P7, P8.
+Remaining: P9, P3.
