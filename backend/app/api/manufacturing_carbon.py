@@ -8,6 +8,7 @@ from app.repositories.manufacturing_emission_record_repository import (
     ManufacturingEmissionRecordRepository,
 )
 from app.repositories.manufacturing_unit_repository import ManufacturingUnitRepository
+from app.repositories.manufacturing_fuel_record_repository import ManufacturingFuelRecordRepository
 from app.repositories.manufacturing_electricity_record_repository import (
     ManufacturingElectricityRecordRepository,
 )
@@ -31,6 +32,7 @@ def get_service(
             db, organization_id=org_id
         ),
         unit_repository=ManufacturingUnitRepository(db, organization_id=org_id),
+        fuel_record_repository=ManufacturingFuelRecordRepository(db, organization_id=org_id),
         electricity_record_repository=ManufacturingElectricityRecordRepository(
             db, organization_id=org_id
         ),

@@ -20,6 +20,7 @@ from app.repositories.manufacturing_electricity_record_repository import (
     ManufacturingElectricityRecordRepository,
 )
 from app.repositories.manufacturing_unit_repository import ManufacturingUnitRepository
+from app.repositories.manufacturing_fuel_record_repository import ManufacturingFuelRecordRepository
 from app.repositories.utility_bill_repository import UtilityBillRepository
 from app.services.carbon_service import CarbonService
 from app.services.manufacturing_carbon_service import ManufacturingCarbonService
@@ -111,6 +112,7 @@ def _get_scope_summary(db, organization_id, reporting_year):
             db, organization_id=organization_id
         ),
         unit_repository=ManufacturingUnitRepository(db, organization_id=organization_id),
+        fuel_record_repository=ManufacturingFuelRecordRepository(db, organization_id=organization_id),
     )
     mfg_summary = manufacturing.get_summary(year=reporting_year)
     mfg_scope1_t = round(mfg_summary.get("total_co2_tonnes", 0.0), 3)
@@ -134,6 +136,7 @@ def _get_scope_summary(db, organization_id, reporting_year):
             db, organization_id=organization_id
         ),
         unit_repository=ManufacturingUnitRepository(db, organization_id=organization_id),
+        fuel_record_repository=ManufacturingFuelRecordRepository(db, organization_id=organization_id),
         electricity_record_repository=ManufacturingElectricityRecordRepository(
             db, organization_id=organization_id
         ),

@@ -40,6 +40,14 @@ class UnitEmission:
     # records yet. Kept separate from Scope 1 process emissions, never
     # summed together, per GHG Protocol convention.
     scope2_co2e_kg: float | None = None
+    # Scope 1 split for transparency: process (sector calculators) vs
+    # fuel combustion (ManufacturingFuelRecord x IPCC factors). co2_tonnes
+    # above is their sum (fossil only); biogenic CO2 from fuels goes to
+    # biogenic_co2_tonnes alongside biogenic process CO2.
+    process_co2_tonnes: float = 0.0
+    combustion_co2e_tonnes: float = 0.0
+    fuel_energy_gj: float = 0.0
+    fuel_record_count: int = 0
 
 
 class ManufacturingCarbonService:
@@ -62,7 +70,9 @@ class ManufacturingCarbonService:
         emission_record_repository: ManufacturingEmissionRecordRepository,
         unit_repository: ManufacturingUnitRepository,
         electricity_record_repository: ManufacturingElectricityRecordRepository | None = None,
+        fuel_record_repository=None,
     ):
+        self.fuel_record_repository = fuel_record_repository
         self.emission_record_repository = emission_record_repository
         self.unit_repository = unit_repository
         self.electricity_record_repository = electricity_record_repository
@@ -97,7 +107,26 @@ class ManufacturingCarbonService:
                 entry.biogenic_co2_tonnes += record.co2_tonnes
             else:
                 entry.co2_tonnes += record.co2_tonnes
+                entry.process_co2_tonnes += record.co2_tonnes
             entry.record_count += 1
+
+        # Scope 1 fuel combustion: ManufacturingFuelRecord x IPCC factors via
+        # the same fuel_energy_and_emissions() the Fuels page and the energy
+        # balance use, so Scope 1 here always equals the sum of the records.
+        if self.fuel_record_repository is not None:
+            from app.services.manufacturing_fuel_service import fuel_energy_and_emissions
+            for frecord in self.fuel_record_repository.get_all(year=year):
+                entry = by_unit.get(frecord.manufacturing_unit_id)
+                if entry is None:
+                    continue
+                d = fuel_energy_and_emissions(frecord.fuel_key, frecord.quantity_tonnes)
+                if d["scope1_co2e_kg"] is None:
+                    continue
+                entry.combustion_co2e_tonnes += d["scope1_co2e_kg"] / 1000.0
+                entry.co2_tonnes += d["scope1_co2e_kg"] / 1000.0
+                entry.biogenic_co2_tonnes += (d["biogenic_co2_kg"] or 0.0) / 1000.0
+                entry.fuel_energy_gj += d["energy_gj"] or 0.0
+                entry.fuel_record_count += 1
 
         # Scope 2: sum electricity records per unit, deriving CO2e via
         # each unit's country grid factor -- same calculate_scope2()
@@ -148,8 +177,11 @@ class ManufacturingCarbonService:
             "by_sector_tonnes": {
                 k: round(v, 3) for k, v in sorted(by_sector.items())
             },
+            "total_process_co2_tonnes": round(sum(e.process_co2_tonnes for e in by_unit.values()), 3),
+            "total_combustion_co2e_tonnes": round(sum(e.combustion_co2e_tonnes for e in by_unit.values()), 3),
+            "total_fuel_energy_gj": round(sum(e.fuel_energy_gj for e in by_unit.values()), 3),
             "units_with_records": sum(
-                1 for e in by_unit.values() if e.record_count > 0
+                1 for e in by_unit.values() if e.record_count > 0 or e.fuel_record_count > 0
             ),
             "units_total": len(by_unit),
             "by_unit": [asdict(e) for e in by_unit.values()],
