@@ -26,6 +26,7 @@ from app.models.climate_risk import ClimateRisk
 from app.models.brsr_organization_profile import BrsrOrganizationProfile
 from app.models.brsr_policy_disclosure import BrsrPolicyDisclosure
 from app.models.water_record import WaterRecord
+from app.models.report_narrative import ReportNarrative
 from app.models.policy_advocacy_record import PolicyAdvocacyRecord, TradeAssociation
 from app.models.sustainable_product_record import SustainableProductRecord, ReclaimedMaterialRecord
 from app.models.human_rights_record import HumanRightsRecord, HumanRightsWorkforceCoverage, HumanRightsRemuneration, HumanRightsComplaint
