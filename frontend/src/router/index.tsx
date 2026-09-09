@@ -32,6 +32,7 @@ import EmployeeWellbeingPage from "../features/employee-wellbeing/pages/Employee
 import BrsrSectionCPage from "../features/brsr-section-c/pages/BrsrSectionCPage";
 import PillarHubPage from "../features/pillars/pages/PillarHubPage";
 import ManufacturingFuelsPage from "../features/manufacturing-fuels/pages/ManufacturingFuelsPage";
+import EnergyDashboardPage from "../features/pat-energy/pages/EnergyDashboardPage";
 import StakeholderEngagementPage from "../features/stakeholder-engagement/pages/StakeholderEngagementPage";
 import ManufacturingElectricityPage from "../features/manufacturing-electricity/pages/ManufacturingElectricityPage";
 import EthicsPage from "../features/ethics/pages/EthicsPage";
@@ -88,6 +89,7 @@ export default function AppRouter() {
           <Route path="esg-hub" element={<PillarHubPage pillar="esg" />} />
           <Route path="lca" element={<PillarHubPage pillar="lca" />} />
           <Route path="manufacturing-fuels" element={<ManufacturingFuelsPage />} />
+          <Route path="energy-efficiency/dashboard" element={<EnergyDashboardPage />} />
           <Route path="stakeholder-engagement" element={<StakeholderEngagementPage />} />
           <Route path="manufacturing-electricity" element={<ManufacturingElectricityPage />} />
           <Route path="ethics" element={<EthicsPage />} />

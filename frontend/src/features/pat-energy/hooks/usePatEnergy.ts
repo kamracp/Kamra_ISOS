@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import patEnergyApi, {
+  getEnergyBalance,
+  getOrgEnergy,
   type PatCycleTarget,
   type PatCycleTargetCreate,
   type PatCycleTargetUpdate,
@@ -76,4 +78,18 @@ export function usePatSummary(unitId?: number, year?: number) {
     staleTime: 2 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
+}
+
+export function useEnergyBalance(unitId?: number, year?: number) {
+  return useQuery({
+    // Shares the "pat-energy" prefix so fuel/electricity saves invalidate it.
+    queryKey: ["pat-energy", "energy-balance", unitId, year],
+    queryFn: () => getEnergyBalance(unitId as number, year as number),
+    enabled: Boolean(unitId && year),
+    staleTime: 60 * 1000,
+  });
+}
+
+export function useOrgEnergy(year: number) {
+  return useQuery({ queryKey: ["pat-energy", "org-energy", year], queryFn: () => getOrgEnergy(year), staleTime: 60 * 1000 });
 }

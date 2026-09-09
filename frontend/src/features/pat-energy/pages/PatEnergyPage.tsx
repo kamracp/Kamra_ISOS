@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import EnergyBalancePanel from "../components/EnergyBalancePanel";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -172,6 +173,8 @@ export default function PatEnergyPage() {
               </div>
             )}
           </div>
+
+          <EnergyBalancePanel unitId={Number(selectedUnitId)} year={year} />
 
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-800">

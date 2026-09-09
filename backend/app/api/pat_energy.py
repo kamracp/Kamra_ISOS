@@ -120,3 +120,50 @@ def energy_balance(
         },
         "periods_without_energy_data": [p["period_start"] for p in periods if p.get("status") != "calculated"],
     }
+
+
+@router.get("/org-energy")
+def org_energy(
+    year: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """Energy dashboard feed: organization totals for the year plus one row
+    per manufacturing unit (energy, toe, SEC, renewable share, DC flag)."""
+    from app.models.manufacturing_unit import ManufacturingUnit
+    from app.models.production_record import ProductionRecord
+    from app.services.energy_service import org_year_energy, unit_period_energy, GJ_PER_TOE, PAT_DC_THRESHOLD_TOE
+    from datetime import date
+
+    org_id = current_user.organization_id
+    totals = org_year_energy(db, org_id, year)
+    units = db.query(ManufacturingUnit).filter(ManufacturingUnit.organization_id == org_id).order_by(ManufacturingUnit.unit_name).all()
+    rows = []
+    for u in units:
+        # Whole calendar year window; records inside it count (FY-April records
+        # starting in `year` are inside Jan 1 .. Mar 31 of year+1, so use a
+        # 15-month window ending Mar 31 next year to capture Indian FY entries).
+        e = unit_period_energy(db, org_id, u, date(year, 1, 1), date(year + 1, 3, 31))
+        prod = db.query(ProductionRecord).filter(
+            ProductionRecord.organization_id == org_id,
+            ProductionRecord.manufacturing_unit_id == u.id,
+            ProductionRecord.period_start >= f"{year}-01-01",
+            ProductionRecord.period_start <= f"{year}-12-31",
+        ).all()
+        qty = sum(p.production_quantity for p in prod)
+        sector = u.sector.value if hasattr(u.sector, "value") else str(u.sector)
+        threshold = PAT_DC_THRESHOLD_TOE.get(sector)
+        rows.append({
+            "manufacturing_unit_id": u.id, "unit_code": u.unit_code, "unit_name": u.unit_name,
+            "sector": sector, "country_code": u.country_code,
+            "total_energy_gj": e["total_energy_gj"], "total_energy_toe": e["total_energy_toe"],
+            "electrical_gj": e["electrical_gj"], "thermal_gj": e["thermal_gj"],
+            "renewable_share_percent": e["renewable_share_percent"],
+            "production_quantity": qty, "production_unit": prod[0].production_unit if prod else None,
+            "sec_gj_per_unit": round(e["total_energy_gj"] / qty, 4) if qty else None,
+            "scope1_combustion_co2e_kg": e["scope1_combustion_co2e_kg"],
+            "source_basis": e["source_basis"],
+            "pat_dc_threshold_toe": threshold,
+            "is_designated_consumer_scale": (e["total_energy_toe"] >= threshold) if threshold else None,
+        })
+    return {"year": year, "totals": totals, "units": rows}
