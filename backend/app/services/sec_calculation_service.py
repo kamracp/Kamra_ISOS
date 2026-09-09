@@ -40,6 +40,13 @@ def calculate_period_sec(
     manufacturing_unit_id: int,
     production_record: ProductionRecord,
 ) -> dict:
+    """SEC for one production period, on the shared energy balance
+    (energy_service.unit_period_energy): electricity + fuel records, with
+    BENAS utility bills only as a fallback. Reports the PAT split --
+    thermal SEC (Gcal/t), electrical SEC (kWh/t), overall (GJ/t, toe/t) --
+    the same shape as BEE's PAT cycle tables."""
+    from app.services.energy_service import unit_period_energy, GJ_PER_TOE, GCAL_PER_GJ
+
     unit = (
         db.query(ManufacturingUnit)
         .filter(
@@ -48,55 +55,52 @@ def calculate_period_sec(
         )
         .first()
     )
+    if unit is None:
+        return {"status": "unit_not_found", "manufacturing_unit_id": manufacturing_unit_id}
 
-    if unit is None or unit.building_id is None:
-        return {"status": "no_building_linked", "manufacturing_unit_id": manufacturing_unit_id}
-
-    meters = db.query(EnergyMeter).filter(EnergyMeter.building_id == unit.building_id).all()
-    meters_by_id = {m.id: m for m in meters}
-    meter_ids = list(meters_by_id.keys())
-
-    bills = (
-        db.query(UtilityBill)
-        .filter(
-            UtilityBill.meter_id.in_(meter_ids),
-            UtilityBill.billing_period_start >= production_record.period_start,
-            UtilityBill.billing_period_end <= production_record.period_end,
-        )
-        .all()
-        if meter_ids
-        else []
+    energy = unit_period_energy(
+        db, organization_id, unit, production_record.period_start, production_record.period_end
     )
+    if energy["source_basis"] == "none":
+        return {
+            "status": "no_energy_data",
+            "manufacturing_unit_id": manufacturing_unit_id,
+            "period_start": production_record.period_start,
+            "period_end": production_record.period_end,
+            "production_quantity": production_record.production_quantity,
+            "production_unit": production_record.production_unit,
+            "hint": "Add electricity and fuel records for this unit and period (or link a building with bills).",
+            "excluded_overlapping": energy["excluded_overlapping"],
+        }
 
-    total_energy_gj = 0.0
-    pending = []
-
-    for bill in bills:
-        meter = meters_by_id[bill.meter_id]
-        factor = _find_factor(db, meter.meter_type, meter.unit, bill.billing_period_start)
-
-        if factor is None or factor.energy_content_gj_per_unit is None:
-            pending.append(
-                {"bill_id": bill.id, "meter_code": meter.meter_code, "meter_type": meter.meter_type}
-            )
-            continue
-
-        total_energy_gj += bill.consumption * factor.energy_content_gj_per_unit
-
-    sec = None
-    if production_record.production_quantity > 0:
-        sec = round(total_energy_gj / production_record.production_quantity, 6)
+    qty = production_record.production_quantity
+    total_gj = energy["total_energy_gj"]
+    sec = round(total_gj / qty, 6) if qty > 0 else None
 
     return {
         "status": "calculated",
         "manufacturing_unit_id": manufacturing_unit_id,
         "period_start": production_record.period_start,
         "period_end": production_record.period_end,
-        "total_energy_gj": round(total_energy_gj, 4),
-        "production_quantity": production_record.production_quantity,
+        "total_energy_gj": total_gj,
+        "total_energy_toe": energy["total_energy_toe"],
+        "production_quantity": qty,
         "production_unit": production_record.production_unit,
         "sec_gj_per_unit": sec,
-        "bills_pending_energy_content": pending,
+        # PAT / ISO 50001 EnPI split
+        "sec_toe_per_unit": round(total_gj / GJ_PER_TOE / qty, 6) if qty > 0 else None,
+        "thermal_sec_gcal_per_unit": round(energy["thermal_gj"] * GCAL_PER_GJ / qty, 6) if qty > 0 else None,
+        "electrical_sec_kwh_per_unit": round(energy["electricity_kwh"] / qty, 4) if qty > 0 else None,
+        "renewable_share_percent": energy["renewable_share_percent"],
+        "source_basis": energy["source_basis"],
+        "by_fuel": energy["by_fuel"],
+        "scope1_combustion_co2e_kg": energy["scope1_combustion_co2e_kg"],
+        "bills_pending_energy_content": energy["bills_pending_energy_content"],
+        "fuels_missing_lhv": energy["fuels_missing_lhv"],
+        "excluded_overlapping": energy["excluded_overlapping"],
+        "pat_dc_threshold_toe": energy["pat_dc_threshold_toe"],
+        "annualised_toe": energy["annualised_toe"],
+        "is_designated_consumer_scale": energy["is_designated_consumer_scale"],
     }
 
 
