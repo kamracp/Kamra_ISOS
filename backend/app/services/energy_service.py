@@ -163,3 +163,49 @@ def unit_period_energy(db: Session, organization_id: int, unit: ManufacturingUni
         "annualised_toe": round(annualised_toe, 2) if annualised_toe is not None else None,
         "is_designated_consumer_scale": (annualised_toe >= threshold) if (threshold and annualised_toe is not None) else None,
     }
+
+
+def org_year_energy(db: Session, organization_id: int, year: int) -> dict:
+    """Organization-wide energy for a reporting year -- records whose
+    period_start falls in that calendar year (the platform's year rule).
+    Renewable = renewable electricity + biomass fuels; non-renewable = the
+    rest. Used by BRSR P6 EI 1, ESRS E1-5 and the energy dashboard."""
+    lo, hi = f"{year}-01-01", f"{year}-12-31"
+    elec = db.query(ManufacturingElectricityRecord).filter(
+        ManufacturingElectricityRecord.organization_id == organization_id,
+        ManufacturingElectricityRecord.period_start >= lo,
+        ManufacturingElectricityRecord.period_start <= hi,
+    ).all()
+    fuels = db.query(ManufacturingFuelRecord).filter(
+        ManufacturingFuelRecord.organization_id == organization_id,
+        ManufacturingFuelRecord.period_start >= lo,
+        ManufacturingFuelRecord.period_start <= hi,
+    ).all()
+    kwh = sum(r.electricity_consumed_kwh for r in elec)
+    ren_kwh = sum(r.renewable_kwh for r in elec)
+    thermal_gj = biomass_gj = 0.0
+    by_fuel: dict[str, float] = {}
+    for r in fuels:
+        d = fuel_energy_and_emissions(r.fuel_key, r.quantity_tonnes)
+        if d["energy_gj"] is None:
+            continue
+        thermal_gj += d["energy_gj"]
+        by_fuel[r.fuel_key] = by_fuel.get(r.fuel_key, 0.0) + d["energy_gj"]
+        f = get_fuel(r.fuel_key) or {}
+        if f.get("is_biogenic"):
+            biomass_gj += d["energy_gj"]
+    electrical_gj = kwh * GJ_PER_KWH
+    total = electrical_gj + thermal_gj
+    renewable = ren_kwh * GJ_PER_KWH + biomass_gj
+    units_with_data = {r.manufacturing_unit_id for r in elec} | {r.manufacturing_unit_id for r in fuels}
+    return {
+        "year": year,
+        "total_gj": round(total, 4), "total_toe": round(total / GJ_PER_TOE, 4),
+        "renewable_gj": round(renewable, 4), "non_renewable_gj": round(total - renewable, 4),
+        "electrical_gj": round(electrical_gj, 4), "electricity_kwh": round(kwh, 3), "renewable_kwh": round(ren_kwh, 3),
+        "thermal_gj": round(thermal_gj, 4), "biomass_gj": round(biomass_gj, 4),
+        "by_fuel_gj": {k: round(v, 4) for k, v in by_fuel.items()},
+        "units_with_data": len(units_with_data),
+        "record_count": len(elec) + len(fuels),
+        "source": "Manufacturing electricity + fuel records; kWh x 0.0036 GJ; fuels x IPCC 2006 LHV",
+    }

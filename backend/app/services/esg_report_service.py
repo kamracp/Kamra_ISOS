@@ -32,6 +32,7 @@ from app.services.sustainable_product_record_service import SustainableProductRe
 from app.services.human_rights_record_service import HumanRightsRecordService
 from app.services.consumer_responsibility_record_service import ConsumerResponsibilityRecordService
 from app.services.employee_wellbeing_record_service import EmployeeWellbeingRecordService
+from app.services.energy_service import org_year_energy
 from app.services.stakeholder_engagement_record_service import StakeholderEngagementRecordService
 from app.models.organization import Organization
 
@@ -202,6 +203,8 @@ def generate_brsr_principle6(db: Session, organization_id: int,
             water_waste=WaterWasteService(
                 db, organization_id
             ).get_summary(reporting_year),
+            energy=org_year_energy(db, organization_id, reporting_year),
+            reporting_year=reporting_year,
         ),
         "totals": {
             "scope1_plus_2_tCO2e": round(scope1_t + scope2_t, 3),
@@ -488,20 +491,38 @@ def generate_brsr_principle4(db: Session, organization_id: int,
     }
 
 
+def _energy_indicator(label, energy, src_year):
+    """EI 1 / E1-5 energy block from energy_service.org_year_energy(); NOT_TRACKED
+    when no electricity/fuel record exists for the year."""
+    if not energy or energy["record_count"] == 0:
+        return {"label": label, "renewable_gj": NOT_TRACKED, "non_renewable_gj": NOT_TRACKED,
+                "note": "No electricity or fuel records for this year."}
+    src = f"{energy['source']}, reporting year {src_year}."
+    return {
+        "label": label,
+        "renewable_gj": _tracked(energy["renewable_gj"], "GJ", src),
+        "non_renewable_gj": _tracked(energy["non_renewable_gj"], "GJ", src),
+        "total_gj": _tracked(energy["total_gj"], "GJ", src),
+        "total_toe": energy["total_toe"],
+        "electricity_kwh": energy["electricity_kwh"],
+        "renewable_kwh": energy["renewable_kwh"],
+        "thermal_gj": energy["thermal_gj"],
+        "biomass_gj": energy["biomass_gj"],
+        "by_fuel_gj": energy["by_fuel_gj"],
+        "units_with_data": energy["units_with_data"],
+    }
+
+
 def _build_brsr_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, intensity=None,
-                           water_waste=None):
+                           water_waste=None, energy=None, reporting_year=None):
     intensity = intensity or {}
     water_waste = water_waste or {}
     water = water_waste.get("water", {})
     waste = water_waste.get("waste", {})
     """BRSR Principle 6 Essential Indicators. Emissions filled, rest not_tracked."""
     return {
-        "EI_1_energy_consumption": {
-            "label": "Total energy consumption (renewable & non-renewable)",
-            "renewable_gj": NOT_TRACKED,
-            "non_renewable_gj": NOT_TRACKED,
-            "note": "Energy in GJ available via SEC engine per unit; org-wide split not yet aggregated here.",
-        },
+        "EI_1_energy_consumption": _energy_indicator(
+            "Total energy consumption (renewable & non-renewable)", energy, reporting_year),
         "EI_3_energy_intensity": {
             "label": "Energy intensity per rupee of turnover",
             "data": NOT_TRACKED,
@@ -675,6 +696,8 @@ def generate_esrs_e1(db: Session, organization_id: int,
         "essential_indicators": _build_esrs_indicators(
             scope1_t, scope2_t, src, scope1_std, scope2_std,
             intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
+            energy=org_year_energy(db, organization_id, reporting_year),
+            reporting_year=reporting_year,
         ),
         "totals": {
             "scope1_plus_2_tCO2e": round(scope1_t + scope2_t, 3),
@@ -687,7 +710,8 @@ def generate_esrs_e1(db: Session, organization_id: int,
     }
 
 
-def _build_esrs_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, intensity=None):
+def _build_esrs_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, intensity=None,
+                           energy=None, reporting_year=None):
     intensity = intensity or {}
     """ESRS E1 disclosures. Emissions filled, rest not_tracked."""
     return {
@@ -696,12 +720,8 @@ def _build_esrs_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, inte
             "data": NOT_TRACKED,
             "note": "See the platform's Net Zero Action Plan module for target-vs-actual tracking, not yet mapped into this disclosure.",
         },
-        "E1_5_energy_consumption": {
-            "label": "E1-5 Energy consumption and mix",
-            "renewable_gj": NOT_TRACKED,
-            "non_renewable_gj": NOT_TRACKED,
-            "note": "Energy in GJ available via SEC engine per unit; org-wide split not yet aggregated here.",
-        },
+        "E1_5_energy_consumption": _energy_indicator(
+            "E1-5 Energy consumption and mix", energy, reporting_year),
         "E1_6_scope1": {
             "label": "E1-6 Gross Scope 1 GHG emissions",
             "data": _tracked(scope1_t, "tCO2e", src, standard=scope1_std),
