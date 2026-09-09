@@ -29,6 +29,7 @@ from app.api.sustainable_product_record import router as sustainable_product_rou
 from app.api.human_rights_record import router as human_rights_router
 from app.api.consumer_responsibility_record import router as consumer_responsibility_router
 from app.api.employee_wellbeing_record import router as employee_wellbeing_router
+from app.api.manufacturing_fuel_record import router as manufacturing_fuel_router
 from app.api.stakeholder_engagement_record import router as stakeholder_engagement_router
 from app.api.manufacturing_electricity_record import router as manufacturing_electricity_router
 from app.api.csr_record import router as csr_record_router
@@ -68,6 +69,7 @@ api_router.include_router(sustainable_product_router)
 api_router.include_router(human_rights_router)
 api_router.include_router(consumer_responsibility_router)
 api_router.include_router(employee_wellbeing_router)
+api_router.include_router(manufacturing_fuel_router)
 api_router.include_router(stakeholder_engagement_router)
 api_router.include_router(manufacturing_electricity_router)
 api_router.include_router(csr_record_router)
