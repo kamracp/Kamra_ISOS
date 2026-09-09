@@ -36,6 +36,7 @@ from app.api.csr_record import router as csr_record_router
 from app.api.ethics_record import router as ethics_record_router
 from app.api.water_waste import router as water_waste_router
 from app.api.report_narrative import router as report_narrative_router
+from app.api.report_studio import router as report_studio_router
 from app.api.brsr_filing import router as brsr_filing_router
 from app.api.pat_energy import router as pat_energy_router
 
@@ -77,5 +78,6 @@ api_router.include_router(csr_record_router)
 api_router.include_router(ethics_record_router)
 api_router.include_router(water_waste_router)
 api_router.include_router(report_narrative_router)
+api_router.include_router(report_studio_router)
 api_router.include_router(brsr_filing_router)
 api_router.include_router(pat_energy_router)
