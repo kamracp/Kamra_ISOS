@@ -467,3 +467,30 @@ NOT rebuilt (BENAS on hold).
 are live full-stack (P1-P9), each with a per-principle report endpoint.**
 Closure plan next: BENAS-side Scope 2 country_code, Scope 3, CBAM,
 consolidated dashboard, server hygiene, final QA.
+
+---
+
+## 2026-09-09 -- Five-pillar navigation + Energy layer (ManufactureOS full-stack)
+
+**Commits deployed:** 4beb3f4 (pillar nav), fuel records + Fuels page (5608d27), 815f3c3 / f5104b3 / 69dfdee (energy_service, SEC rewired, Scope 1 combustion, P6 EI 1 / ESRS E1-5), energy balance panel + dashboard + dist ($(git log --oneline -1 --format=%h))
+
+**Pre-deploy backups:** benas_backup_pre_energy_09sep26.dump, benas_backup_pre_energy2_09sep26.dump
+
+**Schema changes:** one NEW table manufacturing_fuel_records (create_all on startup). No ALTER TABLE.
+
+**What changed for users:**
+- Sidebar = Dashboard + 5 pillars (Energy Efficiency, Carbon Accounting,
+  Net Zero, ESG Reporting, Product LCA) + Settings; hub page per pillar.
+- Fuels & Combustion page: fuel per unit/period from the 54-fuel IPCC
+  library; GJ, toe, Scope 1 and biogenic CO2 derived on read.
+- PAT SEC now computed from electricity + fuel records (utility bills only
+  as fallback) -- no building link required. PAT page shows the ISO 50001
+  energy balance (thermal Gcal/t, electrical kWh/t, overall toe/t, DC badge).
+- Energy Dashboard live; BRSR P6 EI 1 and ESRS E1-5 energy now tracked;
+  Scope 1 includes fuel combustion in GRI 305 / ESRS E1 / BRSR P6.
+
+**Steps:** backups -> git pull -> restart (active) -> table present ->
+endpoints 401 -> npm run build --mode manufactureos (0 tsc errors) ->
+rsync -> live bundle $LIVE. dist-benas NOT rebuilt.
+
+**Status:** Deployed and verified. Closure: Energy layer DONE. Next: Report Studio.
