@@ -46,6 +46,7 @@ export const PILLARS: Pillar[] = [
       { title: "Manufacturing Units", path: "/manufacturing-units", description: "Units, sectors, countries, PAT baselines.", status: "live", segment: "manufacturing" },
       { title: "Production Records", path: "/production-records", description: "Production quantity per unit per period.", status: "live", segment: "manufacturing" },
       { title: "Electricity (Scope 2)", path: "/manufacturing-electricity", description: "Grid and renewable electricity per unit, country-specific factors.", status: "live", segment: "manufacturing" },
+      { title: "Fuels & Combustion", path: "/manufacturing-fuels", description: "Fuel burned per unit and period -- feeds thermal SEC, Scope 1 and P6 energy.", status: "live", segment: "manufacturing" },
       { title: "PAT Energy", path: "/pat-energy", description: "SEC per unit, cycle targets, gap to target.", status: "live", segment: "manufacturing" },
       { title: "Energy Dashboard", path: "/energy-efficiency/dashboard", description: "GJ by unit, SEC vs target, trends.", status: "planned" },
     ],
