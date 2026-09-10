@@ -22,6 +22,7 @@ import ESGReportPage from "../features/esg-reports/ESGReportPage";
 import ClimateRiskPage from "../features/climate-risk/pages/ClimateRiskPage";
 import BrsrProfilePage from "../features/brsr-profile/pages/BrsrProfilePage";
 import BrsrPolicyPage from "../features/brsr-policy/pages/BrsrPolicyPage";
+import ReportStudioPage from "../features/report-studio/pages/ReportStudioPage";
 import WaterWastePage from "../features/water-waste/pages/WaterWastePage";
 import CsrPage from "../features/csr/pages/CsrPage";
 import PolicyAdvocacyPage from "../features/policy-advocacy/pages/PolicyAdvocacyPage";
@@ -75,6 +76,7 @@ export default function AppRouter() {
           <Route path="climate-risk" element={<ClimateRiskPage />} />
           <Route path="brsr-profile" element={<BrsrProfilePage />} />
           <Route path="brsr-policy" element={<BrsrPolicyPage />} />
+          <Route path="report-studio" element={<ReportStudioPage />} />
           <Route path="water-waste" element={<WaterWastePage />} />
           <Route path="csr" element={<CsrPage />} />
           <Route path="policy-advocacy" element={<PolicyAdvocacyPage />} />

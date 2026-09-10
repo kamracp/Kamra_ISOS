@@ -85,10 +85,11 @@ export const PILLARS: Pillar[] = [
       { title: "BRSR Section C", path: "/brsr-section-c", description: "Principle-wise performance -- all nine principles.", status: "live" },
       { title: "Water & Waste", path: "/water-waste", description: "Principle 6 water and waste disclosures.", status: "live" },
       { title: "ESG Reports & Validator", path: "/esg", description: "Framework reports, materiality, filing validator.", status: "live" },
+      { title: "Report Studio", path: "/report-studio", description: "Cover, leadership message, milestones and principle narratives for the complete report.", status: "live" },
     ],
     reports: [
       { title: "GRI 305 / ESRS E1 / BRSR P6", path: "/esg", status: "live", formats: "JSON, PDF" },
-      { title: "Complete ESG / BRSR Report", status: "planned", formats: "PDF, DOCX" },
+      { title: "Complete Sustainability Report", path: "/report-studio", status: "live", formats: "PDF" },
     ],
   },
   {
