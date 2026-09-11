@@ -16,7 +16,7 @@ Items (nested under a product):
 Every mutating response returns the full product (with recalculated GWP)
 so the frontend never needs a separate refetch.
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -29,6 +29,7 @@ from app.schemas.lca_product import (
     LcaInventoryItemUpdate,
 )
 from app.services.lca_product_service import LcaProductService
+from app.services.lca_openlca_export import build_openlca_zip
 
 router = APIRouter(prefix="/lca-products", tags=["LCA / PCF Studio"])
 
@@ -136,3 +137,18 @@ def delete_item(
     if result is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Item {item_id} not found in product {product_id}")
+
+
+# ------------------------------------------------------------- export ---
+
+@router.get("/{product_id}/export/openlca")
+def export_openlca(product_id: int, svc: LcaProductService = Depends(get_service)):
+    """openLCA JSON-LD zip (olca-schema v2): process + flows + Kamra GWP method
+    carrying the exact resolved factors, so the result can be reproduced in openLCA."""
+    product = svc.get_product(product_id)
+    if product is None:
+        _404(product_id)
+    data = build_openlca_zip(product)
+    filename = f"kamra_lca_product_{product_id}_openlca.zip"
+    return Response(content=data, media_type="application/zip",
+                    headers={"Content-Disposition": f'attachment; filename="{filename}"'})
