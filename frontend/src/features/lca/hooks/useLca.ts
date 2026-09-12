@@ -20,7 +20,7 @@ export function useEmissionFactorOptions() {
   return useQuery<EmissionFactorOption[]>({ queryKey: ["emission-factors", "all"], queryFn: lcaApi.emissionFactors, staleTime: 5 * 60_000 });
 }
 export function useCountryOptions() {
-  return useQuery<Country[]>({ queryKey: ["countries"], queryFn: countriesApi.list, staleTime: Infinity });
+  return useQuery<Country[]>({ queryKey: ["countries"], queryFn: countriesApi.getAll, staleTime: Infinity });
 }
 
 function useProductMutation<TVars>(fn: (v: TVars) => Promise<LcaProduct>, okMsg: string) {
