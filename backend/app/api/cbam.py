@@ -7,9 +7,9 @@ CBAM API (definitive period, 2026+).
   PUT    /cbam/goods/{id}        update (recomputed SEE returned)
   DELETE /cbam/goods/{id}
 
-Operator template export (Commission XLSX) comes in session 2.
+GET    /cbam/export/operator-template?year=   operator->importer communication XLSX
 """
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -27,6 +27,15 @@ def get_service(db: Session = Depends(get_db), current_user: User = Depends(get_
 
 def _404(good_id: int):
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"CBAM good {good_id} not found")
+
+
+@router.get("/export/operator-template")
+def export_operator_template(year: int = Query(...), svc: CbamService = Depends(get_service)):
+    """XLSX structured on IR 2023/1773 Annex IV data elements (Summary_Communication, Precursors, Method_Sources).
+    Declared BEFORE /goods/{good_id} so 'export' is never parsed as a good id."""
+    data = svc.export_operator_template(year)
+    return Response(content=data, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    headers={"Content-Disposition": f'attachment; filename="CBAM_operator_communication_{year}.xlsx"'})
 
 
 @router.get("/goods/", response_model=list[CbamGoodResponse])

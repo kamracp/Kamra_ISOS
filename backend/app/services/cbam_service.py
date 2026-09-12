@@ -117,6 +117,16 @@ class CbamService:
                 "direct_kg_per_fu": round(t_per_fu * pc["see_direct_tco2e_per_t"] * 1000.0, 6),
                 "indirect_kg_per_fu": round(t_per_fu * pc["see_indirect_tco2e_per_t"] * 1000.0, 6)}
 
+    def export_operator_template(self, year: int) -> bytes:
+        """Operator -> importer communication workbook for one reporting year (all goods)."""
+        from app.models.organization import Organization
+        from app.services.cbam_export import build_operator_template_xlsx
+        goods = self.list_goods(year)
+        products = {g["lca_product_id"]: self.lca.get_product(g["lca_product_id"])
+                    for g in goods if g.get("lca_product_id")}
+        org = self.db.get(Organization, self.organization_id)
+        return build_operator_template_xlsx(org, goods, products, year)
+
     def list_goods(self, year: int | None = None) -> list[dict]:
         return [self._calc(g) for g in self.repo.get_all(year)]
 
