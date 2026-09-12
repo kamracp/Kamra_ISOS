@@ -39,6 +39,7 @@ from app.models.csr_record import CsrRecord, CsrProject
 from app.models.ethics_record import EthicsRecord
 from app.models.waste_record import WasteRecord
 from app.models.lca_product import LcaProduct, LcaInventoryItem
+from app.models.cbam_good import CbamGood
 
 
 
