@@ -56,6 +56,14 @@ export function useDeleteItem() {
     onError: (e) => toast.error(getApiErrorMessage(e, "Delete failed")),
   });
 }
+export function useDownloadPdf() {
+  return useMutation({
+    mutationFn: (v: { pid: number; name: string }) => lcaApi.downloadPdf(v.pid, v.name),
+    onSuccess: () => toast.success("PLCA report PDF downloaded"),
+    onError: (e) => toast.error(getApiErrorMessage(e, "PDF export failed")),
+  });
+}
+
 export function useDownloadOpenLca() {
   return useMutation({
     mutationFn: (v: { pid: number; name: string }) => lcaApi.downloadOpenLca(v.pid, v.name),

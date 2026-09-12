@@ -102,7 +102,7 @@ export const PILLARS: Pillar[] = [
       { title: "Scenarios & Benchmarks", path: "/lca/scenarios", description: "Renewable shift, avoided emissions, virgin benchmarks.", status: "planned" },
       { title: "Circularity (MCI)", path: "/lca/circularity", description: "Material circularity per product.", status: "planned" },
     ],
-    reports: [{ title: "Product LCA (PLCA) Report", status: "planned", formats: "PDF, openLCA JSON-LD" }],
+    reports: [{ title: "Product LCA (PLCA) Report", status: "live", formats: "PDF, openLCA JSON-LD (from LCA / PCF Studio)" }],
   },
 ];
 

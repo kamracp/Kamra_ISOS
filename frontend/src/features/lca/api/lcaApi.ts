@@ -71,6 +71,15 @@ export const lcaApi = {
   removeItem: async (pid: number, itemId: number): Promise<void> => { await client.delete(`/lca-products/${pid}/items/${itemId}`); },
   fuelLibrary: async (): Promise<FuelLibraryEntry[]> => (await client.get<FuelLibraryEntry[]>("/manufacturing-fuel-records/library")).data,
   emissionFactors: async (): Promise<EmissionFactorOption[]> => (await client.get<EmissionFactorOption[]>("/emission-factors/")).data,
+  downloadPdf: async (pid: number, name: string): Promise<void> => {
+    const response = await client.get(`/lca-products/${pid}/export/pdf`, { responseType: "blob" });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `PLCA_${name.replace(/[^a-z0-9]+/gi, "_")}.pdf`;
+    document.body.appendChild(link); link.click(); link.remove();
+    window.URL.revokeObjectURL(url);
+  },
   downloadOpenLca: async (pid: number, name: string): Promise<void> => {
     const response = await client.get(`/lca-products/${pid}/export/openlca`, { responseType: "blob" });
     const url = window.URL.createObjectURL(new Blob([response.data], { type: "application/zip" }));

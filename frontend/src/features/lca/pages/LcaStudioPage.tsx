@@ -3,7 +3,7 @@ import { Download, Pencil, Plus, Trash2 } from "lucide-react";
 import ProductForm, { BTN, BTN2 } from "../components/ProductForm";
 import ItemForm from "../components/ItemForm";
 import { LCA_STAGES, type LcaItem, type LcaItemCreate, type LcaProductCreate } from "../api/lcaApi";
-import { useAddItem, useCreateProduct, useDeleteItem, useDeleteProduct, useDownloadOpenLca,
+import { useAddItem, useCreateProduct, useDeleteItem, useDeleteProduct, useDownloadOpenLca, useDownloadPdf,
   useLcaProduct, useLcaProducts, useUpdateItem, useUpdateProduct } from "../hooks/useLca";
 
 // Null renders as "-", never 0: an unresolved item must stay visibly unresolved.
@@ -21,7 +21,7 @@ export default function LcaStudioPage() {
   const { data: products = [], isLoading } = useLcaProducts();
   const { data: product } = useLcaProduct(selectedId);
   const createP = useCreateProduct(); const updateP = useUpdateProduct(); const deleteP = useDeleteProduct();
-  const addI = useAddItem(); const updateI = useUpdateItem(); const deleteI = useDeleteItem(); const exportZip = useDownloadOpenLca();
+  const addI = useAddItem(); const updateI = useUpdateItem(); const deleteI = useDeleteItem(); const exportZip = useDownloadOpenLca(); const exportPdf = useDownloadPdf();
 
   const saveProduct = (d: LcaProductCreate) => {
     if (productMode === "edit" && product) updateP.mutate({ id: product.id, data: d }, { onSuccess: () => setProductMode("none") });
@@ -71,6 +71,7 @@ export default function LcaStudioPage() {
                 <div className="flex gap-2 shrink-0">
                   <button className={BTN2} title="Edit product" onClick={() => setProductMode("edit")}><Pencil className="h-4 w-4" /></button>
                   <button className={BTN2} title="Delete product" onClick={removeProduct}><Trash2 className="h-4 w-4 text-red-600" /></button>
+                  <button className={BTN2} disabled={exportPdf.isPending} onClick={() => exportPdf.mutate({ pid: product.id, name: product.name })}><Download className="inline h-4 w-4 mr-1" />PLCA PDF</button>
                   <button className={BTN} disabled={exportZip.isPending || product.gwp_kgco2e_per_fu == null} onClick={() => exportZip.mutate({ pid: product.id, name: product.name })}><Download className="inline h-4 w-4 mr-1" />openLCA JSON-LD</button>
                 </div>
               </div>

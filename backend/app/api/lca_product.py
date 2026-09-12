@@ -30,6 +30,7 @@ from app.schemas.lca_product import (
 )
 from app.services.lca_product_service import LcaProductService
 from app.services.lca_openlca_export import build_openlca_zip
+from app.services.lca_product_pdf import generate_plca_pdf
 
 router = APIRouter(prefix="/lca-products", tags=["LCA / PCF Studio"])
 
@@ -152,3 +153,16 @@ def export_openlca(product_id: int, svc: LcaProductService = Depends(get_service
     filename = f"kamra_lca_product_{product_id}_openlca.zip"
     return Response(content=data, media_type="application/zip",
                     headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+
+
+@router.get("/{product_id}/export/pdf")
+def export_plca_pdf(product_id: int, svc: LcaProductService = Depends(get_service)):
+    """Product LCA (PLCA) report PDF: result, stage breakdown, inventory with cited factors."""
+    from app.models.organization import Organization
+    p = svc.get_product(product_id)
+    if p is None:
+        _404(product_id)
+    org = svc.db.get(Organization, svc.organization_id)
+    data = generate_plca_pdf(p, getattr(org, "organization_name", None))
+    return Response(content=data, media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="PLCA_{product_id}.pdf"'})
