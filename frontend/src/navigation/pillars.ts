@@ -97,8 +97,8 @@ export const PILLARS: Pillar[] = [
     hubPath: "/lca", icon: Boxes,
     tagline: "Cradle-to-gate product carbon footprint, circularity and export to openLCA / ILCD.",
     pages: [
-      { title: "LCA / PCF Studio", path: "/lca/products", description: "Products, functional units, inventory, GWP per FU, openLCA export.", status: "live" },
-      { title: "LCI Studio", path: "/lca/studies", description: "Inputs, outputs, allocation, stages.", status: "planned" },
+      { title: "LCA / PCF Studio", path: "/lca/products", description: "Products, functional units, life-cycle inventory (LCI), GWP per FU, openLCA export.", status: "live" },
+      { title: "CBAM (EU)", path: "/lca/cbam", description: "CN-coded goods, specific embedded emissions per tonne, precursors, operator communication XLSX.", status: "live" },
       { title: "Scenarios & Benchmarks", path: "/lca/scenarios", description: "Renewable shift, avoided emissions, virgin benchmarks.", status: "planned" },
       { title: "Circularity (MCI)", path: "/lca/circularity", description: "Material circularity per product.", status: "planned" },
     ],
