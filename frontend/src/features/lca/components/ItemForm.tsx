@@ -1,3 +1,5 @@
+import { useCbamGoods } from "../../cbam/hooks/useCbam";
+import type { CbamBucket } from "../api/lcaApi";
 import { useState, type ChangeEvent } from "react";
 import { LCA_STAGES, type FactorSource, type LcaItem, type LcaItemCreate, type LcaStage, type QuantityBasis } from "../api/lcaApi";
 import { useCountryOptions, useEmissionFactorOptions, useFuelLibrary } from "../hooks/useLca";
@@ -16,20 +18,26 @@ export default function ItemForm({ initial, loading, onSubmit, onCancel }: Props
     emission_factor_id: initial?.emission_factor_id ? String(initial.emission_factor_id) : "",
     quantity: initial ? String(initial.quantity) : "", basis: (initial?.basis ?? "per_functional_unit") as QuantityBasis,
     data_source: initial?.data_source ?? "",
+    cbam_bucket: (initial?.cbam_bucket ?? "") as CbamBucket | "",
+    precursor_cbam_good_id: initial?.precursor_cbam_good_id ? String(initial.precursor_cbam_good_id) : "",
   });
+  const { data: cbamGoods = [] } = useCbamGoods();
   const set = (k: keyof typeof f) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value } as typeof f);
   const activeFactors = factors.filter((x) => x.is_active);
   const chosen = activeFactors.find((x) => String(x.id) === f.emission_factor_id);
   // Unit is dictated by the factor, never typed: fuel -> tonne, grid -> kWh, factor -> its own unit.
   const unit = f.factor_source === "fuel" ? "tonne" : f.factor_source === "electricity" ? "kWh" : (chosen?.unit ?? "");
   const refOk = f.factor_source === "fuel" ? f.fuel_key !== "" : f.factor_source === "electricity" ? f.country_code !== "" : chosen !== undefined;
-  const valid = f.name.trim() !== "" && refOk && f.quantity !== "" && Number(f.quantity) >= 0;
+  const precursorOk = f.cbam_bucket !== "precursor" || f.precursor_cbam_good_id !== "";
+  const valid = f.name.trim() !== "" && refOk && precursorOk && f.quantity !== "" && Number(f.quantity) >= 0;
   const submit = () => onSubmit({
     name: f.name.trim(), stage: f.stage, factor_source: f.factor_source,
     fuel_key: f.factor_source === "fuel" ? f.fuel_key : null,
     country_code: f.factor_source === "electricity" ? f.country_code : null,
     emission_factor_id: f.factor_source === "factor" ? Number(f.emission_factor_id) : null,
     quantity: Number(f.quantity), unit, basis: f.basis, data_source: f.data_source.trim() || null,
+    cbam_bucket: f.cbam_bucket || null,
+    precursor_cbam_good_id: f.cbam_bucket === "precursor" && f.precursor_cbam_good_id ? Number(f.precursor_cbam_good_id) : null,
   });
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5 space-y-3">
@@ -53,6 +61,20 @@ export default function ItemForm({ initial, loading, onSubmit, onCancel }: Props
           <input type="number" min="0" step="any" className={INPUT} value={f.quantity} onChange={set("quantity")} /></div>
         <div><label className={LABEL}>Basis</label><select className={INPUT} value={f.basis} onChange={set("basis")}>
           <option value="per_functional_unit">Per functional unit</option><option value="annual_total">Annual total (allocated by annual output)</option></select></div>
+        <div><label className={LABEL}>CBAM bucket (blank = engine rule)</label><select className={INPUT} value={f.cbam_bucket} onChange={set("cbam_bucket")}>
+          <option value="">Auto: fuel/process = direct, grid = indirect, else excluded</option>
+          <option value="direct">Direct (own combustion / process)</option>
+          <option value="indirect">Indirect (purchased electricity)</option>
+          <option value="precursor">Precursor (another CBAM good consumed)</option>
+          <option value="excluded">Excluded from CBAM boundary</option>
+        </select></div>
+        {f.cbam_bucket === "precursor" && (
+          <div><label className={LABEL}>Precursor CBAM good (its SEE x tonne/FU is counted)</label>
+            <select className={INPUT} value={f.precursor_cbam_good_id} onChange={set("precursor_cbam_good_id")}>
+              <option value="">Select CBAM good</option>
+              {cbamGoods.map((g) => <option key={g.id} value={g.id}>{g.name} ({g.cn_code}, {g.reporting_year}{g.see_total_tco2e_per_t !== null ? `, ${g.see_total_tco2e_per_t} tCO2e/t` : ", not calculated"})</option>)}
+            </select></div>
+        )}
         <div><label className={LABEL}>Data source (invoice, weighbridge, ERP)</label><input className={INPUT} value={f.data_source} onChange={set("data_source")} /></div>
       </div>
       <div className="flex gap-2 justify-end">

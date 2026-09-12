@@ -3,6 +3,7 @@ import client from "../../../services/api/client";
 export type LcaStage = "raw_materials" | "inbound_transport" | "manufacturing" | "packaging" | "outbound_transport";
 export type FactorSource = "fuel" | "electricity" | "factor";
 export type QuantityBasis = "per_functional_unit" | "annual_total";
+export type CbamBucket = "direct" | "indirect" | "precursor" | "excluded";
 export type SystemBoundary = "cradle_to_gate" | "gate_to_gate" | "cradle_to_grave";
 
 export const LCA_STAGES: { value: LcaStage; label: string }[] = [
@@ -14,6 +15,7 @@ export const LCA_STAGES: { value: LcaStage; label: string }[] = [
 ];
 
 export interface LcaItem {
+  cbam_bucket?: CbamBucket | null; precursor_cbam_good_id?: number | null;   // CBAM override (null = engine default)
   id: number; product_id: number; organization_id: number;
   name: string; stage: LcaStage; factor_source: FactorSource;
   fuel_key?: string | null; country_code?: string | null; emission_factor_id?: number | null;
@@ -25,6 +27,7 @@ export interface LcaItem {
   co2e_kg_per_fu?: number | null; biogenic_co2_kg_per_fu?: number | null;
 }
 export interface LcaItemCreate {
+  cbam_bucket?: CbamBucket | null; precursor_cbam_good_id?: number | null;   // CBAM override (null = engine default)
   name: string; stage: LcaStage; factor_source: FactorSource;
   fuel_key?: string | null; country_code?: string | null; emission_factor_id?: number | null;
   quantity: number; unit: string; basis: QuantityBasis; data_source?: string | null; remarks?: string | null;
