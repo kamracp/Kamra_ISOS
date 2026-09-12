@@ -129,6 +129,12 @@ class LcaInventoryItem(Base):
     # factor -> emission_factors.unit (kg, tonne, tkm, litre ...). Checked by the service.
     unit: Mapped[str] = mapped_column(String(20), nullable=False)
     basis: Mapped[str] = mapped_column(String(25), nullable=False, default="per_functional_unit")
+    # CBAM (session 2): optional bucket override and precursor link.
+    # NULL bucket = engine default rule (fuel/process=direct, grid=indirect, else excluded).
+    cbam_bucket: Mapped[str | None] = mapped_column(String(12), nullable=True)
+    precursor_cbam_good_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("cbam_goods.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     # Traceability: invoice, weighbridge, ERP report, supplier EPD.
     data_source: Mapped[str | None] = mapped_column(String(200), nullable=True)
     remarks: Mapped[str | None] = mapped_column(Text, nullable=True)

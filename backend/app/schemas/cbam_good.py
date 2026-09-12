@@ -72,3 +72,4 @@ class CbamGoodResponse(CbamGoodBase):
     total_embedded_tco2e: float | None = None       # SEE total x production_qty_tonne
     excluded_items: list[str] = []                   # LCA items outside the CBAM boundary
     factor_sources: list[str] = []
+    precursors: list[dict] = []                      # linked CBAM goods counted via Annex IV precursor rule

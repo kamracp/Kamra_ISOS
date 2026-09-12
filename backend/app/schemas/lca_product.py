@@ -18,6 +18,7 @@ SystemBoundary = Literal["cradle_to_gate", "gate_to_gate", "cradle_to_grave"]
 LcaStage = Literal["raw_materials", "inbound_transport", "manufacturing", "packaging", "outbound_transport"]
 FactorSource = Literal["fuel", "electricity", "factor"]
 QuantityBasis = Literal["per_functional_unit", "annual_total"]
+CbamBucket = Literal["direct", "indirect", "precursor", "excluded"]
 
 
 def _check_fuel_key(v: str) -> str:
@@ -61,6 +62,9 @@ class LcaInventoryItemBase(BaseModel):
     quantity: float = Field(..., ge=0)
     unit: str = Field(..., max_length=20)
     basis: QuantityBasis = "per_functional_unit"
+    # CBAM override: None = engine default rule. precursor needs precursor_cbam_good_id.
+    cbam_bucket: CbamBucket | None = None
+    precursor_cbam_good_id: int | None = None
     data_source: str | None = Field(None, max_length=200)
     remarks: str | None = None
 
@@ -96,6 +100,8 @@ class LcaInventoryItemUpdate(BaseModel):
     quantity: float | None = Field(None, ge=0)
     unit: str | None = Field(None, max_length=20)
     basis: QuantityBasis | None = None
+    cbam_bucket: CbamBucket | None = None
+    precursor_cbam_good_id: int | None = None
     data_source: str | None = Field(None, max_length=200)
     remarks: str | None = None
 
