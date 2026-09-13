@@ -40,6 +40,8 @@ class CountryConfig:
         grid_factor_source: str,
         applicable_standards: str,
         needs_verification: bool = False,
+        td_loss_fraction: Optional[float] = None,
+        td_loss_source: str = "",
     ):
         self.code = code
         self.name = name
@@ -48,6 +50,10 @@ class CountryConfig:
         self.grid_factor_source = grid_factor_source
         self.applicable_standards = applicable_standards
         self.needs_verification = needs_verification
+        # Grid T&D loss as a fraction of electricity available (Scope 3 cat. 3 T&D line).
+        # Published national statistic only; None = not verified -> cat 3 T&D line stays not computed.
+        self.td_loss_fraction = td_loss_fraction
+        self.td_loss_source = td_loss_source
 
     def to_dict(self) -> dict:
         return {
@@ -58,6 +64,8 @@ class CountryConfig:
             "grid_factor_source": self.grid_factor_source,
             "applicable_standards": self.applicable_standards,
             "needs_verification": self.needs_verification,
+            "td_loss_fraction": self.td_loss_fraction,
+            "td_loss_source": self.td_loss_source,
         }
 
 
@@ -71,6 +79,9 @@ COUNTRY_REGISTRY = {
         0.7117,
         "CEA CO2 Baseline Database for the Indian Power Sector, V21.0 (2025)",
         "BEE PAT (Perform Achieve Trade) + BRSR (SEBI)",
+        td_loss_fraction=0.1763,
+        td_loss_source="CEA, All India Electricity Statistics - General Review 2025: T&D losses 17.63% of electricity available, FY 2023-24 "
+                       "(MoP Lok Sabha reply FY 2023-24: 3.55% transmission + 13.09% distribution = 16.64% on generation basis)",
     ),
     "CN": CountryConfig(
         "CN", "China", Region.ASIA,

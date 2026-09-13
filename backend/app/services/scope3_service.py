@@ -101,10 +101,14 @@ class Scope3Service:
                 if loss is None:
                     gaps.append(f"Electricity T&D losses: {kwh:,.0f} kWh in {code} not computed - no sourced T&D loss % configured for {code} (needs CEA/national source)")
                 else:
-                    t = kwh * loss * _f(cc.get("grid_factor_kgco2e_per_kwh")) / 1000.0
+                    # Published loss L is a fraction of electricity AVAILABLE (input side). Energy lost upstream of
+                    # 1 kWh delivered is therefore L / (1 - L) kWh -- that is what the grid factor is applied to.
+                    applied = loss / (1.0 - loss)
+                    t = kwh * applied * _f(cc.get("grid_factor_kgco2e_per_kwh")) / 1000.0
                     total += t
-                    lines.append({"source": f"Electricity T&D losses ({code})", "quantity": kwh, "unit": "kWh", "factor_value": loss,
-                                  "factor_unit": "loss fraction", "factor_citation": cc.get("td_loss_source", ""), "tco2e": round(t, 3)})
+                    lines.append({"source": f"Electricity T&D losses ({code})", "quantity": kwh, "unit": "kWh", "factor_value": round(applied, 4),
+                                  "factor_unit": f"kWh lost per kWh delivered = L/(1-L), L={loss:.4f} of energy available; x grid EF {_f(cc.get('grid_factor_kgco2e_per_kwh'))} kgCO2e/kWh",
+                                  "factor_citation": cc.get("td_loss_source", ""), "tco2e": round(t, 3)})
         return self._pack(3, "derived", lines, gaps, total)
 
     # ---------------------------------------------------------------- cat 4
