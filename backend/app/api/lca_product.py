@@ -21,6 +21,7 @@ from sqlalchemy.orm import Session
 
 from app.services.lca_benchmarks import list_benchmark_options
 from app.services.lca_references import list_references
+from app.services.lca_industries import INDUSTRIES
 from app.api.deps import get_current_user
 from app.database.session import get_db
 from app.models.user import User
@@ -92,10 +93,16 @@ def compare_products(
     return {"requested": wanted, "products": found, "missing": [i for i in wanted if i not in have]}
 
 
+@router.get("/industries")
+def list_industries() -> list[dict]:
+    """Industry register (LCA session 5) for the product form dropdown."""
+    return INDUSTRIES
+
+
 @router.get("/benchmarks")
-def list_benchmarks() -> list[dict]:
+def list_benchmarks(industry: str | None = None) -> list[dict]:
     """Published benchmark registry (LCA session 4) - static, cited constants for the product form."""
-    return list_benchmark_options()
+    return list_benchmark_options(industry)
 
 
 @router.get("/{product_id}")

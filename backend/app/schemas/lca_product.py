@@ -153,6 +153,8 @@ class LcaProductBase(BaseModel):
     annual_output_qty: float | None = Field(None, gt=0)
     production_country_code: str = "IN"
     benchmark_key: str | None = Field(None, max_length=40)
+    industry: str | None = Field(None, max_length=30)
+    fu_mass_kg: float | None = Field(None, gt=0)
     eol_recycling_fraction: float | None = Field(None, ge=0, le=1)
     eol_reuse_fraction: float | None = Field(None, ge=0, le=1)
     recycling_efficiency_input: float | None = Field(None, ge=0, le=1)
@@ -180,6 +182,8 @@ class LcaProductUpdate(BaseModel):
     functional_unit: str | None = Field(None, max_length=30)
     system_boundary: SystemBoundary | None = None
     benchmark_key: str | None = Field(None, max_length=40)
+    industry: str | None = Field(None, max_length=30)
+    fu_mass_kg: float | None = Field(None, gt=0)
     eol_recycling_fraction: float | None = Field(None, ge=0, le=1)
     eol_reuse_fraction: float | None = Field(None, ge=0, le=1)
     recycling_efficiency_input: float | None = Field(None, ge=0, le=1)

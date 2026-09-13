@@ -72,6 +72,10 @@ class LcaProduct(Base):
     # LCA session 4: plausibility benchmark key (see lca_benchmarks.py) and Material Circularity
     # Indicator inputs (Ellen MacArthur MCI). All nullable: an unknown input keeps MCI/benchmark
     # at not_computed rather than assuming a value.
+    # LCA session 5: industry key (app/services/lca_industries.py) drives benchmark/preset/template filtering;
+    # fu_mass_kg = declared product mass per functional unit, used only for the report mass-balance check.
+    industry: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    fu_mass_kg: Mapped[float | None] = mapped_column(Float, nullable=True)
     benchmark_key: Mapped[str | None] = mapped_column(String(40), nullable=True)
     eol_recycling_fraction: Mapped[float | None] = mapped_column(Float, nullable=True)       # Cr
     eol_reuse_fraction: Mapped[float | None] = mapped_column(Float, nullable=True)           # Cu
