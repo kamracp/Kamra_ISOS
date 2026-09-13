@@ -40,6 +40,7 @@ from app.models.ethics_record import EthicsRecord
 from app.models.waste_record import WasteRecord
 from app.models.lca_product import LcaProduct, LcaInventoryItem
 from app.models.cbam_good import CbamGood
+from app.models.scope3_activity_record import Scope3ActivityRecord
 
 
 

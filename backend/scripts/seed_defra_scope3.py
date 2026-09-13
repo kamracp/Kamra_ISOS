@@ -39,8 +39,10 @@ def rows_from_flat() -> list[dict]:
         l3 = (l3 or "").strip()
         if l1 == "WTT- fuels" and uom == "tonnes":
             mt, unit, note = slug("wtt", l3), "tonne", f"WTT (well-to-tank) upstream factor for {l3}; Scope 3 cat. 3"
-        elif l1 == "Freighting goods" and uom == "tonne.km" and l2 in FREIGHT_MODES and ct in (None, "Diesel"):
-            mt, unit, note = slug("freight", l2, l3), "tonne.km", f"Freight {l2} / {l3}; Scope 3 cat. 4/9 (vehicle-only, excl. WTT)"
+        elif l1 == "Freighting goods" and uom == "tonne.km" and l2 in FREIGHT_MODES and ct in (None, "Diesel", "Average laden", "100% Laden"):
+            laden = "" if ct in (None, "Diesel") else ("avg_laden" if ct == "Average laden" else "full_laden")
+            l2s = "hgv" if l2.startswith("HGV (non") else l2
+            mt, unit, note = slug("freight", l2s, l3, laden), "tonne.km", f"Freight {l2} / {l3}" + (f" / {ct}" if laden else "") + "; Scope 3 cat. 4/9 (vehicle-only, excl. WTT)"
         elif l1 == "Waste disposal" and uom == "tonnes":
             mt, unit, note = slug("waste", l3, ct), "tonne", f"Waste treatment: {l3} via {ct}; Scope 3 cat. 5"
         else:

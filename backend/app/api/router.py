@@ -36,6 +36,7 @@ from app.api.csr_record import router as csr_record_router
 from app.api.ethics_record import router as ethics_record_router
 from app.api.lca_product import router as lca_product_router
 from app.api.cbam import router as cbam_router
+from app.api.scope3 import router as scope3_router
 from app.api.water_waste import router as water_waste_router
 from app.api.report_narrative import router as report_narrative_router
 from app.api.report_studio import router as report_studio_router
@@ -85,3 +86,4 @@ api_router.include_router(brsr_filing_router)
 api_router.include_router(pat_energy_router)
 api_router.include_router(lca_product_router)
 api_router.include_router(cbam_router)
+api_router.include_router(scope3_router)
