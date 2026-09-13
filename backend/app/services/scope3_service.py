@@ -33,7 +33,7 @@ CATEGORY_NAMES = {
     10: "Processing of sold products", 11: "Use of sold products", 12: "End-of-life treatment of sold products",
     13: "Downstream leased assets", 14: "Franchises", 15: "Investments",
 }
-ENTERED = {1, 4, 9}   # session 2: cat 1 (mat_*), cat 9 (freight_*); 6, 7 join with the passenger seed
+ENTERED = {1, 4, 6, 7, 9}   # session 2: cat 1 mat_*, cat 4/9 freight_*, cat 6/7 pass_* + wtt_pass_* (DEFRA passenger seed)
 DERIVED = {3, 5}
 
 # SEBI waste column -> DEFRA 'Waste disposal' Level-3 slug (name mapping only)

@@ -4,6 +4,8 @@
   Freighting goods (tonne.km, diesel/none)  -> meter_type freight_<mode>_<class>,   unit tonne.km
   Waste disposal   (tonnes x treatment)     -> meter_type waste_<material>_<route>, unit tonne
   WTT- bioenergy   (biomass/biogas, tonnes)  -> meter_type wtt_<fuel>,  unit tonne
+  Business travel- land/air/sea + WTT counterparts (km / passenger.km, no miles, no market-segment cars)
+                                            -> meter_type pass_<mode>_... / wtt_pass_<mode>_..., unit km or passenger.km; cat 6/7
 
 Same conventions as seed_defra_materials.py: region UK, source_year 2026, DEFRA ID in
 document_reference, skip when meter_type+source_year already present.
@@ -19,6 +21,11 @@ from openpyxl import load_workbook
 
 SRC = "DEFRA 2026 GHG Conversion Factors (flat file v1.2, revised 31 Jul 2026)"
 FREIGHT_MODES = {"HGV (non-refrigerated, all diesel)", "Rail", "Sea tanker", "Cargo ship", "Freight flights"}
+# Passenger sections -> meter_type prefix. Vehicle-only and WTT are seeded as SEPARATE factors;
+# the user enters one line per factor (the engine never sums them silently).
+PASS_L1 = {"Business travel- land": "pass", "Business travel- air": "pass", "Business travel- sea": "pass",
+           "WTT- pass vehs & travel- land": "wtt_pass", "WTT- business travel- air": "wtt_pass", "WTT- business travel- sea": "wtt_pass"}
+PASS_MODES = {"cars (by size)": "car", "motorbike": "motorbike", "taxis": "taxi", "bus": "bus", "rail": "rail", "flights": "flight", "ferry": "ferry"}
 
 
 def slug(*parts: str) -> str:
@@ -46,6 +53,14 @@ def rows_from_flat() -> list[dict]:
             mt, unit, note = slug("freight", l2s, l3, laden), "tonne.km", f"Freight {l2} / {l3}" + (f" / {ct}" if laden else "") + "; Scope 3 cat. 4/9 (vehicle-only, excl. WTT)"
         elif l1 == "WTT- bioenergy" and l2 in ("WTT- biomass", "WTT- biogas") and uom == "tonnes":
             mt, unit, note = slug("wtt", l3), "tonne", f"WTT (well-to-tank) upstream factor for {l3} (DEFRA {l2}); Scope 3 cat. 3"
+        elif l1 in PASS_L1 and uom in ("km", "passenger.km") and str(l2).replace("WTT- ", "").lower() in PASS_MODES:
+            mode = PASS_MODES[str(l2).replace("WTT- ", "").lower()]
+            l4 = (r[H["Level 4"]] or "").strip() if "Level 4" in H else ""
+            # taxis publish both km and passenger.km rows with identical names -> suffix the passenger.km one
+            mt = slug(PASS_L1[l1], mode, l3, l4, ct) + ("_pkm" if mode == "taxi" and uom == "passenger.km" else "")
+            unit = uom
+            note = (f"Passenger {l2} / {l3}" + (f" / {l4}" if l4 else "") + (f" / {ct}" if ct else "") + "; Scope 3 cat. 6/7"
+                    + (" (WTT upstream; enter as a separate line to the vehicle factor)" if PASS_L1[l1] == "wtt_pass" else " (vehicle-only, excl. WTT)"))
         elif l1 == "Waste disposal" and uom == "tonnes":
             mt, unit, note = slug("waste", l3, ct), "tonne", f"Waste treatment: {l3} via {ct}; Scope 3 cat. 5"
         else:
@@ -62,7 +77,8 @@ def rows_from_flat() -> list[dict]:
 def main() -> None:
     dry = "--dry" in sys.argv
     rows = rows_from_flat()
-    print(f"candidates: {len(rows)}  (wtt={sum(r['mt'].startswith('wtt_') for r in rows)}, "
+    print(f"candidates: {len(rows)}  (wtt={sum(r['mt'].startswith('wtt_') and not r['mt'].startswith('wtt_pass_') for r in rows)}, "
+          f"pass={sum(r['mt'].startswith(('pass_', 'wtt_pass_')) for r in rows)}, "
           f"freight={sum(r['mt'].startswith('freight_') for r in rows)}, waste={sum(r['mt'].startswith('waste_') for r in rows)})")
     conn = psycopg2.connect(host="127.0.0.1", user="postgres", password=os.environ.get("PGPASSWORD", "postgres"), dbname="benas")
     cur = conn.cursor(); ins = skip = 0
