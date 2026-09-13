@@ -19,6 +19,12 @@ export function useFuelLibrary() {
 export function useEmissionFactorOptions() {
   return useQuery<EmissionFactorOption[]>({ queryKey: ["emission-factors", "all"], queryFn: lcaApi.emissionFactors, staleTime: 5 * 60_000 });
 }
+export function useBenchmarkOptions() {
+  return useQuery({ queryKey: ["lca-benchmarks"], queryFn: lcaApi.benchmarks, staleTime: Infinity });
+}
+export function useLcaCompare(ids: number[]) {
+  return useQuery({ queryKey: [...LCA_KEY, "compare", ids.join(",")], queryFn: () => lcaApi.compare(ids), enabled: ids.length >= 2 });
+}
 export function useCountryOptions() {
   return useQuery<Country[]>({ queryKey: ["countries"], queryFn: countriesApi.getAll, staleTime: Infinity });
 }

@@ -20,6 +20,8 @@ export default function ItemForm({ initial, loading, onSubmit, onCancel }: Props
     data_source: initial?.data_source ?? "",
     cbam_bucket: (initial?.cbam_bucket ?? "") as CbamBucket | "",
     precursor_cbam_good_id: initial?.precursor_cbam_good_id ? String(initial.precursor_cbam_good_id) : "",
+    recycled_content_fraction: initial?.recycled_content_fraction != null ? String(initial.recycled_content_fraction) : "",
+    reused_content_fraction: initial?.reused_content_fraction != null ? String(initial.reused_content_fraction) : "",
   });
   const { data: cbamGoods = [] } = useCbamGoods();
   const set = (k: keyof typeof f) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value } as typeof f);
@@ -30,6 +32,7 @@ export default function ItemForm({ initial, loading, onSubmit, onCancel }: Props
   const refOk = f.factor_source === "fuel" ? f.fuel_key !== "" : f.factor_source === "electricity" ? f.country_code !== "" : chosen !== undefined;
   const precursorOk = f.cbam_bucket !== "precursor" || f.precursor_cbam_good_id !== "";
   const valid = f.name.trim() !== "" && refOk && precursorOk && f.quantity !== "" && Number(f.quantity) >= 0;
+  const opt = (s: string) => (s === "" ? null : Number(s));   // blank = not stated, never 0
   const submit = () => onSubmit({
     name: f.name.trim(), stage: f.stage, factor_source: f.factor_source,
     fuel_key: f.factor_source === "fuel" ? f.fuel_key : null,
@@ -37,6 +40,7 @@ export default function ItemForm({ initial, loading, onSubmit, onCancel }: Props
     emission_factor_id: f.factor_source === "factor" ? Number(f.emission_factor_id) : null,
     quantity: Number(f.quantity), unit, basis: f.basis, data_source: f.data_source.trim() || null,
     cbam_bucket: f.cbam_bucket || null,
+    recycled_content_fraction: opt(f.recycled_content_fraction), reused_content_fraction: opt(f.reused_content_fraction),
     precursor_cbam_good_id: f.cbam_bucket === "precursor" && f.precursor_cbam_good_id ? Number(f.precursor_cbam_good_id) : null,
   });
   return (
@@ -75,6 +79,10 @@ export default function ItemForm({ initial, loading, onSubmit, onCancel }: Props
               {cbamGoods.map((g) => <option key={g.id} value={g.id}>{g.name} ({g.cn_code}, {g.reporting_year}{g.see_total_tco2e_per_t !== null ? `, ${g.see_total_tco2e_per_t} tCO2e/t` : ", not calculated"})</option>)}
             </select></div>
         )}
+        {f.stage === "raw_materials" && f.factor_source !== "fuel" && <>
+          <div><label className={LABEL}>Recycled content of this input (Fr, 0-1) - MCI</label><input type="number" min="0" step="any" className={INPUT} max="1" value={f.recycled_content_fraction} onChange={set("recycled_content_fraction")} /></div>
+          <div><label className={LABEL}>Reused content of this input (Fu, 0-1) - MCI</label><input type="number" min="0" step="any" className={INPUT} max="1" value={f.reused_content_fraction} onChange={set("reused_content_fraction")} /></div>
+        </>}
         <div><label className={LABEL}>Data source (invoice, weighbridge, ERP)</label><input className={INPUT} value={f.data_source} onChange={set("data_source")} /></div>
       </div>
       <div className="flex gap-2 justify-end">
