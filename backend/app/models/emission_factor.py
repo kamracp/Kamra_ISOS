@@ -40,7 +40,7 @@ class EmissionFactor(Base):
     # Matches EnergyMeter.meter_type values:
     # electricity, diesel, natural_gas, lpg, water, solar_generation, other
     meter_type: Mapped[str] = mapped_column(
-        String(50),
+        String(80),
         nullable=False,
         index=True,
     )
