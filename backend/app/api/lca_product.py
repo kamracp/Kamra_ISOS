@@ -66,6 +66,42 @@ def create_product(
     return service.create_product(data)
 
 
+@router.get("/compare")
+def compare_products(
+    ids: str,
+    service: LcaProductService = Depends(get_service),
+):
+    """Scenario comparison (LCA session 4): 2-4 products side by side, each fully calculated
+    (GWP, by_stage, benchmark, mci). Ids not in this organisation are reported as missing, never guessed."""
+    try:
+        wanted = [int(x) for x in ids.split(",") if x.strip()]
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="ids must be comma-separated integers")
+    if not 2 <= len(wanted) <= 4:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="compare 2 to 4 products")
+    found = [p for p in (service.get_product(i) for i in wanted) if p]
+    have = {p["id"] for p in found}
+    return {"requested": wanted, "products": found, "missing": [i for i in wanted if i not in have]}
+
+
+@router.get("/compare")
+def compare_products(
+    ids: str,
+    service: LcaProductService = Depends(get_service),
+):
+    """Scenario comparison (LCA session 4): 2-4 products side by side, each fully calculated
+    (GWP, by_stage, benchmark, mci). Ids not in this organisation are reported as missing, never guessed."""
+    try:
+        wanted = [int(x) for x in ids.split(",") if x.strip()]
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="ids must be comma-separated integers")
+    if not 2 <= len(wanted) <= 4:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="compare 2 to 4 products")
+    found = [p for p in (service.get_product(i) for i in wanted) if p]
+    have = {p["id"] for p in found}
+    return {"requested": wanted, "products": found, "missing": [i for i in wanted if i not in have]}
+
+
 @router.get("/benchmarks")
 def list_benchmarks() -> list[dict]:
     """Published benchmark registry (LCA session 4) - static, cited constants for the product form."""
