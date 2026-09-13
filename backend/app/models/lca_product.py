@@ -69,6 +69,16 @@ class LcaProduct(Base):
     annual_output_qty: Mapped[float | None] = mapped_column(Float, nullable=True)
     # Default country for electricity items; ISO 3166-1 alpha-2, key into country_config.
     production_country_code: Mapped[str] = mapped_column(String(2), nullable=False, default="IN")
+    # LCA session 4: plausibility benchmark key (see lca_benchmarks.py) and Material Circularity
+    # Indicator inputs (Ellen MacArthur MCI). All nullable: an unknown input keeps MCI/benchmark
+    # at not_computed rather than assuming a value.
+    benchmark_key: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    eol_recycling_fraction: Mapped[float | None] = mapped_column(Float, nullable=True)       # Cr
+    eol_reuse_fraction: Mapped[float | None] = mapped_column(Float, nullable=True)           # Cu
+    recycling_efficiency_input: Mapped[float | None] = mapped_column(Float, nullable=True)   # Ef
+    recycling_efficiency_eol: Mapped[float | None] = mapped_column(Float, nullable=True)     # Ec
+    lifetime_years: Mapped[float | None] = mapped_column(Float, nullable=True)               # L
+    industry_avg_lifetime_years: Mapped[float | None] = mapped_column(Float, nullable=True)  # Lav
     remarks: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -135,6 +145,9 @@ class LcaInventoryItem(Base):
     precursor_cbam_good_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("cbam_goods.id", ondelete="SET NULL"), nullable=True, index=True
     )
+    # LCA session 4 (MCI): share of this material input that is recycled / reused feedstock (0-1).
+    recycled_content_fraction: Mapped[float | None] = mapped_column(Float, nullable=True)    # Fr
+    reused_content_fraction: Mapped[float | None] = mapped_column(Float, nullable=True)      # Fu
     # Traceability: invoice, weighbridge, ERP report, supplier EPD.
     data_source: Mapped[str | None] = mapped_column(String(200), nullable=True)
     remarks: Mapped[str | None] = mapped_column(Text, nullable=True)

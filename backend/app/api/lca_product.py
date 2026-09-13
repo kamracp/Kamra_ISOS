@@ -19,6 +19,7 @@ so the frontend never needs a separate refetch.
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from app.services.lca_benchmarks import list_benchmark_options
 from app.api.deps import get_current_user
 from app.database.session import get_db
 from app.models.user import User
@@ -63,6 +64,12 @@ def create_product(
     service: LcaProductService = Depends(get_service),
 ):
     return service.create_product(data)
+
+
+@router.get("/benchmarks")
+def list_benchmarks() -> list[dict]:
+    """Published benchmark registry (LCA session 4) - static, cited constants for the product form."""
+    return list_benchmark_options()
 
 
 @router.get("/{product_id}")

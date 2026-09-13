@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from sqlalchemy.orm import Session
 
+from app.services.lca_benchmarks import benchmark_check
 from app.models.lca_product import LcaProduct, LcaInventoryItem, LCA_STAGES
 from app.repositories.lca_product_repository import LcaProductRepository
 from app.repositories.emission_factor_repository import EmissionFactorRepository
@@ -127,6 +128,7 @@ class LcaProductService:
             "unresolved_count": len(items) - len(calc),
             "gwp_kgco2e_per_fu": gwp,
         })
+        out["benchmark"] = benchmark_check(product.benchmark_key, product.functional_unit, gwp)
         if not with_items:
             return out
         by_stage = []

@@ -65,6 +65,8 @@ class LcaInventoryItemBase(BaseModel):
     # CBAM override: None = engine default rule. precursor needs precursor_cbam_good_id.
     cbam_bucket: CbamBucket | None = None
     precursor_cbam_good_id: int | None = None
+    recycled_content_fraction: float | None = Field(None, ge=0, le=1)
+    reused_content_fraction: float | None = Field(None, ge=0, le=1)
     data_source: str | None = Field(None, max_length=200)
     remarks: str | None = None
 
@@ -102,6 +104,8 @@ class LcaInventoryItemUpdate(BaseModel):
     basis: QuantityBasis | None = None
     cbam_bucket: CbamBucket | None = None
     precursor_cbam_good_id: int | None = None
+    recycled_content_fraction: float | None = Field(None, ge=0, le=1)
+    reused_content_fraction: float | None = Field(None, ge=0, le=1)
     data_source: str | None = Field(None, max_length=200)
     remarks: str | None = None
 
@@ -148,6 +152,13 @@ class LcaProductBase(BaseModel):
     reference_year: int | None = Field(None, ge=2000, le=2100)
     annual_output_qty: float | None = Field(None, gt=0)
     production_country_code: str = "IN"
+    benchmark_key: str | None = Field(None, max_length=40)
+    eol_recycling_fraction: float | None = Field(None, ge=0, le=1)
+    eol_reuse_fraction: float | None = Field(None, ge=0, le=1)
+    recycling_efficiency_input: float | None = Field(None, ge=0, le=1)
+    recycling_efficiency_eol: float | None = Field(None, ge=0, le=1)
+    lifetime_years: float | None = Field(None, gt=0)
+    industry_avg_lifetime_years: float | None = Field(None, gt=0)
     remarks: str | None = None
 
     @field_validator("production_country_code")
@@ -168,6 +179,13 @@ class LcaProductUpdate(BaseModel):
     functional_unit_qty: float | None = Field(None, gt=0)
     functional_unit: str | None = Field(None, max_length=30)
     system_boundary: SystemBoundary | None = None
+    benchmark_key: str | None = Field(None, max_length=40)
+    eol_recycling_fraction: float | None = Field(None, ge=0, le=1)
+    eol_reuse_fraction: float | None = Field(None, ge=0, le=1)
+    recycling_efficiency_input: float | None = Field(None, ge=0, le=1)
+    recycling_efficiency_eol: float | None = Field(None, ge=0, le=1)
+    lifetime_years: float | None = Field(None, gt=0)
+    industry_avg_lifetime_years: float | None = Field(None, gt=0)
     reference_year: int | None = Field(None, ge=2000, le=2100)
     annual_output_qty: float | None = Field(None, gt=0)
     production_country_code: str | None = None
