@@ -28,7 +28,7 @@ export interface Scope3RecordCreate {
 export type Scope3RecordUpdate = Partial<Scope3RecordCreate>;
 
 // Which emission_factors meter_type prefixes an entered category may use (session 1: cat 4).
-export const CATEGORY_FACTOR_PREFIX: Record<number, string[]> = { 4: ["freight_"], 9: ["freight_"] };
+export const CATEGORY_FACTOR_PREFIX: Record<number, string[]> = { 1: ["mat_"], 4: ["freight_"], 9: ["freight_"] };
 
 export const scope3Api = {
   summary: async (year: number): Promise<Scope3Summary> => (await client.get("/scope3/summary", { params: { year } })).data,

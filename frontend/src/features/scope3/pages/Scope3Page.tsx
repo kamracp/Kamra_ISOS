@@ -35,7 +35,7 @@ function RecordForm({ year, category, onDone }: { year: number; category: number
         <div><label className={LABEL}>Emission factor * (DEFRA freight, per tonne.km)</label>
           <select className={INPUT} value={f.emission_factor_id} onChange={set("emission_factor_id")}>
             <option value="">Select factor</option>
-            {options.map((o) => <option key={o.id} value={o.id}>{o.meter_type.replace(/^freight_/, "").replace(/_/g, " ")} - {o.factor_kgco2e_per_unit} kgCO2e/{o.unit} ({o.source_year})</option>)}
+            {options.map((o) => <option key={o.id} value={o.id}>{o.meter_type.replace(/^(freight_|mat_)/, "").replace(/_/g, " ")} - {o.factor_kgco2e_per_unit} kgCO2e/{o.unit} ({o.source_year})</option>)}
           </select></div>
         <div><label className={LABEL}>Quantity * {chosen ? `(${chosen.unit})` : ""}</label><input className={INPUT} type="number" min={0} value={f.quantity} onChange={set("quantity")} /></div>
         <div><label className={LABEL}>Data source (LR copies, ERP, invoices)</label><input className={INPUT} value={f.data_source} onChange={set("data_source")} /></div>

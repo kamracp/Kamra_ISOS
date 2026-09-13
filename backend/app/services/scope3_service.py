@@ -33,7 +33,7 @@ CATEGORY_NAMES = {
     10: "Processing of sold products", 11: "Use of sold products", 12: "End-of-life treatment of sold products",
     13: "Downstream leased assets", 14: "Franchises", 15: "Investments",
 }
-ENTERED = {4}      # session 1; 1, 6, 7, 9 join later without schema change
+ENTERED = {1, 4, 9}   # session 2: cat 1 (mat_*), cat 9 (freight_*); 6, 7 join with the passenger seed
 DERIVED = {3, 5}
 
 # SEBI waste column -> DEFRA 'Waste disposal' Level-3 slug (name mapping only)
@@ -108,9 +108,10 @@ class Scope3Service:
         return self._pack(3, "derived", lines, gaps, total)
 
     # ---------------------------------------------------------------- cat 4
-    def _cat4(self, year: int) -> dict:
+    def _entered(self, cat: int, year: int) -> dict:
+        """Any entered category: activity records x cited factor; calc_record enforces unit match."""
         lines, gaps, total = [], [], 0.0
-        for r in self.repo.get_all(year, 4):
+        for r in self.repo.get_all(year, cat):
             row = self.calc_record(r)
             if row["status"] != "calculated":
                 gaps.append(f"{r.description}: {row['status_reason']}")
@@ -118,7 +119,7 @@ class Scope3Service:
             total += row["tco2e"]
             lines.append({"source": r.description, "quantity": r.quantity, "unit": r.unit, "factor_value": row["factor_value"],
                           "factor_unit": row["factor_unit"], "factor_citation": row["factor_citation"], "tco2e": row["tco2e"]})
-        return self._pack(4, "entered", lines, gaps, total)
+        return self._pack(cat, "entered", lines, gaps, total)
 
     # ---------------------------------------------------------------- cat 5
     def _cat5(self, year: int) -> dict:
@@ -184,7 +185,9 @@ class Scope3Service:
 
     def summary(self, year: int) -> dict:
         self._sources = []
-        cats = {3: self._cat3(year), 4: self._cat4(year), 5: self._cat5(year)}
+        cats = {3: self._cat3(year), 5: self._cat5(year)}
+        for c in sorted(ENTERED):
+            cats[c] = self._entered(c, year)
         out = []
         for c in range(1, 16):
             out.append(cats.get(c) or {"category": c, "name": CATEGORY_NAMES[c], "basis": "not_tracked", "status": "not_tracked",

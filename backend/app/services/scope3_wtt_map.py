@@ -21,4 +21,10 @@ FUEL_WTT_METER_TYPE: dict[str, str] = {
     "lubricants": "wtt_lubricants",
     "liquified_petroleum_gases": "wtt_lpg",
     "natural_gas": "wtt_natural_gas_100_mineral_blend",
+    # DEFRA "WTT- bioenergy / WTT- biomass" rows (tonnes). Wood or wood waste -> Wood chips: industrial
+    # wood-waste fuel is chipped/hogged, and chips is the published figure closest to that form
+    # (logs = domestic, pellets = processed product). Agri-residues -> DEFRA's only agri-residue row.
+    "wood_or_wood_waste": "wtt_wood_chips",
+    "other_primary_solid_biomass_fuels": "wtt_grass_straw",
+    # unmapped (no DEFRA tonnes row): charcoal, sulphite_lyes_black_liquor, biodiesels, biogasoline
 }
