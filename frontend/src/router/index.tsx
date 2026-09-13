@@ -26,6 +26,7 @@ import ReportStudioPage from "../features/report-studio/pages/ReportStudioPage";
 import WaterWastePage from "../features/water-waste/pages/WaterWastePage";
 import LcaStudioPage from "../features/lca/pages/LcaStudioPage";
 import CbamPage from "../features/cbam/pages/CbamPage";
+import Scope3Page from "../features/scope3/pages/Scope3Page";
 import CsrPage from "../features/csr/pages/CsrPage";
 import PolicyAdvocacyPage from "../features/policy-advocacy/pages/PolicyAdvocacyPage";
 import SustainableProductsPage from "../features/sustainable-products/pages/SustainableProductsPage";
@@ -94,6 +95,7 @@ export default function AppRouter() {
           <Route path="lca" element={<PillarHubPage pillar="lca" />} />
           <Route path="lca/products" element={<LcaStudioPage />} />
           <Route path="lca/cbam" element={<CbamPage />} />
+          <Route path="carbon-accounting/scope-3" element={<Scope3Page />} />
           <Route path="manufacturing-fuels" element={<ManufacturingFuelsPage />} />
           <Route path="energy-efficiency/dashboard" element={<EnergyDashboardPage />} />
           <Route path="stakeholder-engagement" element={<StakeholderEngagementPage />} />
