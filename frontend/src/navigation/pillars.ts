@@ -99,8 +99,8 @@ export const PILLARS: Pillar[] = [
     pages: [
       { title: "LCA / PCF Studio", path: "/lca/products", description: "Products, functional units, life-cycle inventory (LCI), GWP per FU, openLCA export.", status: "live" },
       { title: "CBAM (EU)", path: "/lca/cbam", description: "CN-coded goods, specific embedded emissions per tonne, precursors, operator communication XLSX.", status: "live" },
-      { title: "Scenarios & Benchmarks", path: "/lca/scenarios", description: "Renewable shift, avoided emissions, virgin benchmarks.", status: "planned" },
-      { title: "Circularity (MCI)", path: "/lca/circularity", description: "Material circularity per product.", status: "planned" },
+      { title: "Scenarios & Benchmarks", path: "/lca/products", description: "Side-by-side comparison of 2-4 products (GWP, stage split, MCI) and published-benchmark plausibility warning (Ibanez-Fores 2011 ceramic tiles).", status: "live" },
+      { title: "Circularity (MCI)", path: "/lca/products", description: "Material Circularity Indicator (Ellen MacArthur v1.1) per product from recycled/reused content and end-of-life fractions - nothing assumed when blank.", status: "live" },
     ],
     reports: [{ title: "Product LCA (PLCA) Report", status: "live", formats: "PDF, openLCA JSON-LD (from LCA / PCF Studio)" }],
   },
