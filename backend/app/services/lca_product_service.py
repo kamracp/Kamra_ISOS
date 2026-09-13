@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from sqlalchemy.orm import Session
 
+from app.services.lca_mci import compute_mci
 from app.services.lca_benchmarks import benchmark_check
 from app.models.lca_product import LcaProduct, LcaInventoryItem, LCA_STAGES
 from app.repositories.lca_product_repository import LcaProductRepository
@@ -146,6 +147,7 @@ class LcaProductService:
             "biogenic_co2_kg_per_fu": round(sum(i["biogenic_co2_kg_per_fu"] or 0.0 for i in calc), 6) if calc else None,
             "factor_sources": sorted({i["factor_citation"] for i in calc if i["factor_citation"]}),
         })
+        out["mci"] = compute_mci(product, product.items)
         return out
 
     # ---------------------------------------------------------- products ---
