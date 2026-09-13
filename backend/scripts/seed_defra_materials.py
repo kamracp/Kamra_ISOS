@@ -23,7 +23,7 @@ for mt, f, ref in items:
     if cur.fetchone(): skip += 1; continue
     print(f"  {mt:40s} {f:>12.5f} kgCO2e/tonne")
     if "--dry" not in sys.argv:
-        cur.execute("INSERT INTO emission_factors (meter_type, unit, factor_kgco2e_per_unit, region, source, source_year, document_reference, valid_from, is_active, notes) VALUES (%s,'tonne',%s,'UK',%s,2026,%s,'2026-01-01',true,%s)",
-                    (mt, f, SRC, ref, "Cradle-to-gate (A1) material production factor, UK basis; proxy for LCA inventory where no India-specific factor exists"))
+        cur.execute("INSERT INTO emission_factors (meter_type, unit, factor_kgco2e_per_unit, region, source, source_year, document_reference, valid_from, is_active, notes, reference_id) VALUES (%s,'tonne',%s,'UK',%s,2026,%s,'2026-01-01',true,%s,%s)",
+                    (mt, f, SRC, ref, "Cradle-to-gate (A1) material production factor, UK basis; proxy for LCA inventory where no India-specific factor exists", "defra_2026_flat_v1_2"))
     ins += 1
 conn.commit(); print(f"inserted={ins} skipped={skip} dry={'--dry' in sys.argv}")

@@ -12,12 +12,14 @@ RATIO_LOW, RATIO_HIGH = 0.5, 2.0
 BENCHMARKS: dict[str, dict] = {
     # --- cradle-to-gate (A1-A3): same boundary as this Studio -> primary choices for pressed tiles ---
     "ceramic_tile_epd_italy_2016": {
+        "ref": "epd_confindustria_ceramica_2016",   # app/services/lca_references.py
         "label": "Ceramic tiles - Italian sector average, cradle-to-gate A1-A3 (Confindustria Ceramica EPD 2016)",
         "value_kgco2e_per_fu": 10.5, "functional_unit": "m2", "range_low": 10.5, "range_high": 10.5,
         "boundary": "cradle-to-gate A1-A3 (EN 15804) - same boundary as this Studio; average tile 19.9 kg/m2",
         "source": "Confindustria Ceramica / IBU, EPD-COI-20160202-ICG1-EN (issued 26 Sep 2016), Italian average ceramic tile, 76 companies / 84 plants (82.6% of Italian output), 2014 data, GaBi 7; GWP A1-A3 = 1.05E+1 kg CO2-eq per m2",
     },
     "porcelain_stoneware_ferrari_2019_gate": {
+        "ref": "ferrari_2019",   # app/services/lca_references.py
         "label": "Porcelain stoneware - Italian district 2016, cradle-to-gate (Ferrari 2019, Table 9 body+glazes+production+packaging)",
         "value_kgco2e_per_fu": 11.98, "functional_unit": "m2", "range_low": 11.98, "range_high": 11.98,
         "boundary": "cradle-to-gate, derived as the sum of the Body (2.98), Glazes (0.168), Production (8.74) and Packaging (0.0924) columns of Table 9; full cradle-to-grave total is 23.8",
@@ -25,6 +27,7 @@ BENCHMARKS: dict[str, dict] = {
     },
     # --- cradle-to-grave: a cradle-to-gate result should sit BELOW these ---
     "ceramic_tile_ibanez_2011": {
+        "ref": "ibanez_fores_2011",   # app/services/lca_references.py
         "label": "Ceramic tiles - Spanish sector average, cradle-to-grave (Ibanez-Fores 2011)",
         "value_kgco2e_per_fu": 13.2, "functional_unit": "m2", "range_low": 13.1, "range_high": 13.3,
         "boundary": "cradle-to-grave: 1 m2 over 20 years, 7 stages (clay mining, atomising, frits/glazes, tile production, distribution, installation and use, C&D waste); tile 17.23 kg/m2 - a cradle-to-gate result should sit below this",
@@ -32,6 +35,7 @@ BENCHMARKS: dict[str, dict] = {
     },
     # --- niche product, kept for completeness; NOT comparable with pressed 600x600 tiles ---
     "ceramic_thin_slab_pini_2014": {
+        "ref": "pini_2014",   # app/services/lca_references.py
         "label": "Large thin porcelain slab 3.5 mm with fibreglass backing - single plant, cradle-to-grave (Pini 2014) - not for pressed tiles",
         "value_kgco2e_per_fu": 16.32, "functional_unit": "m2", "range_low": 16.32, "range_high": 16.32,
         "boundary": "cradle-to-grave excluding installation and use; distribution 100 km EPD scenario; single plant (Laminam), slab 8.2 kg/m2 with polyurethane-bonded fibreglass backing",
@@ -48,7 +52,7 @@ def _norm(u: str | None) -> str:
 
 
 def list_benchmark_options() -> list[dict]:
-    return [{"key": k, "label": v["label"], "functional_unit": v["functional_unit"], "value_kgco2e_per_fu": v["value_kgco2e_per_fu"]}
+    return [{"key": k, "ref": v.get("ref"), "label": v["label"], "functional_unit": v["functional_unit"], "value_kgco2e_per_fu": v["value_kgco2e_per_fu"]}
             for k, v in BENCHMARKS.items()]
 
 
@@ -60,7 +64,7 @@ def benchmark_check(key: str | None, functional_unit: str | None, gwp_kgco2e_per
     base = {"key": key}
     if b is None:
         return {**base, "status": "not_computed", "reason": f"unknown benchmark key '{key}'"}
-    base.update({"label": b["label"], "value_kgco2e_per_fu": b["value_kgco2e_per_fu"], "functional_unit": b["functional_unit"],
+    base.update({"ref": b.get("ref"), "label": b["label"], "value_kgco2e_per_fu": b["value_kgco2e_per_fu"], "functional_unit": b["functional_unit"],
                  "range_low": b["range_low"], "range_high": b["range_high"], "boundary": b["boundary"], "source": b["source"]})
     if _norm(functional_unit) != _norm(b["functional_unit"]):
         return {**base, "status": "not_computed",

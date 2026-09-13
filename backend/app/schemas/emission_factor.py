@@ -23,6 +23,7 @@ class EmissionFactorBase(BaseModel):
     source: str = Field(..., min_length=3, max_length=200)
     source_year: int = Field(..., ge=1990, le=2100)
     document_reference: str | None = Field(default=None, max_length=500)
+    reference_id: str | None = Field(default=None, max_length=60)   # lca_references.py id
     valid_from: date
     # None = open-ended (currently valid factor).
     valid_to: date | None = None
@@ -51,6 +52,7 @@ class EmissionFactorUpdate(BaseModel):
     source: str | None = Field(default=None, min_length=3, max_length=200)
     source_year: int | None = Field(default=None, ge=1990, le=2100)
     document_reference: str | None = Field(default=None, max_length=500)
+    reference_id: str | None = Field(default=None, max_length=60)   # lca_references.py id
     valid_from: date | None = None
     valid_to: date | None = None
     is_active: bool | None = None

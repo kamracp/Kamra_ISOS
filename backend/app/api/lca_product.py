@@ -20,6 +20,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.services.lca_benchmarks import list_benchmark_options
+from app.services.lca_references import list_references
 from app.api.deps import get_current_user
 from app.database.session import get_db
 from app.models.user import User
@@ -66,22 +67,11 @@ def create_product(
     return service.create_product(data)
 
 
-@router.get("/compare")
-def compare_products(
-    ids: str,
-    service: LcaProductService = Depends(get_service),
-):
-    """Scenario comparison (LCA session 4): 2-4 products side by side, each fully calculated
-    (GWP, by_stage, benchmark, mci). Ids not in this organisation are reported as missing, never guessed."""
-    try:
-        wanted = [int(x) for x in ids.split(",") if x.strip()]
-    except ValueError:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="ids must be comma-separated integers")
-    if not 2 <= len(wanted) <= 4:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="compare 2 to 4 products")
-    found = [p for p in (service.get_product(i) for i in wanted) if p]
-    have = {p["id"] for p in found}
-    return {"requested": wanted, "products": found, "missing": [i for i in wanted if i not in have]}
+@router.get("/references")
+def list_refs(used_for: str | None = None) -> list[dict]:
+    """Reference register (LCA session 5): standards, methods, factor databases, EPDs, papers and tool
+    conventions the Studio relies on - the source of the PLCA report's References section."""
+    return list_references(used_for)
 
 
 @router.get("/compare")

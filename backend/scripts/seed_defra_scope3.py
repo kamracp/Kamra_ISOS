@@ -20,6 +20,7 @@ import psycopg2
 from openpyxl import load_workbook
 
 SRC = "DEFRA 2026 GHG Conversion Factors (flat file v1.2, revised 31 Jul 2026)"
+REF_ID = "defra_2026_flat_v1_2"   # id in app/services/lca_references.py - every seeded row must cite one
 FREIGHT_MODES = {"HGV (non-refrigerated, all diesel)", "Rail", "Sea tanker", "Cargo ship", "Freight flights"}
 # Passenger sections -> meter_type prefix. Vehicle-only and WTT are seeded as SEPARATE factors;
 # the user enters one line per factor (the engine never sums them silently).
@@ -88,8 +89,8 @@ def main() -> None:
             skip += 1; continue
         if not dry:
             cur.execute("INSERT INTO emission_factors (meter_type, unit, factor_kgco2e_per_unit, region, source, source_year, "
-                        "document_reference, valid_from, is_active, notes) VALUES (%s,%s,%s,'UK',%s,2026,%s,'2026-01-01',true,%s)",
-                        (r["mt"], r["unit"], r["val"], SRC, r["ref"], r["note"]))
+                        "document_reference, valid_from, is_active, notes, reference_id) VALUES (%s,%s,%s,'UK',%s,2026,%s,'2026-01-01',true,%s,%s)",
+                        (r["mt"], r["unit"], r["val"], SRC, r["ref"], r["note"], REF_ID))
         ins += 1
     conn.commit(); print(f"inserted={ins} skipped={skip} dry={dry}")
     if dry:

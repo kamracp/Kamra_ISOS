@@ -104,6 +104,9 @@ class EmissionFactor(Base):
         index=True,
     )
 
+    # LCA session 5: id of the entry in app/services/lca_references.py. Every factor row cites one;
+    # rows without a reference are deactivated by scripts/sql/alter_lca_session5_references.sql.
+    reference_id: Mapped[str | None] = mapped_column(String(60), nullable=True)
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,
