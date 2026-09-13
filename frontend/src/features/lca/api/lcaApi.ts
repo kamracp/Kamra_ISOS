@@ -44,6 +44,7 @@ export interface LcaProductSummary {
   functional_unit_qty: number; functional_unit: string; system_boundary: SystemBoundary;
   reference_year?: number | null; annual_output_qty?: number | null; production_country_code: string;
   remarks?: string | null; item_count: number; unresolved_count: number; gwp_kgco2e_per_fu: number | null;
+  industry?: string | null; fu_mass_kg?: number | null;   // session 5
   benchmark_key?: string | null; eol_recycling_fraction?: number | null; eol_reuse_fraction?: number | null;   // session 4
   recycling_efficiency_input?: number | null; recycling_efficiency_eol?: number | null; lifetime_years?: number | null; industry_avg_lifetime_years?: number | null;
   benchmark?: LcaBenchmark | null;
@@ -56,6 +57,7 @@ export interface LcaProductCreate {
   functional_unit_qty: number; functional_unit: string; system_boundary: SystemBoundary;
   reference_year?: number | null; annual_output_qty?: number | null; production_country_code: string;
   manufacturing_unit_id?: number | null; remarks?: string | null;
+  industry?: string | null; fu_mass_kg?: number | null;   // session 5
   benchmark_key?: string | null; eol_recycling_fraction?: number | null; eol_reuse_fraction?: number | null;   // session 4
   recycling_efficiency_input?: number | null; recycling_efficiency_eol?: number | null; lifetime_years?: number | null; industry_avg_lifetime_years?: number | null;
 }
@@ -66,7 +68,8 @@ export interface LcaBenchmark { key: string; status: "calculated" | "not_compute
   range_low?: number; range_high?: number; boundary?: string; source?: string; ratio?: number; warning?: string | null; reason?: string; }
 export interface LcaMci { status: "calculated" | "not_computed"; reason: string | null; mass_kg_per_fu: number | null; items_counted: string[]; items_excluded: string[];
   fr?: number; fu?: number; cr?: number; cu?: number; ef?: number | null; ec?: number | null; x?: number; utility_note?: string; virgin_kg?: number; waste_kg?: number; lfi?: number; mci?: number; method?: string; }
-export interface BenchmarkOption { key: string; label: string; functional_unit: string; value_kgco2e_per_fu: number; }
+export interface IndustryOption { key: string; label: string; typical_fu: string; }
+export interface BenchmarkOption { key: string; industry?: string | null; ref?: string | null; label: string; functional_unit: string; value_kgco2e_per_fu: number; }
 export interface LcaCompare { requested: number[]; products: LcaProduct[]; missing: number[]; }
 
 export interface FuelLibraryEntry { key: string; name: string; [k: string]: unknown; }
@@ -86,7 +89,8 @@ export const lcaApi = {
   removeItem: async (pid: number, itemId: number): Promise<void> => { await client.delete(`/lca-products/${pid}/items/${itemId}`); },
   fuelLibrary: async (): Promise<FuelLibraryEntry[]> => (await client.get<FuelLibraryEntry[]>("/manufacturing-fuel-records/library")).data,
   emissionFactors: async (): Promise<EmissionFactorOption[]> => (await client.get<EmissionFactorOption[]>("/emission-factors/")).data,
-  benchmarks: async (): Promise<BenchmarkOption[]> => (await client.get<BenchmarkOption[]>("/lca-products/benchmarks")).data,
+  industries: async (): Promise<IndustryOption[]> => (await client.get<IndustryOption[]>("/lca-products/industries")).data,
+  benchmarks: async (industry?: string): Promise<BenchmarkOption[]> => (await client.get<BenchmarkOption[]>("/lca-products/benchmarks", { params: industry ? { industry } : {} })).data,
   compare: async (ids: number[]): Promise<LcaCompare> => (await client.get<LcaCompare>("/lca-products/compare", { params: { ids: ids.join(",") } })).data,
   downloadPdf: async (pid: number, name: string): Promise<void> => {
     const response = await client.get(`/lca-products/${pid}/export/pdf`, { responseType: "blob" });

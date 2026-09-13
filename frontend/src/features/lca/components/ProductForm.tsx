@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent } from "react";
 import type { LcaProductCreate, LcaProductSummary, SystemBoundary } from "../api/lcaApi";
-import { useCountryOptions, useBenchmarkOptions } from "../hooks/useLca";
+import { useCountryOptions, useBenchmarkOptions, useIndustries } from "../hooks/useLca";
 
 export const INPUT = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none";
 export const LABEL = "block text-sm font-medium text-gray-700 mb-1";
@@ -11,7 +11,6 @@ interface Props { initial?: LcaProductSummary | null; loading?: boolean; onSubmi
 
 export default function ProductForm({ initial, loading, onSubmit, onCancel }: Props) {
   const { data: countries = [] } = useCountryOptions();
-  const { data: benchmarks = [] } = useBenchmarkOptions();
   const [f, setF] = useState({
     name: initial?.name ?? "", product_code: initial?.product_code ?? "", description: initial?.description ?? "",
     functional_unit_qty: String(initial?.functional_unit_qty ?? 1), functional_unit: initial?.functional_unit ?? "",
@@ -19,6 +18,8 @@ export default function ProductForm({ initial, loading, onSubmit, onCancel }: Pr
     reference_year: String(initial?.reference_year ?? new Date().getFullYear()),
     annual_output_qty: initial?.annual_output_qty != null ? String(initial.annual_output_qty) : "",
     production_country_code: initial?.production_country_code ?? "IN",
+    industry: initial?.industry ?? "",
+    fu_mass_kg: initial?.fu_mass_kg != null ? String(initial.fu_mass_kg) : "",
     benchmark_key: initial?.benchmark_key ?? "",
     eol_recycling_fraction: initial?.eol_recycling_fraction != null ? String(initial.eol_recycling_fraction) : "",
     eol_reuse_fraction: initial?.eol_reuse_fraction != null ? String(initial.eol_reuse_fraction) : "",
@@ -29,13 +30,15 @@ export default function ProductForm({ initial, loading, onSubmit, onCancel }: Pr
   });
   const set = (k: keyof typeof f) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setF({ ...f, [k]: e.target.value } as typeof f);
+  const { data: industries = [] } = useIndustries();
+  const { data: benchmarks = [] } = useBenchmarkOptions(f.industry || undefined);
   const opt = (s: string) => (s === "" ? null : Number(s));   // blank = not stated, never 0
   const submit = () => onSubmit({
     name: f.name.trim(), product_code: f.product_code.trim() || null, description: f.description.trim() || null,
     functional_unit_qty: Number(f.functional_unit_qty), functional_unit: f.functional_unit.trim(),
     system_boundary: f.system_boundary, reference_year: f.reference_year ? Number(f.reference_year) : null,
     annual_output_qty: f.annual_output_qty ? Number(f.annual_output_qty) : null, production_country_code: f.production_country_code,
-    benchmark_key: f.benchmark_key || null, eol_recycling_fraction: opt(f.eol_recycling_fraction), eol_reuse_fraction: opt(f.eol_reuse_fraction), recycling_efficiency_eol: opt(f.recycling_efficiency_eol), recycling_efficiency_input: opt(f.recycling_efficiency_input), lifetime_years: opt(f.lifetime_years), industry_avg_lifetime_years: opt(f.industry_avg_lifetime_years),
+    industry: f.industry || null, fu_mass_kg: opt(f.fu_mass_kg), benchmark_key: f.benchmark_key || null, eol_recycling_fraction: opt(f.eol_recycling_fraction), eol_reuse_fraction: opt(f.eol_reuse_fraction), recycling_efficiency_eol: opt(f.recycling_efficiency_eol), recycling_efficiency_input: opt(f.recycling_efficiency_input), lifetime_years: opt(f.lifetime_years), industry_avg_lifetime_years: opt(f.industry_avg_lifetime_years),
   });
   const valid = f.name.trim() !== "" && f.functional_unit.trim() !== "" && Number(f.functional_unit_qty) > 0;
   return (
@@ -46,6 +49,10 @@ export default function ProductForm({ initial, loading, onSubmit, onCancel }: Pr
         <div><label className={LABEL}>Product code</label><input className={INPUT} value={f.product_code} onChange={set("product_code")} /></div>
         <div><label className={LABEL}>Functional unit qty *</label><input type="number" min="0" step="any" className={INPUT} value={f.functional_unit_qty} onChange={set("functional_unit_qty")} /></div>
         <div><label className={LABEL}>Functional unit (m2, kg, piece) *</label><input className={INPUT} value={f.functional_unit} onChange={set("functional_unit")} /></div>
+        <div><label className={LABEL}>Industry / product family *</label>
+          <select className={INPUT} value={f.industry} onChange={set("industry")}><option value="">Select industry</option>
+            {industries.map((i) => <option key={i.key} value={i.key}>{i.label}{i.typical_fu ? ` (typically per ${i.typical_fu})` : ""}</option>)}</select></div>
+        <div><label className={LABEL}>Declared product mass per functional unit (kg) - for the report mass balance</label><input type="number" min="0" step="any" className={INPUT} value={f.fu_mass_kg} onChange={set("fu_mass_kg")} /></div>
         <div><label className={LABEL}>System boundary</label>
           <select className={INPUT} value={f.system_boundary} onChange={set("system_boundary")}>
             <option value="cradle_to_gate">Cradle to gate (A1-A3)</option>
@@ -64,7 +71,9 @@ export default function ProductForm({ initial, loading, onSubmit, onCancel }: Pr
         <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="md:col-span-3"><label className={LABEL}>Published benchmark (warning only - never changes the result)</label>
             <select className={INPUT} value={f.benchmark_key} onChange={set("benchmark_key")}><option value="">None</option>
-              {benchmarks.map((b) => <option key={b.key} value={b.key}>{b.label} - {b.value_kgco2e_per_fu} kgCO2e/{b.functional_unit}</option>)}</select></div>
+              {benchmarks.map((b) => <option key={b.key} value={b.key}>{b.label} - {b.value_kgco2e_per_fu} kgCO2e/{b.functional_unit}</option>)}</select>
+            {f.industry && benchmarks.length === 0 && <p className="mt-1 text-xs text-gray-500">No published benchmark loaded for this industry yet - nothing is assumed; the report will say so.</p>}
+            {!f.industry && <p className="mt-1 text-xs text-gray-500">Select an industry above to see its published benchmarks.</p>}</div>
           <div><label className={LABEL}>EoL collected for recycling (Cr, 0-1)</label><input type="number" min="0" step="any" className={INPUT} value={f.eol_recycling_fraction} onChange={set("eol_recycling_fraction")} /></div>
           <div><label className={LABEL}>EoL collected for reuse (Cu, 0-1)</label><input type="number" min="0" step="any" className={INPUT} value={f.eol_reuse_fraction} onChange={set("eol_reuse_fraction")} /></div>
           <div><label className={LABEL}>Recycling efficiency at EoL (Ec, 0-1)</label><input type="number" min="0" step="any" className={INPUT} value={f.recycling_efficiency_eol} onChange={set("recycling_efficiency_eol")} /></div>

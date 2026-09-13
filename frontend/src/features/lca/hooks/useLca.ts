@@ -19,8 +19,11 @@ export function useFuelLibrary() {
 export function useEmissionFactorOptions() {
   return useQuery<EmissionFactorOption[]>({ queryKey: ["emission-factors", "all"], queryFn: lcaApi.emissionFactors, staleTime: 5 * 60_000 });
 }
-export function useBenchmarkOptions() {
-  return useQuery({ queryKey: ["lca-benchmarks"], queryFn: lcaApi.benchmarks, staleTime: Infinity });
+export function useIndustries() {
+  return useQuery({ queryKey: ["lca-industries"], queryFn: lcaApi.industries, staleTime: Infinity });
+}
+export function useBenchmarkOptions(industry?: string) {
+  return useQuery({ queryKey: ["lca-benchmarks", industry ?? "all"], queryFn: () => lcaApi.benchmarks(industry), staleTime: Infinity });
 }
 export function useLcaCompare(ids: number[]) {
   return useQuery({ queryKey: [...LCA_KEY, "compare", ids.join(",")], queryFn: () => lcaApi.compare(ids), enabled: ids.length >= 2 });
