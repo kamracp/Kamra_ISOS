@@ -102,7 +102,7 @@ export const PILLARS: Pillar[] = [
       { title: "Scenarios & Benchmarks", path: "/lca/products", description: "Side-by-side comparison of 2-4 products (GWP, stage split, MCI) and published-benchmark plausibility warning (Ibanez-Fores 2011 ceramic tiles).", status: "live" },
       { title: "Circularity (MCI)", path: "/lca/products", description: "Material Circularity Indicator (Ellen MacArthur v1.1) per product from recycled/reused content and end-of-life fractions - nothing assumed when blank.", status: "live" },
     ],
-    reports: [{ title: "Product LCA (PLCA) Report", status: "live", formats: "PDF, openLCA JSON-LD (from LCA / PCF Studio)" }],
+    reports: [{ title: "Product LCA (PLCA) Report", path: "/lca/products", status: "live", formats: "PDF, openLCA JSON-LD (from LCA / PCF Studio)" }],
   },
 ];
 
