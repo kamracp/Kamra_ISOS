@@ -3,6 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { BTN, BTN2, INPUT, LABEL } from "../../lca/components/ProductForm";
 import { useEmissionFactorOptions } from "../../lca/hooks/useLca";
 import { CATEGORY_FACTOR_PREFIX, type Scope3Category, type Scope3RecordCreate } from "../api/scope3Api";
+import { CAT9_PRESETS } from "../cat9Presets";
 import { useCreateScope3Record, useDeleteScope3Record, useScope3Records, useScope3Summary } from "../hooks/useScope3";
 
 // Null renders as "-", never 0: a category that cannot be computed must stay visibly not computed.
@@ -20,6 +21,18 @@ function RecordForm({ year, category, onDone }: { year: number; category: number
   const options = factors.filter((f) => f.is_active && prefixes.some((p) => f.meter_type.startsWith(p)));
   const [f, setF] = useState({ description: "", quantity: "", emission_factor_id: "", data_source: "" });
   const set = (k: keyof typeof f) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
+  // Cat 9 presets: a preset fixes mode + distance; the user supplies tonnes shipped and quantity becomes tonne.km.
+  const [preset, setPreset] = useState({ id: "", tonnes: "" });
+  const applyPreset = (id: string, tonnes: string) => {
+    setPreset({ id, tonnes });
+    const p = CAT9_PRESETS.find((x) => x.id === id);
+    if (!p) return;
+    const fac = options.find((x) => x.meter_type === p.meter_type);
+    const t = Number(tonnes);
+    setF({ ...f, description: `${p.label} (${p.distance_km} km)`, emission_factor_id: fac ? String(fac.id) : "",
+      quantity: tonnes !== "" && t >= 0 ? String(Math.round(t * p.distance_km * 1000) / 1000) : f.quantity,
+      data_source: f.data_source || p.citation });
+  };
   const chosen = options.find((x) => String(x.id) === f.emission_factor_id);
   const valid = f.description.trim() !== "" && f.quantity !== "" && Number(f.quantity) >= 0 && chosen !== undefined;
   const submit = () => {
@@ -31,8 +44,18 @@ function RecordForm({ year, category, onDone }: { year: number; category: number
     <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-3">
       <h4 className="font-semibold text-gray-800">Add activity record - category {category}, {year}</h4>
       <div className="grid gap-3 md:grid-cols-2">
+        {category === 9 && (CAT9_PRESETS.length === 0
+          ? <p className="md:col-span-2 text-xs text-gray-500">Distribution presets: none loaded - Ibanez-Fores et al. (2011) Table 4 not yet transcribed; enter tonne.km directly.</p>
+          : <>
+              <div><label className={LABEL}>Distribution preset (Ibanez-Fores 2011, Table 4)</label>
+                <select className={INPUT} value={preset.id} onChange={(e) => applyPreset(e.target.value, preset.tonnes)}>
+                  <option value="">None - enter tonne.km directly</option>
+                  {CAT9_PRESETS.map((p) => <option key={p.id} value={p.id}>{p.label} - {p.distance_km} km</option>)}
+                </select></div>
+              <div><label className={LABEL}>Tonnes shipped (x km = tonne.km)</label><input className={INPUT} type="number" min={0} value={preset.tonnes} onChange={(e) => applyPreset(preset.id, e.target.value)} /></div>
+            </>)}
         <div><label className={LABEL}>Description *</label><input className={INPUT} placeholder="Clay inbound, Bikaner -> Morbi by road" value={f.description} onChange={set("description")} /></div>
-        <div><label className={LABEL}>Emission factor * (DEFRA freight, per tonne.km)</label>
+        <div><label className={LABEL}>Emission factor * (DEFRA 2026)</label>
           <select className={INPUT} value={f.emission_factor_id} onChange={set("emission_factor_id")}>
             <option value="">Select factor</option>
             {options.map((o) => <option key={o.id} value={o.id}>{o.meter_type.replace(/^(freight_|mat_|pass_)/, "").replace(/_/g, " ")} - {o.factor_kgco2e_per_unit} kgCO2e/{o.unit} ({o.source_year})</option>)}
