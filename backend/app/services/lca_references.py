@@ -48,6 +48,10 @@ REFERENCES: dict[str, dict] = {
     # --------------------------------------------------------------------- EPDs
     "epd_confindustria_ceramica_2016": {"type": "epd", "used_for": ["benchmark", "distribution_preset"],
         "citation": "Confindustria Ceramica / Institut Bauen und Umwelt e.V. (2016) Environmental Product Declaration - Italian Ceramic Tiles, EPD-COI-20160202-ICG1-EN, issued 26 Sep 2016, valid to 25 Sep 2021. Declared unit 1 m2 (19.9 kg); GWP A1-A3 = 10.5 kg CO2-eq; 76 companies / 84 plants, 2014 data, GaBi 7.", "url": ""},
+    "epd_pca_portland_2021": {"type": "epd", "used_for": ["benchmark"],
+        "citation": "Portland Cement Association (2021) Environmental Product Declaration - Portland Cement (ASTM C150), US industry average, Type III EPD verified by ASTM International, valid 2021-2026; LCA by Athena Sustainable Materials Institute with the GCCA Industry EPD Tool (North American module). Declared unit 1 metric ton; GWP-100 (IPCC 2013) A1-A3 = 922 kg CO2-eq; 91.4% clinker; calcination 480 kg CO2-eq.", "url": "https://www.heidelbergmaterials.us/docs/default-source/epds/627-epd_for_pca_portland_athena_03262021_final_revised.pdf"},
+    "epd_pca_plc_2021": {"type": "epd", "used_for": ["benchmark"],
+        "citation": "Portland Cement Association (2021, revised Nov 2023) Environmental Product Declaration - Portland-Limestone Cement (ASTM C595 Type IL), US industry average, Type III EPD verified by ASTM International, valid 2021-2026; Athena / GCCA EPD Tool. Declared unit 1 metric ton; GWP-100 (IPCC 2013) A1-A3 = 846 kg CO2-eq; 82.7% clinker; calcination 434 kg CO2-eq.", "url": "https://www.cement.org/wp-content/uploads/2024/07/pca_epd_plc_athena_final_revised_nov2023.pdf"},
     # ------------------------------------------------------------ journal papers
     "ibanez_fores_2011": {"type": "journal", "used_for": ["benchmark", "distribution_preset"],
         "citation": "Ibanez-Fores V., Bovea M.D., Simo A. (2011) Life cycle assessment of ceramic tiles. Environmental and statistical analysis. Int J Life Cycle Assess 16:916-928.", "url": "https://doi.org/10.1007/s11367-011-0322-6"},

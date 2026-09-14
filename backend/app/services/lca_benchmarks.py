@@ -10,6 +10,23 @@ functional unit does not match the benchmark's, so nothing is silently rescaled.
 RATIO_LOW, RATIO_HIGH = 0.5, 2.0
 
 BENCHMARKS: dict[str, dict] = {
+    # --- cement: US industry-average verified EPDs, cradle-to-gate A1-A3 per metric tonne of cement ---
+    "cement_portland_pca_2021": {
+        "ref": "epd_pca_portland_2021",
+        "industry": "cement_clinker",
+        "label": "Portland cement (ASTM C150) - US industry average, cradle-to-gate A1-A3 (PCA EPD 2021)",
+        "value_kgco2e_per_fu": 922.0, "functional_unit": "tonne", "range_low": 922.0, "range_high": 922.0,
+        "boundary": "cradle-to-gate A1-A3, 1 metric ton of cement, 91.4% clinker; Indian blended cements (PPC/PSC, clinker factor ~0.73) are expected to sit BELOW this",
+        "source": "Portland Cement Association (2021) industry-average EPD, Portland Cement, verified by ASTM International; GWP A1-A3 = 922 kg CO2-eq per metric ton",
+    },
+    "cement_plc_pca_2021": {
+        "ref": "epd_pca_plc_2021",
+        "industry": "cement_clinker",
+        "label": "Portland-limestone cement (Type IL) - US industry average, cradle-to-gate A1-A3 (PCA EPD 2021)",
+        "value_kgco2e_per_fu": 846.0, "functional_unit": "tonne", "range_low": 846.0, "range_high": 846.0,
+        "boundary": "cradle-to-gate A1-A3, 1 metric ton of cement, 82.7% clinker (10.8% limestone)",
+        "source": "Portland Cement Association (2021, rev. Nov 2023) industry-average EPD, Portland-Limestone Cement, verified by ASTM International; GWP A1-A3 = 846 kg CO2-eq per metric ton",
+    },
     # --- cradle-to-gate (A1-A3): same boundary as this Studio -> primary choices for pressed tiles ---
     "ceramic_tile_epd_italy_2016": {
         "industry": "ceramic_tiles",
