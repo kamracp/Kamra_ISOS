@@ -22,6 +22,8 @@ from sqlalchemy.orm import Session
 from app.services.lca_benchmarks import list_benchmark_options
 from app.services.lca_references import list_references
 from app.services.lca_industries import INDUSTRIES
+from app.services.lca_templates import get_template
+from app.models.emission_factor import EmissionFactor
 from app.api.deps import get_current_user
 from app.database.session import get_db
 from app.models.user import User
@@ -91,6 +93,32 @@ def compare_products(
     found = [p for p in (service.get_product(i) for i in wanted) if p]
     have = {p["id"] for p in found}
     return {"requested": wanted, "products": found, "missing": [i for i in wanted if i not in have]}
+
+
+@router.get("/templates")
+def get_industry_template(
+    industry: str,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+) -> dict:
+    """Inventory checklist for an industry (LCA session 5, step 3). meter_type rows are resolved to the
+    active emission_factor id in THIS environment; an unresolvable row is flagged factor_gap, never proxied."""
+    t = get_template(industry)
+    if t is None:
+        return {"industry": industry, "ref": None, "typical_fu": "", "items": [], "note": "no template loaded for this industry yet"}
+    items = []
+    for it in t["items"]:
+        row = dict(it)
+        mt = it.get("meter_type")
+        if mt:
+            ef = (db.query(EmissionFactor).filter(EmissionFactor.meter_type == mt, EmissionFactor.is_active.is_(True))
+                  .order_by(EmissionFactor.source_year.desc()).first())
+            row["emission_factor_id"] = ef.id if ef else None
+            if ef is None:
+                row["factor_gap"] = True
+                row["note"] = (row["note"] + "; " if row["note"] else "") + f"factor '{mt}' not active in this environment"
+        items.append(row)
+    return {"industry": industry, "ref": t["ref"], "typical_fu": t["typical_fu"], "items": items, "note": None}
 
 
 @router.get("/industries")
