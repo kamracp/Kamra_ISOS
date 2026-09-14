@@ -34,8 +34,10 @@ export interface CarbonSummary {
 // ── API calls ─────────────────────────────────────────────────────────────────
 
 export const carbonApi = {
-  async getSummary(): Promise<CarbonSummary> {
-    const { data } = await client.get<CarbonSummary>("/carbon/summary");
+  async getSummary(year?: number): Promise<CarbonSummary> {
+    const { data } = await client.get<CarbonSummary>("/carbon/summary", {
+      params: year ? { year } : undefined,
+    });
     return data;
   },
 };

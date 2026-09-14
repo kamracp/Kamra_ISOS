@@ -59,7 +59,7 @@ export const PILLARS: Pillar[] = [
     pages: [
       { title: "Energy Meters", path: "/energy-meters", description: "Metered electricity, gas and fuel points.", status: "live" },
       { title: "Utility Bills", path: "/utility-bills", description: "Billed consumption per meter and period.", status: "live" },
-      { title: "Scope 1 & 2 Summary", path: "/carbon", description: "Organisation-wide emissions by scope, unit and fuel.", status: "planned" },
+      { title: "Scope 1 & 2 Summary", path: "/carbon", description: "Organisation-wide emissions by scope, unit and fuel.", status: "live" },
       { title: "Scope 3", path: "/carbon-accounting/scope-3", description: "Fifteen GHG Protocol categories: derived (fuel WTT, waste), entered (upstream transport), not-tracked stated.", status: "live" },
       { title: "CBAM (EU)", path: "/lca/cbam", description: "Embedded emissions per tonne for EU CBAM goods - lives in the Product LCA pillar.", status: "live" },
     ],

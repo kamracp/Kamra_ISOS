@@ -14,6 +14,7 @@ import ManufacturingUnitList from "../features/manufacturing-units/pages/Manufac
 import ProductionRecordList from "../features/production-records/pages/ProductionRecordList";
 import NetZeroPage from "../features/net-zero/pages/NetZeroPage";
 import ComingSoon from "../pages/ComingSoon";
+import CarbonSummaryPage from "../features/carbon/pages/CarbonSummaryPage";
 import Dashboard from "../pages/Dashboard";
 import Login from "../pages/Login";
 import NotFound from "../pages/NotFound";
@@ -74,7 +75,7 @@ export default function AppRouter() {
             element={<ComingSoon title="Electrical Analytics" />}
           />
           <Route path="water" element={<ComingSoon title="Water Analytics" />} />
-          <Route path="carbon" element={<ComingSoon title="Carbon Accounting" />}/>
+          <Route path="carbon" element={<CarbonSummaryPage />} />
           <Route path="esg" element={<ESGReportPage />} />
           <Route path="climate-risk" element={<ClimateRiskPage />} />
           <Route path="brsr-profile" element={<BrsrProfilePage />} />

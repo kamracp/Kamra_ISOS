@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { carbonApi } from "../api/carbonApi";
 
-export function useCarbonSummary() {
+export function useCarbonSummary(year?: number) {
   return useQuery({
-    queryKey: ["carbon-summary"],
-    queryFn: carbonApi.getSummary,
+    queryKey: ["carbon-summary", year ?? "all"],
+    queryFn: () => carbonApi.getSummary(year),
   });
 }

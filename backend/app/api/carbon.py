@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -34,8 +34,13 @@ def get_service(
 
 @router.get("/summary")
 def get_carbon_summary(
+    year: int | None = Query(
+        None, ge=2000, le=2100,
+        description="Calendar year (matched on billing_period_start); omit for all bills",
+    ),
     service: CarbonService = Depends(get_service),
 ):
     """Organization-wide CO2e summary: totals by scope, monthly trend,
-    avoided emissions, pending bills, and a per-bill audit trail."""
-    return service.get_summary()
+    avoided emissions, pending bills, and a per-bill audit trail.
+    Optional year keeps the Dashboard's no-year behaviour unchanged."""
+    return service.get_summary(year=year)
