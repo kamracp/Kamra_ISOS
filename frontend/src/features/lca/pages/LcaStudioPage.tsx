@@ -4,7 +4,7 @@ import ProductForm, { BTN, BTN2 } from "../components/ProductForm";
 import ItemForm from "../components/ItemForm";
 import { LCA_STAGES, type LcaItem, type LcaItemCreate, type LcaProductCreate } from "../api/lcaApi";
 import { useAddItem, useCreateProduct, useDeleteItem, useDeleteProduct, useDownloadOpenLca, useDownloadPdf,
-  useLcaProduct, useLcaProducts, useUpdateItem, useUpdateProduct, useLcaCompare } from "../hooks/useLca";
+  useLcaProduct, useLcaProducts, useUpdateItem, useUpdateProduct, useLcaCompare, useIndustryTemplate } from "../hooks/useLca";
 
 // Null renders as "-", never 0: an unresolved item must stay visibly unresolved.
 const fmt = (v: number | null | undefined, d = 3) => (v == null ? "-" : v.toLocaleString(undefined, { maximumFractionDigits: d }));
@@ -17,13 +17,15 @@ const STATUS_CLS: Record<string, string> = {
 export default function LcaStudioPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [productMode, setProductMode] = useState<"none" | "create" | "edit">("none");
-  const [itemMode, setItemMode] = useState<"none" | "create" | LcaItem>("none");
+  const [itemMode, setItemMode] = useState<"none" | "create" | LcaItem | { prefill: Partial<LcaItemCreate> }>("none");
+  const isPrefill = (m: typeof itemMode): m is { prefill: Partial<LcaItemCreate> } => typeof m === "object" && "prefill" in m;
   // Scenario comparison: 2-4 products picked from the list, fetched side by side.
   const [compareIds, setCompareIds] = useState<number[]>([]);
   const toggleCompare = (id: number) => setCompareIds((c) => (c.includes(id) ? c.filter((x) => x !== id) : c.length >= 4 ? c : [...c, id]));
   const { data: products = [], isLoading } = useLcaProducts();
   const { data: cmp } = useLcaCompare(compareIds);
   const { data: product } = useLcaProduct(selectedId);
+  const { data: tpl } = useIndustryTemplate(product?.industry ?? undefined);
   const createP = useCreateProduct(); const updateP = useUpdateProduct(); const deleteP = useDeleteProduct();
   const addI = useAddItem(); const updateI = useUpdateItem(); const deleteI = useDeleteItem(); const exportZip = useDownloadOpenLca(); const exportPdf = useDownloadPdf();
 
@@ -33,7 +35,7 @@ export default function LcaStudioPage() {
   };
   const saveItem = (d: LcaItemCreate) => {
     if (!product) return;
-    if (itemMode !== "none" && itemMode !== "create") updateI.mutate({ pid: product.id, itemId: itemMode.id, data: d }, { onSuccess: () => setItemMode("none") });
+    if (itemMode !== "none" && itemMode !== "create" && !isPrefill(itemMode)) updateI.mutate({ pid: product.id, itemId: itemMode.id, data: d }, { onSuccess: () => setItemMode("none") });
     else addI.mutate({ pid: product.id, data: d }, { onSuccess: () => setItemMode("none") });
   };
   const removeProduct = () => {
@@ -133,7 +135,21 @@ export default function LcaStudioPage() {
                 <h3 className="font-semibold text-gray-800">Inventory items</h3>
                 <button className={BTN} onClick={() => setItemMode("create")}><Plus className="inline h-4 w-4 mr-1" />Add item</button>
               </div>
-              {itemMode !== "none" && <div className="p-4"><ItemForm initial={itemMode === "create" ? null : itemMode} loading={addI.isPending || updateI.isPending} onSubmit={saveItem} onCancel={() => setItemMode("none")} /></div>}
+              {itemMode !== "none" && <div className="p-4"><ItemForm initial={itemMode === "create" || isPrefill(itemMode) ? null : itemMode} prefill={isPrefill(itemMode) ? itemMode.prefill : null} loading={addI.isPending || updateI.isPending} onSubmit={saveItem} onCancel={() => setItemMode("none")} /></div>}
+              {product.industry && tpl && tpl.items.length > 0 && (
+                <details className="border-t border-gray-100 p-4">
+                  <summary className="cursor-pointer text-sm font-medium text-gray-700">Start from template - {tpl.items.length} typical inputs for this industry (quantities are never pre-filled)</summary>
+                  <table className="mt-2 w-full text-xs"><tbody>
+                    {tpl.items.map((r, idx) => (
+                      <tr key={idx} className="border-t border-gray-50">
+                        <td className="py-1 pr-2 font-medium text-gray-800">{r.name}</td><td className="py-1 pr-2 text-gray-500">{stageLabel(r.stage)}</td>
+                        <td className="py-1 pr-2 text-gray-500">{r.factor_source}{r.fuel_key ? ` · ${r.fuel_key}` : ""}{r.meter_type ? ` · ${r.meter_type}` : ""} · {r.unit}</td>
+                        <td className="py-1 pr-2">{r.factor_gap && <span className="rounded bg-amber-100 px-1 text-amber-700">factor gap</span>} <span className="text-gray-400">{r.note}</span></td>
+                        <td className="py-1 text-right"><button className="text-emerald-700 hover:underline" onClick={() => setItemMode({ prefill: { name: r.name, stage: r.stage, factor_source: r.factor_source, fuel_key: r.fuel_key ?? null, country_code: r.country_code ?? null, emission_factor_id: r.emission_factor_id ?? null } })}>Add</button></td>
+                      </tr>))}
+                  </tbody></table>
+                  <p className="mt-1 text-[10px] text-gray-400">Composition source (references register): {tpl.ref}</p>
+                </details>)}
               {product.items.length === 0 ? <p className="p-5 text-gray-500">No items yet.</p> : (
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50 text-left text-gray-600"><tr>

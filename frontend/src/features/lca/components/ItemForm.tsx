@@ -5,17 +5,17 @@ import { LCA_STAGES, type FactorSource, type LcaItem, type LcaItemCreate, type L
 import { useCountryOptions, useEmissionFactorOptions, useFuelLibrary } from "../hooks/useLca";
 import { BTN, BTN2, INPUT, LABEL } from "./ProductForm";
 
-interface Props { initial?: LcaItem | null; loading?: boolean; onSubmit: (d: LcaItemCreate) => void; onCancel: () => void; }
+interface Props { initial?: LcaItem | null; prefill?: Partial<LcaItemCreate> | null; loading?: boolean; onSubmit: (d: LcaItemCreate) => void; onCancel: () => void; }
 
-export default function ItemForm({ initial, loading, onSubmit, onCancel }: Props) {
+export default function ItemForm({ initial, prefill, loading, onSubmit, onCancel }: Props) {
   const { data: fuels = [] } = useFuelLibrary();
   const { data: countries = [] } = useCountryOptions();
   const { data: factors = [] } = useEmissionFactorOptions();
   const [f, setF] = useState({
-    name: initial?.name ?? "", stage: (initial?.stage ?? "raw_materials") as LcaStage,
-    factor_source: (initial?.factor_source ?? "factor") as FactorSource,
-    fuel_key: initial?.fuel_key ?? "", country_code: initial?.country_code ?? "IN",
-    emission_factor_id: initial?.emission_factor_id ? String(initial.emission_factor_id) : "",
+    name: initial?.name ?? prefill?.name ?? "", stage: (initial?.stage ?? prefill?.stage ?? "raw_materials") as LcaStage,
+    factor_source: (initial?.factor_source ?? prefill?.factor_source ?? "factor") as FactorSource,
+    fuel_key: initial?.fuel_key ?? prefill?.fuel_key ?? "", country_code: initial?.country_code ?? prefill?.country_code ?? "IN",
+    emission_factor_id: (initial?.emission_factor_id ?? prefill?.emission_factor_id) ? String(initial?.emission_factor_id ?? prefill?.emission_factor_id) : "",
     quantity: initial ? String(initial.quantity) : "", basis: (initial?.basis ?? "per_functional_unit") as QuantityBasis,
     data_source: initial?.data_source ?? "",
     cbam_bucket: (initial?.cbam_bucket ?? "") as CbamBucket | "",

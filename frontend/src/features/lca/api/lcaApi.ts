@@ -68,6 +68,9 @@ export interface LcaBenchmark { key: string; status: "calculated" | "not_compute
   range_low?: number; range_high?: number; boundary?: string; source?: string; ratio?: number; warning?: string | null; reason?: string; }
 export interface LcaMci { status: "calculated" | "not_computed"; reason: string | null; mass_kg_per_fu: number | null; items_counted: string[]; items_excluded: string[];
   fr?: number; fu?: number; cr?: number; cu?: number; ef?: number | null; ec?: number | null; x?: number; utility_note?: string; virgin_kg?: number; waste_kg?: number; lfi?: number; mci?: number; method?: string; }
+export interface TemplateItem { name: string; stage: LcaStage; factor_source: FactorSource; fuel_key?: string | null; country_code?: string | null;
+  meter_type?: string | null; emission_factor_id?: number | null; unit: string; factor_gap: boolean; note: string; }
+export interface IndustryTemplate { industry: string; ref: string | null; typical_fu: string; items: TemplateItem[]; note: string | null; }
 export interface IndustryOption { key: string; label: string; typical_fu: string; }
 export interface BenchmarkOption { key: string; industry?: string | null; ref?: string | null; label: string; functional_unit: string; value_kgco2e_per_fu: number; }
 export interface LcaCompare { requested: number[]; products: LcaProduct[]; missing: number[]; }
@@ -89,6 +92,7 @@ export const lcaApi = {
   removeItem: async (pid: number, itemId: number): Promise<void> => { await client.delete(`/lca-products/${pid}/items/${itemId}`); },
   fuelLibrary: async (): Promise<FuelLibraryEntry[]> => (await client.get<FuelLibraryEntry[]>("/manufacturing-fuel-records/library")).data,
   emissionFactors: async (): Promise<EmissionFactorOption[]> => (await client.get<EmissionFactorOption[]>("/emission-factors/")).data,
+  template: async (industry: string): Promise<IndustryTemplate> => (await client.get<IndustryTemplate>("/lca-products/templates", { params: { industry } })).data,
   industries: async (): Promise<IndustryOption[]> => (await client.get<IndustryOption[]>("/lca-products/industries")).data,
   benchmarks: async (industry?: string): Promise<BenchmarkOption[]> => (await client.get<BenchmarkOption[]>("/lca-products/benchmarks", { params: industry ? { industry } : {} })).data,
   compare: async (ids: number[]): Promise<LcaCompare> => (await client.get<LcaCompare>("/lca-products/compare", { params: { ids: ids.join(",") } })).data,

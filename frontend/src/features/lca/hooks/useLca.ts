@@ -19,6 +19,9 @@ export function useFuelLibrary() {
 export function useEmissionFactorOptions() {
   return useQuery<EmissionFactorOption[]>({ queryKey: ["emission-factors", "all"], queryFn: lcaApi.emissionFactors, staleTime: 5 * 60_000 });
 }
+export function useIndustryTemplate(industry?: string) {
+  return useQuery({ queryKey: ["lca-template", industry ?? ""], queryFn: () => lcaApi.template(industry as string), enabled: !!industry, staleTime: Infinity });
+}
 export function useIndustries() {
   return useQuery({ queryKey: ["lca-industries"], queryFn: lcaApi.industries, staleTime: Infinity });
 }
