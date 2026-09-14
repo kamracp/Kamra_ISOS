@@ -204,7 +204,7 @@ def generate_brsr_principle6_pdf(report: dict) -> bytes:
             "Indicators marked \u201cTo be collected\u201d are not yet tracked on "
             "the Kamra ClimateOS platform and are reported honestly as such, "
             "rather than estimated. This report reflects data available as of "
-            "the generation timestamp above and is not year-filtered.",
+            "the generation timestamp above for the stated reporting year.",
             footnote_style,
         )
     )

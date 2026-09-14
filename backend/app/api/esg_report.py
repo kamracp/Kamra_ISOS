@@ -21,7 +21,7 @@ from app.api.deps import get_current_user
 from app.database.session import get_db
 from app.models.user import User
 from app.repositories.emission_factor_repository import EmissionFactorRepository
-from app.services.esg_report_service import generate_brsr_principle1, generate_brsr_principle4, generate_brsr_principle6, generate_brsr_principle7, generate_brsr_principle2, generate_brsr_principle5, generate_brsr_principle9, generate_brsr_principle3, generate_brsr_principle8, generate_gri_305, generate_esrs_e1, generate_trend
+from app.services.esg_report_service import generate_brsr_principle1, generate_brsr_principle4, generate_brsr_principle6, generate_brsr_principle7, generate_brsr_principle2, generate_brsr_principle5, generate_brsr_principle9, generate_brsr_principle3, generate_brsr_principle8, generate_gri_305, generate_esrs_e1, generate_trend, generate_ghg_inventory
 from app.services.esg_report_pdf import generate_brsr_principle6_pdf
 
 router = APIRouter(prefix="/esg-reports", tags=["ESG Reports"])
@@ -294,4 +294,39 @@ def brsr_principle3(
         db=db,
         organization_id=current_user.organization_id,
         reporting_year=year,
+    )
+
+
+@router.get("/ghg-inventory")
+def ghg_inventory(
+    year: int = 2024,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """GHG Protocol corporate inventory (Scope 1, 2 location/market, 3 x15, intensity) as JSON."""
+    return generate_ghg_inventory(
+        db=db,
+        organization_id=current_user.organization_id,
+        reporting_year=year,
+    )
+
+
+@router.get("/ghg-inventory/pdf")
+def ghg_inventory_pdf(
+    year: int = 2024,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """GHG Protocol corporate inventory as a downloadable PDF (shared renderer)."""
+    report = generate_ghg_inventory(
+        db=db,
+        organization_id=current_user.organization_id,
+        reporting_year=year,
+    )
+    pdf_bytes = generate_brsr_principle6_pdf(report)
+    filename = f"ghg-inventory-org{current_user.organization_id}-{year}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )

@@ -46,18 +46,20 @@ export interface TrendReport {
 // Kept as an alias so any existing import of BrsrReport still works.
 export type BrsrReport = EsgReport;
 
-export type ReportFramework = "brsr" | "gri-305" | "esrs-e1";
+export type ReportFramework = "brsr" | "gri-305" | "esrs-e1" | "ghg-inventory";
 
 export const REPORT_FRAMEWORK_LABELS: Record<ReportFramework, string> = {
   brsr: "BRSR (India)",
   "gri-305": "GRI 305 (Global)",
   "esrs-e1": "ESRS E1 (EU / CSRD)",
+  "ghg-inventory": "GHG Inventory (GHG Protocol)",
 };
 
 const FRAMEWORK_ENDPOINTS: Record<ReportFramework, string> = {
   brsr: "/esg-reports/brsr-principle6",
   "gri-305": "/esg-reports/gri-305",
   "esrs-e1": "/esg-reports/esrs-e1",
+  "ghg-inventory": "/esg-reports/ghg-inventory",
 };
 
 export const esgReportApi = {

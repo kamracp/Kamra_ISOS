@@ -10,7 +10,7 @@ import { useCountries } from "../countries/hooks/useCountries";
 import CountrySelector from "../countries/components/CountrySelector";
 import MaterialityPanel from "./components/MaterialityPanel";
 
-const FRAMEWORK_ORDER: ReportFramework[] = ["gri-305", "esrs-e1", "brsr"];
+const FRAMEWORK_ORDER: ReportFramework[] = ["ghg-inventory", "gri-305", "esrs-e1", "brsr"];
 
 function DatapointCell({ dp }: { dp?: Datapoint }) {
   if (!dp) return <span className="text-gray-400">—</span>;

@@ -63,7 +63,7 @@ export const PILLARS: Pillar[] = [
       { title: "Scope 3", path: "/carbon-accounting/scope-3", description: "Fifteen GHG Protocol categories: derived (fuel WTT, waste), entered (upstream transport), not-tracked stated.", status: "live" },
       { title: "CBAM (EU)", path: "/lca/cbam", description: "Embedded emissions per tonne for EU CBAM goods - lives in the Product LCA pillar.", status: "live" },
     ],
-    reports: [{ title: "GHG Inventory (GHG Protocol)", status: "planned", formats: "PDF" }],
+    reports: [{ title: "GHG Inventory (GHG Protocol)", path: "/esg", status: "live", formats: "PDF" }],
   },
   {
     key: "netzero", number: 3, title: "Net Zero", shortTitle: "Net Zero",

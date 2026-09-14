@@ -1155,3 +1155,126 @@ def generate_brsr_principle3(db: Session, organization_id: int,
         "essential_indicators": essential_indicators,
         "leadership_indicators": leadership_indicators,
     }
+
+
+# ---------------------------------------------------------------------------
+# GHG Inventory Report (GHG Protocol Corporate Standard, Chapter 9)
+# ---------------------------------------------------------------------------
+
+def _biogenic_tonnes(mfg_summary: dict) -> float | None:
+    """Sum biogenic CO2 across ManufactureOS units. Reported separately from
+    Scope 1 per GHG Protocol; None when no unit carries the field."""
+    found = False
+    total = 0.0
+    for unit in mfg_summary.get("by_unit", []) or []:
+        val = unit.get("biogenic_co2_tonnes") if isinstance(unit, dict) else getattr(unit, "biogenic_co2_tonnes", None)
+        if val is not None:
+            found = True
+            total += float(val)
+    return round(total, 3) if found else None
+
+
+def generate_ghg_inventory(db: Session, organization_id: int,
+                           reporting_year: int) -> dict:
+    """GHG Protocol corporate inventory: boundary, Scope 1 (fossil) with
+    biogenic CO2 stated separately, Scope 2 location-based (market-based
+    explicitly not tracked), all 15 Scope 3 categories with their status,
+    intensity, and consolidated totals. Uses the same shared aggregator as
+    BRSR/GRI/ESRS so every framework reports one set of numbers."""
+    from app.models.brsr_organization_profile import BrsrOrganizationProfile
+    from app.repositories.manufacturing_emission_record_repository import ManufacturingEmissionRecordRepository
+    from app.repositories.manufacturing_unit_repository import ManufacturingUnitRepository
+    from app.repositories.manufacturing_fuel_record_repository import ManufacturingFuelRecordRepository
+    from app.services.manufacturing_carbon_service import ManufacturingCarbonService
+    from app.services.scope3_service import Scope3Service
+
+    scope1_t, scope2_t, src, scope1_std, scope2_std = _get_scope_summary(
+        db, organization_id, reporting_year
+    )
+
+    # Organizational boundary: BRSR Section A Q13 if disclosed, else stated as missing.
+    profile = db.query(BrsrOrganizationProfile).filter_by(organization_id=organization_id).first()
+    boundary = getattr(profile, "reporting_boundary", None) if profile else None
+
+    mfg = ManufacturingCarbonService(
+        emission_record_repository=ManufacturingEmissionRecordRepository(db, organization_id=organization_id),
+        unit_repository=ManufacturingUnitRepository(db, organization_id=organization_id),
+        fuel_record_repository=ManufacturingFuelRecordRepository(db, organization_id=organization_id),
+    )
+    biogenic_t = _biogenic_tonnes(mfg.get_summary(year=reporting_year))
+
+    s3 = Scope3Service(db, organization_id).summary(reporting_year)
+
+    ind: dict = {}
+    ind["boundary"] = {
+        "label": "Organizational boundary (consolidation approach)",
+        "data": _tracked(boundary, "", "BRSR Section A, Q13") if boundary
+        else {"status": "not_tracked", "note": "Reporting boundary not disclosed in BRSR Section A (Q13)"},
+    }
+    ind["scope1"] = {
+        "label": "Scope 1 - direct emissions (fossil)",
+        "data": _tracked(scope1_t, "tCO2e", src, standard=scope1_std),
+    }
+    ind["scope1_biogenic"] = {
+        "label": "Biogenic CO2 (reported separately, not in Scope 1)",
+        "data": _tracked(biogenic_t, "tCO2", "ManufacturingCarbonService (fuel + process records flagged biogenic)")
+        if biogenic_t is not None
+        else {"status": "not_tracked", "note": "No biogenic-flagged fuel or process records for this year"},
+    }
+    ind["scope2_location"] = {
+        "label": "Scope 2 - location-based",
+        "data": _tracked(scope2_t, "tCO2e", src, standard=scope2_std),
+    }
+    ind["scope2_market"] = {
+        "label": "Scope 2 - market-based",
+        "data": {"status": "not_tracked",
+                 "note": "Contractual instruments (PPAs, RECs, supplier-specific factors) are not tracked; "
+                         "market-based figure equals location-based only if no instruments are held"},
+    }
+    for cat in s3["categories"]:
+        key = f"scope3_cat{cat['category']:02d}"
+        label = f"Scope 3 Cat {cat['category']} - {cat['name']}"
+        if cat["status"] in ("calculated", "partial") and cat["tco2e"] is not None:
+            note = f"basis: {cat['basis']}" + (f"; {cat['status_reason']}" if cat["status_reason"] else "")
+            ind[key] = {"label": label, "data": _tracked(cat["tco2e"], "tCO2e", note)}
+        else:
+            # Page + PDF only distinguish tracked / not_tracked; keep the real
+            # Scope 3 status visible by prefixing it to the note instead.
+            ind[key] = {"label": label, "data": {"status": "not_tracked",
+                                                 "note": f"{cat['status'].replace('_', ' ')}: {cat['status_reason'] or 'no data'}"}}
+    ind["scope3_total"] = {
+        "label": f"Scope 3 - total of computed categories ({s3['computed_categories']}/15)",
+        "data": _tracked(s3["total_tco2e"], "tCO2e", "Scope3Service", standard=sorted(set(s3.get("factor_sources", []))))
+        if s3["total_tco2e"] is not None
+        else {"status": "not_tracked", "note": "No Scope 3 category computed for this year"},
+    }
+
+    s12_t = round(scope1_t + scope2_t, 3)
+    intensity = _get_intensity_metrics(db, organization_id, s12_t)
+    for k, v in (intensity or {}).items():
+        if isinstance(v, dict) and "status" in v:
+            nice = k.replace("intensity_", "").replace("tco2e", "").replace("_", " ").strip()
+            ind[f"intensity_{k}"] = {"label": f"Intensity (tCO2e {nice}, Scope 1+2)", "data": v}
+
+    all_std = sorted(set(scope1_std) | set(scope2_std) | set(s3.get("factor_sources", [])))
+    s123_t = round(s12_t + (s3["total_tco2e"] or 0.0), 3) if s3["total_tco2e"] is not None else None
+    return {
+        "framework": "GHG Protocol",
+        "section": "Corporate GHG Inventory",
+        "reporting_year": reporting_year,
+        "organization_id": organization_id,
+        "data_basis": (
+            f"Utility bills, manufacturing fuel/process/electricity records and Scope 3 activity records "
+            f"for calendar year {reporting_year}. Emission factors from the official library only "
+            f"(DEFRA / India CEA / IPCC / Ember); GWP basis per each factor's cited source."
+        ),
+        "essential_indicators": ind,
+        "totals": {
+            "scope1_plus_2_tCO2e": s12_t,
+            "total_all_scopes": _tracked(
+                s123_t if s123_t is not None else s12_t, "tCO2e",
+                src + (" + Scope 3 computed categories" if s123_t is not None else " (Scope 1+2 only; no Scope 3 computed)"),
+                standard=all_std,
+            ),
+        },
+    }
