@@ -116,3 +116,16 @@ export interface OrgEnergy {
 }
 export const getOrgEnergy = async (year: number): Promise<OrgEnergy> =>
   (await client.get<OrgEnergy>("/pat-energy/org-energy", { params: { year } })).data;
+
+/** PAT SEC Report (all active units, one year) as a PDF download. */
+export async function downloadSecReportPdf(year: number): Promise<void> {
+  const response = await client.get("/pat-energy/report/pdf", { params: { year }, responseType: "blob" });
+  const url = window.URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `pat-sec-report-${year}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}

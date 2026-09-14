@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useOrgEnergy } from "../hooks/usePatEnergy";
+import { downloadSecReportPdf } from "../api/patEnergyApi";
 
 const n = (v: number | null | undefined, d = 0) => (v === null || v === undefined ? "--" : v.toLocaleString("en-IN", { maximumFractionDigits: d }));
 
@@ -9,6 +10,11 @@ const n = (v: number | null | undefined, d = 0) => (v === null || v === undefine
 export default function EnergyDashboardPage() {
   const [year, setYear] = useState(new Date().getFullYear());
   const { data, isLoading, isError } = useOrgEnergy(year);
+  const [downloading, setDownloading] = useState(false);
+  const downloadReport = async () => {
+    setDownloading(true);
+    try { await downloadSecReportPdf(year); } finally { setDownloading(false); }
+  };
 
   return (
     <div className="space-y-6 p-8">
@@ -17,7 +23,13 @@ export default function EnergyDashboardPage() {
           <h1 className="text-3xl font-bold">Energy Dashboard</h1>
           <p className="text-gray-500">Organization energy balance from electricity and fuel records. 1 toe = 41.868 GJ.</p>
         </div>
-        <input type="number" className="w-28 rounded-lg border border-gray-300 px-3 py-2" value={year} onChange={(e) => setYear(Number(e.target.value))} />
+        <div className="flex items-center gap-3">
+          <input type="number" className="w-28 rounded-lg border border-gray-300 px-3 py-2" value={year} onChange={(e) => setYear(Number(e.target.value))} />
+          <button type="button" onClick={downloadReport} disabled={downloading}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+            {downloading ? "Preparing..." : "Download PAT SEC Report (PDF)"}
+          </button>
+        </div>
       </div>
 
       {isLoading && <div className="p-10 text-center text-gray-500">Loading...</div>}

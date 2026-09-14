@@ -50,7 +50,7 @@ export const PILLARS: Pillar[] = [
       { title: "PAT Energy", path: "/pat-energy", description: "SEC per unit, cycle targets, gap to target.", status: "live", segment: "manufacturing" },
       { title: "Energy Dashboard", path: "/energy-efficiency/dashboard", description: "Organization energy balance, mix and per-unit SEC for a year.", status: "live" },
     ],
-    reports: [{ title: "PAT SEC Report", status: "planned", formats: "PDF" }],
+    reports: [{ title: "PAT SEC Report", path: "/energy-efficiency/dashboard", status: "live", formats: "PDF" }],
   },
   {
     key: "carbon", number: 2, title: "Carbon Accounting", shortTitle: "Carbon Accounting",
