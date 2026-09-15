@@ -1,0 +1,1931 @@
+{
+ "source_org_id": 13,
+ "tables": [
+  {
+   "name": "brsr_organization_profile",
+   "fks": {
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 3,
+     "organization_id": 13,
+     "cin": "U74999PB2020PTC051234",
+     "year_of_incorporation": 2020,
+     "registered_office_address": "Plot 142, Industrial Area Phase 8B, SAS Nagar (Mohali), Punjab 160071",
+     "corporate_address": "Plot 142, Industrial Area Phase 8B, SAS Nagar (Mohali), Punjab 160071",
+     "contact_email": "info@kamraengineeringsolution.com",
+     "contact_telephone": "+91 172 4000 142",
+     "website": "https://kamraengineeringsolution.com",
+     "financial_year_reported": "reported\t2025-26",
+     "stock_exchanges_listed": [
+      "BSE",
+      "NSE"
+     ],
+     "paid_up_capital_inr": 10000000.0,
+     "brsr_contact_name": "Chander Prakash Kamra",
+     "brsr_contact_phone": "+91 172 4000 142",
+     "brsr_contact_email": "brsr@kamraengineeringsolution.com",
+     "reporting_boundary": "standalone",
+     "business_activities": [
+      {
+       "description": "A",
+       "turnover_percent": 70
+      },
+      {
+       "description": "B",
+       "turnover_percent": 30
+      }
+     ],
+     "products_sold": [
+      {
+       "nic_code": "\t71200",
+       "product_service": "Energy audit and ORC design services",
+       "turnover_percent": 60.0
+      },
+      {
+       "nic_code": "\t62011",
+       "product_service": "Engineering SaaS subscriptions",
+       "turnover_percent": 40.0
+      }
+     ],
+     "location_counts": {
+      "plants": {
+       "national": 1,
+       "international": 0
+      },
+      "offices": {
+       "national": 1,
+       "international": 0
+      }
+     },
+     "markets_served": {
+      "customer_types": null,
+      "exports_percent": 35.0,
+      "national_states": 3,
+      "international_countries": 15
+     },
+     "employee_worker_counts": {
+      "workers": {
+       "other": {
+        "male": 0,
+        "total": 0,
+        "female": 0
+       },
+       "permanent": {
+        "male": 0,
+        "total": 0,
+        "female": 0
+       }
+      },
+      "employees": {
+       "other": {
+        "male": 0,
+        "total": 0,
+        "female": 0
+       },
+       "permanent": {
+        "male": 6,
+        "total": 8,
+        "female": 2
+       }
+      }
+     },
+     "differently_abled_counts": null,
+     "women_participation": {
+      "kmp_total": 2,
+      "kmp_female": 1,
+      "board_total": 2,
+      "board_female": 1
+     },
+     "turnover_rates": [
+      {
+       "year": "2025-26",
+       "category": "Permanent employees",
+       "male_turnover_percent": null,
+       "total_turnover_percent": 12.0,
+       "female_turnover_percent": null
+      }
+     ],
+     "group_companies": [
+      {
+       "name": "Athena Naturals",
+       "relationship": "Associate",
+       "participates_in_brsr": null,
+       "shareholding_percent": 100.0
+      }
+     ],
+     "csr_applicable": null,
+     "csr_turnover_inr": 250000000.0,
+     "csr_net_worth_inr": 85000000.0,
+     "grievance_redressal": [
+      {
+       "stakeholder_group": "Employees and workers",
+       "filed_current_year": 0,
+       "filed_previous_year": 0,
+       "grievance_mechanism": null,
+       "pending_current_year": 0,
+       "pending_previous_year": 0
+      }
+     ],
+     "assurance_provider_name": "BDO India LLP",
+     "assurance_type": "Reasonable assurance (BRSR Core)",
+     "has_sustainability_committee": false,
+     "policy_review_frequency": "annually",
+     "independent_assessment_agency": "BDO India LLP",
+     "created_at": "2026-08-19T20:59:34.445978+00:00",
+     "updated_at": "2026-08-20T15:44:08.810972+00:00"
+    }
+   ]
+  },
+  {
+   "name": "brsr_policy_disclosures",
+   "fks": {
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 4,
+     "organization_id": 13,
+     "principle": 1,
+     "has_policy": true,
+     "policy_board_approved": true,
+     "policy_web_link": "https://kamraengineeringsolution.com/ethics-policy",
+     "translated_to_procedures": true,
+     "extends_to_value_chain": false,
+     "certifications": "ISO 9001:2015",
+     "commitments_and_targets": "Zero tolerance for bribery and conflict of interest; annual declaration by all employees",
+     "performance_against_targets": null,
+     "reason_no_policy": null,
+     "created_at": "2026-08-20T10:57:26.934127+00:00",
+     "updated_at": "2026-08-20T15:44:08.844466+00:00"
+    },
+    {
+     "id": 5,
+     "organization_id": 13,
+     "principle": 6,
+     "has_policy": true,
+     "policy_board_approved": true,
+     "policy_web_link": "https://kamraengineeringsolution.com/environment-policy",
+     "translated_to_procedures": true,
+     "extends_to_value_chain": true,
+     "certifications": "ISO 14001:2015",
+     "commitments_and_targets": "Net zero Scope 1 and 2 by 2040; 30% reduction from FY2025-26 baseline by 2030",
+     "performance_against_targets": "Scope 1 and 2 tracked monthly; FY2025-26 is the baseline year",
+     "reason_no_policy": null,
+     "created_at": "2026-08-20T10:57:26.934127+00:00",
+     "updated_at": "2026-08-20T15:44:08.844466+00:00"
+    },
+    {
+     "id": 6,
+     "organization_id": 13,
+     "principle": 7,
+     "has_policy": false,
+     "policy_board_approved": null,
+     "policy_web_link": null,
+     "translated_to_procedures": null,
+     "extends_to_value_chain": null,
+     "certifications": null,
+     "commitments_and_targets": null,
+     "performance_against_targets": null,
+     "reason_no_policy": "Not material to the entity at its current scale; no trade association memberships or advocacy activity",
+     "created_at": "2026-08-20T10:57:26.934127+00:00",
+     "updated_at": "2026-08-20T15:44:08.844466+00:00"
+    },
+    {
+     "id": 7,
+     "organization_id": 13,
+     "principle": 2,
+     "has_policy": true,
+     "policy_board_approved": true,
+     "policy_web_link": "https://kamraengineeringsolution.com/quality-policy",
+     "translated_to_procedures": true,
+     "extends_to_value_chain": true,
+     "certifications": null,
+     "commitments_and_targets": "All ORC and waste heat recovery designs to meet or exceed applicable efficiency standards",
+     "performance_against_targets": null,
+     "reason_no_policy": null,
+     "created_at": "2026-08-20T15:44:08.844466+00:00",
+     "updated_at": null
+    },
+    {
+     "id": 8,
+     "organization_id": 13,
+     "principle": 3,
+     "has_policy": true,
+     "policy_board_approved": true,
+     "policy_web_link": "https://kamraengineeringsolution.com/hr-policy",
+     "translated_to_procedures": true,
+     "extends_to_value_chain": true,
+     "certifications": null,
+     "commitments_and_targets": "100% statutory coverage; annual safety training for all site personnel",
+     "performance_against_targets": null,
+     "reason_no_policy": null,
+     "created_at": "2026-08-20T15:44:08.844466+00:00",
+     "updated_at": null
+    },
+    {
+     "id": 9,
+     "organization_id": 13,
+     "principle": 4,
+     "has_policy": false,
+     "policy_board_approved": null,
+     "policy_web_link": null,
+     "translated_to_procedures": null,
+     "extends_to_value_chain": null,
+     "certifications": null,
+     "commitments_and_targets": null,
+     "performance_against_targets": null,
+     "reason_no_policy": "Formal stakeholder engagement policy not yet framed given the entity's current scale; engagement is handled directly by the proprietor",
+     "created_at": "2026-08-20T15:44:08.844466+00:00",
+     "updated_at": null
+    },
+    {
+     "id": 10,
+     "organization_id": 13,
+     "principle": 5,
+     "has_policy": true,
+     "policy_board_approved": true,
+     "policy_web_link": "https://kamraengineeringsolution.com/human-rights-policy",
+     "translated_to_procedures": false,
+     "extends_to_value_chain": false,
+     "certifications": null,
+     "commitments_and_targets": null,
+     "performance_against_targets": null,
+     "reason_no_policy": null,
+     "created_at": "2026-08-20T15:44:08.844466+00:00",
+     "updated_at": null
+    },
+    {
+     "id": 11,
+     "organization_id": 13,
+     "principle": 8,
+     "has_policy": false,
+     "policy_board_approved": null,
+     "policy_web_link": null,
+     "translated_to_procedures": null,
+     "extends_to_value_chain": null,
+     "certifications": null,
+     "commitments_and_targets": null,
+     "performance_against_targets": null,
+     "reason_no_policy": "CSR provisions under Section 135 not applicable at the entity's current turnover and net worth",
+     "created_at": "2026-08-20T15:44:08.844466+00:00",
+     "updated_at": null
+    },
+    {
+     "id": 12,
+     "organization_id": 13,
+     "principle": 9,
+     "has_policy": true,
+     "policy_board_approved": true,
+     "policy_web_link": "https://kamraengineeringsolution.com/customer-policy",
+     "translated_to_procedures": true,
+     "extends_to_value_chain": false,
+     "certifications": null,
+     "commitments_and_targets": null,
+     "performance_against_targets": null,
+     "reason_no_policy": null,
+     "created_at": "2026-08-20T15:44:08.844466+00:00",
+     "updated_at": null
+    }
+   ]
+  },
+  {
+   "name": "consumer_responsibility_records",
+   "fks": {
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 2,
+     "organization_id": 13,
+     "reporting_year": 2025,
+     "complaint_mechanism_details": "Toll-free helpline, dealer feedback forms, email; 15-day SLA",
+     "turnover_percent_env_social_info": 60.0,
+     "turnover_percent_safe_usage_info": 100.0,
+     "turnover_percent_recycling_info": 40.0,
+     "voluntary_recalls_count": 0,
+     "voluntary_recalls_reasons": "0",
+     "forced_recalls_count": null,
+     "forced_recalls_reasons": null,
+     "has_cyber_security_policy": true,
+     "cyber_security_policy_link": "https://example.com/privacy",
+     "corrective_actions_details": "Packaging label revised after ASCI advisory",
+     "product_information_channels": "yes",
+     "consumer_education_details": null,
+     "service_disruption_disclosure_details": null,
+     "displays_product_info_beyond_mandate": null,
+     "consumer_survey_conducted": null,
+     "consumer_survey_details": null,
+     "data_breaches_count": 0,
+     "data_breach_pii_percent": null,
+     "data_breach_impact_details": null,
+     "remarks": null,
+     "created_at": "2026-09-08T07:15:25.142983+00:00",
+     "updated_at": null
+    }
+   ]
+  },
+  {
+   "name": "csr_records",
+   "fks": {
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 1,
+     "organization_id": 13,
+     "reporting_year": 2024,
+     "csr_budget_inr": 1000000.0,
+     "csr_amount_spent_inr": 950000.0,
+     "csr_admin_overhead_inr": 40000.0,
+     "remarks": null,
+     "created_at": "2026-08-24T09:08:24.151213+00:00",
+     "updated_at": null
+    }
+   ]
+  },
+  {
+   "name": "departments",
+   "fks": {
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 1,
+     "organization_id": 13,
+     "department_code": "HR01",
+     "department_name": "HRD",
+     "description": "HRD DEPARTMENT ",
+     "is_active": true,
+     "created_at": "2026-08-05T17:41:16.550247",
+     "updated_at": "2026-08-05T17:41:16.550252"
+    }
+   ]
+  },
+  {
+   "name": "employee_wellbeing_records",
+   "fks": {
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 2,
+     "organization_id": 13,
+     "reporting_year": 2025,
+     "wellbeing_spend_percent_revenue": 1.2,
+     "pf_employees_percent": 100.0,
+     "pf_workers_percent": 100.0,
+     "pf_deposited": "yes",
+     "gratuity_employees_percent": 100.0,
+     "gratuity_workers_percent": 100.0,
+     "gratuity_deposited": "yes",
+     "esi_employees_percent": 0.0,
+     "esi_workers_percent": 85.0,
+     "esi_deposited": "yes",
+     "other_benefit_name": null,
+     "other_benefit_employees_percent": null,
+     "other_benefit_workers_percent": null,
+     "other_benefit_deposited": null,
+     "premises_accessible_to_differently_abled": true,
+     "accessibility_details": null,
+     "has_equal_opportunity_policy": true,
+     "equal_opportunity_policy_link": null,
+     "permanent_employees_total": 200,
+     "permanent_employees_union_members": 40,
+     "permanent_workers_total": 500,
+     "permanent_workers_union_members": 450,
+     "has_ohs_management_system": true,
+     "ohs_system_coverage": "ISO 45001 at all 3 plants",
+     "hazard_identification_process": null,
+     "non_routine_risk_reporting_process": null,
+     "has_medical_facilities": true,
+     "safety_assessments_details": null,
+     "ltifr_employees": 0.85,
+     "ltifr_workers": 1.4,
+     "recordable_injuries_employees": 2,
+     "recordable_injuries_workers": 7,
+     "fatalities_employees": 0,
+     "fatalities_workers": 0,
+     "high_consequence_injuries_employees": 0,
+     "high_consequence_injuries_workers": 1,
+     "safe_workplace_measures": null,
+     "complainant_protection_details": null,
+     "assessed_health_safety_percent": 100.0,
+     "assessed_working_conditions_percent": 100.0,
+     "corrective_actions_from_assessments": null,
+     "life_insurance_employees": true,
+     "life_insurance_workers": false,
+     "value_chain_statutory_dues_details": null,
+     "rehabilitated_employees_count": null,
+     "rehabilitated_workers_count": null,
+     "has_transition_assistance": null,
+     "value_chain_assessed_health_safety_percent": null,
+     "value_chain_assessed_working_conditions_percent": null,
+     "value_chain_corrective_actions": null,
+     "remarks": null,
+     "created_at": "2026-09-08T09:11:08.731305+00:00",
+     "updated_at": null
+    }
+   ]
+  },
+  {
+   "name": "ethics_records",
+   "fks": {
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 1,
+     "organization_id": 13,
+     "reporting_year": 2024,
+     "board_kmp_total_count": 10,
+     "board_kmp_trained_count": 10,
+     "employees_total_count": 250,
+     "employees_trained_count": 200,
+     "workers_total_count": 50,
+     "workers_trained_count": 30,
+     "disciplinary_actions_directors": null,
+     "disciplinary_actions_kmp": null,
+     "disciplinary_actions_employees": null,
+     "disciplinary_actions_workers": null,
+     "fines_penalties_amount_inr": null,
+     "has_conflict_of_interest_process": "yes",
+     "conflict_of_interest_disclosures_count": null,
+     "corruption_complaints_received": 0,
+     "corruption_complaints_pending": 0,
+     "remarks": null,
+     "created_at": "2026-08-24T18:17:37.897459+00:00",
+     "updated_at": null
+    }
+   ]
+  },
+  {
+   "name": "facility_categories",
+   "fks": {
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 4,
+     "organization_id": 13,
+     "segment": "manufacturing",
+     "name": "1",
+     "display_order": 0,
+     "created_at": "2026-08-06T05:22:27.672235+00:00",
+     "updated_at": "2026-08-06T05:22:27.672235+00:00"
+    },
+    {
+     "id": 5,
+     "organization_id": 13,
+     "segment": "benas",
+     "name": "2",
+     "display_order": 0,
+     "created_at": "2026-08-06T05:22:35.195422+00:00",
+     "updated_at": "2026-08-06T05:22:35.195422+00:00"
+    }
+   ]
+  },
+  {
+   "name": "human_rights_records",
+   "fks": {
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 3,
+     "organization_id": 13,
+     "reporting_year": 2026,
+     "has_human_rights_focal_point": true,
+     "focal_point_details": "Chief Human Resources Officer; Internal Committee under POSH Act",
+     "grievance_mechanism_details": "Whistleblower portal, HR helpline, Internal Committee; 30-day resolution SLA",
+     "complainant_protection_details": "Anonymous reporting option; non-retaliation policy; identity restricted to IC",
+     "hr_requirements_in_contracts": true,
+     "hr_requirements_details": "Supplier code of conduct with child/forced labour prohibition and minimum wage clause",
+     "assessed_child_labour_percent": 100.0,
+     "assessed_forced_labour_percent": 100.0,
+     "assessed_sexual_harassment_percent": 100.0,
+     "assessed_discrimination_percent": 50.0,
+     "assessed_wages_percent": 0.0,
+     "assessed_other_percent": null,
+     "assessed_other_description": null,
+     "corrective_actions_from_assessments": "Wage audit scheduled at Unit 2 for FY26",
+     "process_modifications_from_grievances": "Contractor wage payment moved to bank transfer after grievance",
+     "human_rights_due_diligence_details": "Annual HR due diligence at all 3 plants",
+     "premises_accessible_to_differently_abled": null,
+     "accessibility_details": null,
+     "value_chain_partners_assessed_percent": 20.0,
+     "value_chain_assessment_details": null,
+     "value_chain_corrective_actions": null,
+     "remarks": null,
+     "created_at": "2026-09-08T05:42:19.004119+00:00",
+     "updated_at": null
+    }
+   ]
+  },
+  {
+   "name": "report_narratives",
+   "fks": {
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 3,
+     "organization_id": 13,
+     "reporting_year": 2026,
+     "cover_title": "Sustainability Report FY 2025-26",
+     "cover_subtitle": "Building a low-carbon manufacturing future",
+     "theme_colour": "#0B5D3B",
+     "about_company": "Kamra Energy Solution is a Mohali-based industrial manufacturer with integrated production units in Punjab and Gujarat. We serve infrastructure and building-materials customers across India and export to the Middle East. Energy efficiency and waste heat recovery are core to our operating model: every unit runs under an ISO 50001-aligned energy management system and reports specific energy consumption quarterly under the BEE PAT scheme.",
+     "leadership_message": "FY 2025-26 marked a turning point in our sustainability journey. We completed our first full GHG inventory covering Scope 1 and Scope 2 emissions across all manufacturing units, commissioned a 2 MW rooftop solar plant, and achieved a 12% reduction in specific energy consumption against our PAT baseline. Our net-zero pathway, approved by the Board this year, commits us to a 42% absolute reduction in Scope 1 and 2 emissions by 2030 and net zero by 2050. None of this is possible without our people, our communities and our partners. This report sets out, with full transparency, where we stand and where we are going.",
+     "leadership_name": "Chander Kamra",
+     "leadership_designation": "Managing Director",
+     "milestones": [
+      {
+       "year": 2018,
+       "title": "Company founded",
+       "description": "Mohali plant commissioned"
+      },
+      {
+       "year": 2021,
+       "title": "ISO 50001 certification",
+       "description": "Energy management system across all units"
+      },
+      {
+       "year": 2023,
+       "title": "BEE PAT Cycle participation",
+       "description": "First designated-consumer reporting year"
+      },
+      {
+       "year": 2025,
+       "title": "2 MW rooftop solar",
+       "description": "18% of electricity from on-site renewables"
+      },
+      {
+       "year": 2026,
+       "title": "Net-zero target approved",
+       "description": "Board-approved 2030/2050 pathway"
+      }
+     ],
+     "principle_narratives": [
+      {
+       "sdgs": [
+        16
+       ],
+       "intro": "Our Code of Conduct applies to every employee, director and value-chain partner. An Audit Committee-overseen whistle-blower mechanism received and closed all complaints within 30 days.",
+       "highlight": "Zero cases of corruption or conflict of interest",
+       "principle": 1
+      },
+      {
+       "sdgs": [
+        9,
+        12
+       ],
+       "intro": "We design products with lower embodied carbon, using fly ash and slag as clinker substitutes and fully recyclable packaging.",
+       "highlight": "65% of raw material from recycled or industrial by-products",
+       "principle": 2
+      },
+      {
+       "sdgs": [
+        3,
+        8
+       ],
+       "intro": "Employee safety, health cover and skills development are managed through a plant-level safety committee and annual training calendar covering 100% of workers.",
+       "highlight": "Zero fatalities; 1.2 LTIFR",
+       "principle": 3
+      },
+      {
+       "sdgs": [
+        17
+       ],
+       "intro": "Communities, customers, employees, suppliers, regulators and lenders are consulted annually; concerns feed directly into our materiality assessment.",
+       "highlight": "Six stakeholder groups engaged through structured dialogue",
+       "principle": 4
+      },
+      {
+       "sdgs": [
+        5,
+        8,
+        10
+       ],
+       "intro": "Human-rights due diligence covers our plants and Tier-1 suppliers, with grievance channels available in local languages.",
+       "highlight": "100% of workers paid above minimum wage",
+       "principle": 5
+      },
+      {
+       "sdgs": [
+        6,
+        7,
+        12,
+        13
+       ],
+       "intro": "Environmental performance is driven by energy efficiency, waste heat recovery, water recycling and a formal net-zero pathway. All figures below are generated from metered and audited records.",
+       "highlight": "12% reduction in specific energy consumption vs PAT baseline",
+       "principle": 6
+      },
+      {
+       "sdgs": [
+        16,
+        17
+       ],
+       "intro": "no anti-competitive findings / We engage with policy through recognised industry bodies and publicly support carbon pricing and the Carbon Credit Trading Scheme.",
+       "highlight": "Member of two industry associations",
+       "principle": 7
+      },
+      {
+       "sdgs": [
+        1,
+        4,
+        6
+       ],
+       "intro": "CSR projects focus on rural education, drinking water and skill development in the districts where we operate.",
+       "highlight": "INR 45 lakh CSR spend, 3,200 direct beneficiaries",
+       "principle": 8
+      },
+      {
+       "sdgs": [
+        12
+       ],
+       "intro": "Product safety information is provided with every consignment and a consumer grievance channel is published on our website.",
+       "highlight": "Zero product recalls; zero data breaches",
+       "principle": 9
+      }
+     ],
+     "created_at": "2026-09-10T11:19:05.683107+00:00",
+     "updated_at": "2026-09-10T11:19:05.683107+00:00"
+    },
+    {
+     "id": 4,
+     "organization_id": 13,
+     "reporting_year": 2025,
+     "cover_title": "Sustainability Report FY 2025-26",
+     "cover_subtitle": "Building a low-carbon manufacturing future",
+     "theme_colour": "#0B5D3B",
+     "about_company": "Kamra Energy Solution is a Mohali-based industrial manufacturer with integrated production units in Punjab and Gujarat. We serve infrastructure and building-materials customers across India and export to the Middle East. Energy efficiency and waste heat recovery are core to our operating model: every unit runs under an ISO 50001-aligned energy management system and reports specific energy consumption quarterly under the BEE PAT scheme.",
+     "leadership_message": "FY 2025-26 marked a turning point in our sustainability journey. We completed our first full GHG inventory covering Scope 1 and Scope 2 emissions across all manufacturing units, commissioned a 2 MW rooftop solar plant, and achieved a 12% reduction in specific energy consumption against our PAT baseline. Our net-zero pathway, approved by the Board this year, commits us to a 42% absolute reduction in Scope 1 and 2 emissions by 2030 and net zero by 2050. None of this is possible without our people, our communities and our partners. This report sets out, with full transparency, where we stand and where we are going.",
+     "leadership_name": "Chander Kamra",
+     "leadership_designation": "Managing Director",
+     "milestones": [
+      {
+       "year": 2018,
+       "title": "Company founded",
+       "description": "Mohali plant commissioned"
+      },
+      {
+       "year": 2021,
+       "title": "ISO 50001 certification",
+       "description": "Energy management system across all units"
+      },
+      {
+       "year": 2023,
+       "title": "BEE PAT Cycle participation",
+       "description": "First designated-consumer reporting year"
+      },
+      {
+       "year": 2025,
+       "title": "2 MW rooftop solar",
+       "description": "18% of electricity from on-site renewables"
+      },
+      {
+       "year": 2026,
+       "title": "Net-zero target approved",
+       "description": "Board-approved 2030/2050 pathway"
+      }
+     ],
+     "principle_narratives": [
+      {
+       "sdgs": [
+        16
+       ],
+       "intro": "Our Code of Conduct applies to every employee, director and value-chain partner. A whistle-blower mechanism overseen by the Audit Committee received and closed all complaints within 30 days.",
+       "highlight": "Zero cases of corruption or conflict of interest",
+       "principle": 1
+      },
+      {
+       "sdgs": [
+        9,
+        12
+       ],
+       "intro": "We design products for lower embodied carbon, using fly ash and slag as clinker substitutes and packaging that is fully recyclable.",
+       "highlight": "65% of raw material from recycled or industrial by-products",
+       "principle": 2
+      },
+      {
+       "sdgs": [
+        3,
+        8
+       ],
+       "intro": "Employee safety, health cover and skills development are managed through a plant-level safety committee and annual training calendar covering 100% of workers.",
+       "highlight": "Zero fatalities; 1.2 LTIFR",
+       "principle": 3
+      },
+      {
+       "sdgs": [
+        17
+       ],
+       "intro": "Communities, customers, employees, suppliers, regulators and lenders are consulted annually; concerns feed directly into our materiality assessment.",
+       "highlight": "Six stakeholder groups engaged through structured dialogue",
+       "principle": 4
+      },
+      {
+       "sdgs": [
+        5,
+        8,
+        10
+       ],
+       "intro": "Human-rights due diligence covers our plants and Tier-1 suppliers, with grievance channels available in local languages.",
+       "highlight": "100% of workers paid above minimum wage",
+       "principle": 5
+      },
+      {
+       "sdgs": [
+        6,
+        7,
+        12,
+        13
+       ],
+       "intro": "Environmental performance is driven by energy efficiency, waste heat recovery, water recycling and a formal net-zero pathway. All figures below are generated from metered and audited records.",
+       "highlight": "12% reduction in specific energy consumption vs PAT baseline",
+       "principle": 6
+      },
+      {
+       "sdgs": [
+        16,
+        17
+       ],
+       "intro": "We engage with policy through recognised industry bodies and publicly support carbon pricing and the Carbon Credit Trading Scheme.",
+       "highlight": "Member of two industry associations; no anti-competitive findings",
+       "principle": 7
+      },
+      {
+       "sdgs": [
+        1,
+        4,
+        6
+       ],
+       "intro": "CSR projects focus on rural education, drinking water and skill development in the districts where we operate.",
+       "highlight": "INR 45 lakh CSR spend, 3,200 direct beneficiaries",
+       "principle": 8
+      },
+      {
+       "sdgs": [
+        12
+       ],
+       "intro": "Product safety information is provided with every consignment and a consumer grievance channel is published on our website.",
+       "highlight": "Zero product recalls; zero data breaches",
+       "principle": 9
+      }
+     ],
+     "created_at": "2026-09-10T11:23:44.570014+00:00",
+     "updated_at": "2026-09-10T11:23:44.570014+00:00"
+    }
+   ]
+  },
+  {
+   "name": "sustainable_product_records",
+   "fks": {
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 4,
+     "organization_id": 13,
+     "reporting_year": 2025,
+     "rnd_sustainable_percent_current": 12.5,
+     "rnd_sustainable_percent_previous": 9.0,
+     "capex_sustainable_percent_current": 18.0,
+     "capex_sustainable_percent_previous": 15.0,
+     "rnd_capex_details": "Waste heat recovery on kiln line 2; low-carbon binder trials",
+     "has_sustainable_sourcing_procedure": true,
+     "sustainable_sourcing_percent": 40.0,
+     "sustainable_sourcing_details": "Supplier code of conduct; 40% fly ash and slag from certified sources",
+     "reclaim_process_plastics": "Packaging bags collected via dealers, sent to registered recycler",
+     "reclaim_process_e_waste": "Authorised e-waste recycler, annual pickup",
+     "reclaim_process_hazardous": "Used oil to SPCB-authorised reprocessor",
+     "reclaim_process_other": "Refractory waste reused in raw mix",
+     "epr_applicable": true,
+     "epr_plan_in_line": false,
+     "epr_details": "Registered on CPCB EPR portal; targets for FY26 pending",
+     "has_conducted_lca": null,
+     "lca_details": null,
+     "recycled_input_percent": 12.5,
+     "reclaimed_products_percent_details": "~5% of packaging by weight",
+     "remarks": null,
+     "created_at": "2026-09-07T18:58:12.048396+00:00",
+     "updated_at": null
+    }
+   ]
+  },
+  {
+   "name": "buildings",
+   "fks": {
+    "organization_id": "organizations",
+    "category_id": "facility_categories"
+   },
+   "rows": [
+    {
+     "id": 7,
+     "organization_id": 13,
+     "building_code": "BLDG-01",
+     "building_name": "Mohali Plant",
+     "description": null,
+     "address_line_1": null,
+     "address_line_2": null,
+     "city": null,
+     "state": null,
+     "country": null,
+     "pincode": null,
+     "building_type": null,
+     "total_floor_area": null,
+     "number_of_floors": null,
+     "year_constructed": null,
+     "is_active": true,
+     "category_id": null,
+     "created_at": "2026-07-20T11:13:27.883385+00:00",
+     "updated_at": "2026-07-20T11:13:27.883385+00:00"
+    }
+   ]
+  },
+  {
+   "name": "energy_meters",
+   "fks": {
+    "building_id": "buildings",
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 2,
+     "organization_id": 13,
+     "building_id": 7,
+     "meter_code": "EM-01",
+     "meter_name": "Main Incomer -01",
+     "meter_type": "electricity",
+     "unit": "kWh",
+     "utility_meter_number": "",
+     "utility_provider": "",
+     "description": "",
+     "is_active": true,
+     "created_at": "2026-07-20T11:16:11.755686+00:00",
+     "updated_at": "2026-08-05T17:48:57.833301+00:00"
+    }
+   ]
+  },
+  {
+   "name": "floors",
+   "fks": {
+    "organization_id": "organizations",
+    "building_id": "buildings"
+   },
+   "rows": [
+    {
+     "id": 7,
+     "organization_id": 13,
+     "building_id": 7,
+     "floor_code": "FL-02",
+     "floor_name": "First Floor",
+     "floor_number": 2,
+     "gross_area_sqm": 499.0,
+     "conditioned_area_sqm": 430.0,
+     "clear_height_m": 3.2,
+     "occupancy_capacity": 60,
+     "remarks": "",
+     "is_active": true,
+     "created_at": "2026-07-23T16:54:01.036998+00:00",
+     "updated_at": "2026-07-23T16:54:48.196543+00:00"
+    }
+   ]
+  },
+  {
+   "name": "manufacturing_units",
+   "fks": {
+    "building_id": "buildings",
+    "organization_id": "organizations",
+    "category_id": "facility_categories"
+   },
+   "rows": [
+    {
+     "id": 1,
+     "organization_id": 13,
+     "building_id": 7,
+     "unit_code": "MU-01",
+     "unit_name": "Mohali Aluminium Unit",
+     "sector": "aluminium",
+     "baseline_year": 2024,
+     "standards_applicable": "BEE PAT + ISO 50001",
+     "country_code": "GB",
+     "remarks": null,
+     "category_id": null,
+     "is_active": true,
+     "created_at": "2026-07-24T05:34:39.321497+00:00",
+     "updated_at": "2026-07-25T04:13:47.106979+00:00"
+    },
+    {
+     "id": 2,
+     "organization_id": 13,
+     "building_id": 7,
+     "unit_code": "MU-02",
+     "unit_name": "Rajpura Cement Works",
+     "sector": "cement",
+     "baseline_year": 2024,
+     "standards_applicable": "BEE PAT + ISO 50001",
+     "country_code": "IN",
+     "remarks": "Dry-process rotary kiln, captive WHR unit installed 2023",
+     "category_id": null,
+     "is_active": true,
+     "created_at": "2026-07-25T04:24:37.436775+00:00",
+     "updated_at": "2026-07-25T04:24:37.436775+00:00"
+    },
+    {
+     "id": 3,
+     "organization_id": 13,
+     "building_id": null,
+     "unit_code": "MU-03",
+     "unit_name": "Sheffield Steel Rolling",
+     "sector": "iron_steel",
+     "baseline_year": 2024,
+     "standards_applicable": "SECR+UK ETS",
+     "country_code": "GB",
+     "remarks": "EAF route, grid-supplied power",
+     "category_id": null,
+     "is_active": true,
+     "created_at": "2026-07-25T04:26:53.260648+00:00",
+     "updated_at": "2026-07-25T04:26:53.260648+00:00"
+    },
+    {
+     "id": 4,
+     "organization_id": 13,
+     "building_id": null,
+     "unit_code": "MU-04",
+     "unit_name": "Houston Aluminium Smelter",
+     "sector": "aluminium",
+     "baseline_year": 2024,
+     "standards_applicable": "SEC Climate Disclosure Rule",
+     "country_code": "US",
+     "remarks": "Grid-supplied power, Texas ERCOT region",
+     "category_id": null,
+     "is_active": true,
+     "created_at": "2026-08-27T10:24:33.755989+00:00",
+     "updated_at": "2026-08-27T10:24:33.755989+00:00"
+    },
+    {
+     "id": 5,
+     "organization_id": 13,
+     "building_id": null,
+     "unit_code": "MU-05",
+     "unit_name": "Dubai Cement Plant",
+     "sector": "cement",
+     "baseline_year": 2024,
+     "standards_applicable": "UAE Climate Law",
+     "country_code": "AE",
+     "remarks": "Coastal plant, grid-supplied power",
+     "category_id": null,
+     "is_active": true,
+     "created_at": "2026-08-27T10:32:12.722321+00:00",
+     "updated_at": "2026-08-27T10:32:12.722321+00:00"
+    },
+    {
+     "id": 6,
+     "organization_id": 13,
+     "building_id": null,
+     "unit_code": "MU-06",
+     "unit_name": "Perth Iron & Steel Rolling",
+     "sector": "iron_steel",
+     "baseline_year": 2024,
+     "standards_applicable": "NGER Act + AASB S2",
+     "country_code": "AU",
+     "remarks": "EAF route, grid-supplied power",
+     "category_id": null,
+     "is_active": true,
+     "created_at": "2026-08-27T10:32:20.744205+00:00",
+     "updated_at": "2026-08-27T10:32:20.744205+00:00"
+    }
+   ]
+  },
+  {
+   "name": "climate_risks",
+   "fks": {
+    "manufacturing_unit_id": "manufacturing_units",
+    "building_id": "buildings",
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 1,
+     "organization_id": 13,
+     "building_id": null,
+     "manufacturing_unit_id": null,
+     "risk_name": "Flooding risk to Mohali Plant",
+     "category": "physical_acute",
+     "time_horizon": "medium_term",
+     "likelihood": "possible",
+     "estimated_financial_impact_inr": 5000000.0,
+     "mitigation_cost_inr": 800000.0,
+     "mitigation_benefit_inr": 3500000.0,
+     "description": "Increased monsoon flooding risk based on regional climate projections",
+     "mitigation_action": "Install flood barriers and elevate critical equipment",
+     "remarks": null,
+     "created_at": "2026-08-05T12:18:18.957639+00:00",
+     "updated_at": "2026-08-05T12:18:18.957639+00:00"
+    },
+    {
+     "id": 2,
+     "organization_id": 13,
+     "building_id": null,
+     "manufacturing_unit_id": null,
+     "risk_name": "Carbon tax exposure",
+     "category": "transition_policy_legal",
+     "time_horizon": "short_term",
+     "likelihood": "likely",
+     "estimated_financial_impact_inr": 2000000.0,
+     "mitigation_cost_inr": 500000.0,
+     "mitigation_benefit_inr": 1200000.0,
+     "description": "Potential carbon pricing regulation impact on Scope 1 emissions",
+     "mitigation_action": null,
+     "remarks": null,
+     "created_at": "2026-08-05T12:19:11.068779+00:00",
+     "updated_at": "2026-08-05T12:19:11.068779+00:00"
+    }
+   ]
+  },
+  {
+   "name": "decarbonization_projects",
+   "fks": {
+    "organization_id": "organizations",
+    "building_id": "buildings",
+    "manufacturing_unit_id": "manufacturing_units"
+   },
+   "rows": [
+    {
+     "id": 1,
+     "organization_id": 13,
+     "building_id": null,
+     "manufacturing_unit_id": null,
+     "project_name": "Rooftop Solar",
+     "category": "renewable_generation",
+     "status": "proposed",
+     "capex": 2000000.0,
+     "annual_opex_delta": 0.0,
+     "lifespan_years": 20,
+     "annual_co2e_abated_tonnes": 50.0,
+     "remarks": null,
+     "created_at": "2026-07-24T12:44:21.437388+00:00",
+     "updated_at": "2026-07-24T12:44:21.437388+00:00"
+    },
+    {
+     "id": 3,
+     "organization_id": 13,
+     "building_id": null,
+     "manufacturing_unit_id": 2,
+     "project_name": "Cement Kiln WHR Retrofit",
+     "category": "waste_heat_recovery",
+     "status": "proposed",
+     "capex": 5000000.0,
+     "annual_opex_delta": -200000.0,
+     "lifespan_years": 15,
+     "annual_co2e_abated_tonnes": 800.0,
+     "remarks": null,
+     "created_at": "2026-08-24T05:03:19.397893+00:00",
+     "updated_at": "2026-08-24T05:03:19.397893+00:00"
+    }
+   ]
+  },
+  {
+   "name": "lca_products",
+   "fks": {
+    "manufacturing_unit_id": "manufacturing_units",
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 4,
+     "organization_id": 13,
+     "manufacturing_unit_id": null,
+     "name": "tile",
+     "product_code": null,
+     "description": null,
+     "functional_unit_qty": 1.0,
+     "functional_unit": "m2",
+     "system_boundary": "cradle_to_gate",
+     "reference_year": 2026,
+     "annual_output_qty": 1000000.0,
+     "production_country_code": "IN",
+     "industry": null,
+     "fu_mass_kg": null,
+     "benchmark_key": "ceramic_tile_ibanez_2011",
+     "eol_recycling_fraction": 0.3,
+     "eol_reuse_fraction": 0.0,
+     "recycling_efficiency_input": 0.9,
+     "recycling_efficiency_eol": 0.9,
+     "lifetime_years": null,
+     "industry_avg_lifetime_years": null,
+     "remarks": null,
+     "created_at": "2026-09-12T03:45:16.031700+00:00",
+     "updated_at": "2026-09-13T07:20:16.089842+00:00"
+    },
+    {
+     "id": 6,
+     "organization_id": 13,
+     "manufacturing_unit_id": null,
+     "name": "Clinker (CBAM test)",
+     "product_code": null,
+     "description": null,
+     "functional_unit_qty": 1.0,
+     "functional_unit": "tonne",
+     "system_boundary": "cradle_to_gate",
+     "reference_year": 2026,
+     "annual_output_qty": null,
+     "production_country_code": "IN",
+     "industry": null,
+     "fu_mass_kg": null,
+     "benchmark_key": null,
+     "eol_recycling_fraction": null,
+     "eol_reuse_fraction": null,
+     "recycling_efficiency_input": null,
+     "recycling_efficiency_eol": null,
+     "lifetime_years": null,
+     "industry_avg_lifetime_years": null,
+     "remarks": null,
+     "created_at": "2026-09-12T12:17:14.691359+00:00",
+     "updated_at": "2026-09-12T12:17:14.691359+00:00"
+    },
+    {
+     "id": 7,
+     "organization_id": 13,
+     "manufacturing_unit_id": null,
+     "name": "OPC cement (CBAM test)",
+     "product_code": null,
+     "description": null,
+     "functional_unit_qty": 1.0,
+     "functional_unit": "tonne",
+     "system_boundary": "cradle_to_gate",
+     "reference_year": 2026,
+     "annual_output_qty": null,
+     "production_country_code": "IN",
+     "industry": null,
+     "fu_mass_kg": null,
+     "benchmark_key": null,
+     "eol_recycling_fraction": null,
+     "eol_reuse_fraction": null,
+     "recycling_efficiency_input": null,
+     "recycling_efficiency_eol": null,
+     "lifetime_years": null,
+     "industry_avg_lifetime_years": null,
+     "remarks": null,
+     "created_at": "2026-09-12T12:17:14.791882+00:00",
+     "updated_at": "2026-09-12T12:17:14.791882+00:00"
+    }
+   ]
+  },
+  {
+   "name": "manufacturing_electricity_records",
+   "fks": {
+    "organization_id": "organizations",
+    "manufacturing_unit_id": "manufacturing_units"
+   },
+   "rows": [
+    {
+     "id": 6,
+     "organization_id": 13,
+     "manufacturing_unit_id": 4,
+     "period_start": "2024-01-01",
+     "period_end": "2024-12-31",
+     "electricity_consumed_kwh": 850000.0,
+     "renewable_kwh": 50000.0,
+     "source": "Utility bill (annual)",
+     "remarks": null,
+     "created_at": "2026-08-27T10:35:06.908958+00:00",
+     "updated_at": "2026-08-27T10:35:06.908958+00:00"
+    },
+    {
+     "id": 7,
+     "organization_id": 13,
+     "manufacturing_unit_id": 5,
+     "period_start": "2024-01-01",
+     "period_end": "2024-12-31",
+     "electricity_consumed_kwh": 620000.0,
+     "renewable_kwh": 0.0,
+     "source": "Utility bill (annual)",
+     "remarks": null,
+     "created_at": "2026-08-27T10:35:48.896438+00:00",
+     "updated_at": "2026-08-27T10:35:48.896438+00:00"
+    },
+    {
+     "id": 8,
+     "organization_id": 13,
+     "manufacturing_unit_id": 6,
+     "period_start": "2024-01-01",
+     "period_end": "2024-12-31",
+     "electricity_consumed_kwh": 480000.0,
+     "renewable_kwh": 30000.0,
+     "source": "Utility bill (annual)",
+     "remarks": null,
+     "created_at": "2026-08-27T10:36:23.646436+00:00",
+     "updated_at": "2026-08-27T10:36:23.646436+00:00"
+    },
+    {
+     "id": 9,
+     "organization_id": 13,
+     "manufacturing_unit_id": 5,
+     "period_start": "2025-04-01",
+     "period_end": "2026-03-31",
+     "electricity_consumed_kwh": 2000000.0,
+     "renewable_kwh": 400000.0,
+     "source": null,
+     "remarks": null,
+     "created_at": "2026-09-09T06:01:03.427257+00:00",
+     "updated_at": "2026-09-09T06:01:03.427257+00:00"
+    }
+   ]
+  },
+  {
+   "name": "manufacturing_fuel_records",
+   "fks": {
+    "organization_id": "organizations",
+    "manufacturing_unit_id": "manufacturing_units"
+   },
+   "rows": [
+    {
+     "id": 3,
+     "organization_id": 13,
+     "manufacturing_unit_id": 5,
+     "period_start": "2025-04-01",
+     "period_end": "2026-03-31",
+     "fuel_key": "other_bituminous_coal",
+     "quantity_tonnes": 1000.0,
+     "purpose": "process_heat",
+     "source": null,
+     "remarks": null,
+     "created_at": "2026-09-09T06:01:03.458119+00:00",
+     "updated_at": "2026-09-09T06:01:03.458119+00:00"
+    },
+    {
+     "id": 4,
+     "organization_id": 13,
+     "manufacturing_unit_id": 5,
+     "period_start": "2025-04-01",
+     "period_end": "2026-03-31",
+     "fuel_key": "wood_or_wood_waste",
+     "quantity_tonnes": 200.0,
+     "purpose": "process_heat",
+     "source": null,
+     "remarks": null,
+     "created_at": "2026-09-09T06:01:03.482996+00:00",
+     "updated_at": "2026-09-09T06:01:03.482996+00:00"
+    }
+   ]
+  },
+  {
+   "name": "net_zero_targets",
+   "fks": {
+    "organization_id": "organizations",
+    "building_id": "buildings",
+    "manufacturing_unit_id": "manufacturing_units"
+   },
+   "rows": [
+    {
+     "id": 1,
+     "organization_id": 13,
+     "building_id": null,
+     "manufacturing_unit_id": null,
+     "target_name": "Aluminium Unit Net Zero 2030",
+     "baseline_year": 2024,
+     "baseline_co2e_tonnes": 0.05002,
+     "target_year": 2030,
+     "reduction_percentage": 30.0,
+     "target_type": "near_term",
+     "scope_coverage": "scope_1_2",
+     "remarks": null,
+     "created_at": "2026-07-24T12:40:49.183229+00:00",
+     "updated_at": "2026-07-24T12:40:49.183229+00:00"
+    },
+    {
+     "id": 4,
+     "organization_id": 13,
+     "building_id": null,
+     "manufacturing_unit_id": 2,
+     "target_name": "Rajpura Cement Net Zero",
+     "baseline_year": 2024,
+     "baseline_co2e_tonnes": 1000.0,
+     "target_year": 2030,
+     "reduction_percentage": 30.0,
+     "target_type": "near_term",
+     "scope_coverage": "scope_1_2",
+     "remarks": null,
+     "created_at": "2026-08-24T05:02:46.634356+00:00",
+     "updated_at": "2026-08-24T05:02:46.634356+00:00"
+    }
+   ]
+  },
+  {
+   "name": "pat_cycle_targets",
+   "fks": {
+    "organization_id": "organizations",
+    "manufacturing_unit_id": "manufacturing_units"
+   },
+   "rows": [
+    {
+     "id": 1,
+     "organization_id": 13,
+     "manufacturing_unit_id": 2,
+     "cycle_number": 4,
+     "cycle_start_year": 2023,
+     "cycle_end_year": 2026,
+     "baseline_production_qty": 10000.0,
+     "production_unit": "tonnes clinker",
+     "baseline_energy_gj": 50000.0,
+     "mandated_reduction_percent": 5.0,
+     "created_at": "2026-08-23T05:52:49.898204+00:00",
+     "updated_at": "2026-08-23T05:52:49.898204+00:00"
+    },
+    {
+     "id": 3,
+     "organization_id": 13,
+     "manufacturing_unit_id": 5,
+     "cycle_number": 7,
+     "cycle_start_year": 2025,
+     "cycle_end_year": 2027,
+     "baseline_production_qty": 100000.0,
+     "production_unit": "tonne",
+     "baseline_energy_gj": 380000.0,
+     "mandated_reduction_percent": 4.0,
+     "created_at": "2026-09-14T16:52:47.712598+00:00",
+     "updated_at": "2026-09-14T16:52:47.712598+00:00"
+    }
+   ]
+  },
+  {
+   "name": "production_records",
+   "fks": {
+    "manufacturing_unit_id": "manufacturing_units",
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 1,
+     "organization_id": 13,
+     "manufacturing_unit_id": 1,
+     "period_start": "2024-04-01",
+     "period_end": "2024-04-30",
+     "production_quantity": 500.0,
+     "production_unit": "tonnes",
+     "remarks": null,
+     "created_at": "2026-07-24T05:35:44.401573+00:00",
+     "updated_at": "2026-07-24T05:35:44.401573+00:00"
+    },
+    {
+     "id": 3,
+     "organization_id": 13,
+     "manufacturing_unit_id": 2,
+     "period_start": "2026-01-01",
+     "period_end": "2026-03-31",
+     "production_quantity": 2500.0,
+     "production_unit": "tonnes clinker",
+     "remarks": null,
+     "created_at": "2026-08-24T05:02:16.166662+00:00",
+     "updated_at": "2026-08-24T05:02:16.166662+00:00"
+    },
+    {
+     "id": 4,
+     "organization_id": 13,
+     "manufacturing_unit_id": 5,
+     "period_start": "2025-04-01",
+     "period_end": "2026-03-31",
+     "production_quantity": 10000.0,
+     "production_unit": "tonne",
+     "remarks": null,
+     "created_at": "2026-09-09T06:01:03.294146+00:00",
+     "updated_at": "2026-09-09T06:01:03.294146+00:00"
+    }
+   ]
+  },
+  {
+   "name": "scope3_activity_records",
+   "fks": {
+    "organization_id": "organizations",
+    "manufacturing_unit_id": "manufacturing_units",
+    "emission_factor_id": "emission_factors"
+   },
+   "rows": [
+    {
+     "id": 1,
+     "organization_id": 13,
+     "manufacturing_unit_id": null,
+     "year": 2026,
+     "category": 4,
+     "description": "Clay inbound, Bikaner->Morbi by road",
+     "quantity": 1200000.0,
+     "unit": "tonne.km",
+     "emission_factor_id": 291,
+     "data_source": "LR copies (test)",
+     "remarks": null,
+     "created_at": "2026-09-13T02:14:23.642654+00:00",
+     "updated_at": "2026-09-13T02:14:23.642654+00:00"
+    },
+    {
+     "id": 2,
+     "organization_id": 13,
+     "manufacturing_unit_id": null,
+     "year": 2026,
+     "category": 1,
+     "description": "Corrugated board packaging",
+     "quantity": 50.0,
+     "unit": "tonne",
+     "emission_factor_id": 54,
+     "data_source": "test",
+     "remarks": null,
+     "created_at": "2026-09-13T05:01:50.542351+00:00",
+     "updated_at": "2026-09-13T05:01:50.542351+00:00"
+    },
+    {
+     "id": 3,
+     "organization_id": 13,
+     "manufacturing_unit_id": null,
+     "year": 2026,
+     "category": 6,
+     "description": "Site visits by car (vehicle)",
+     "quantity": 12000.0,
+     "unit": "km",
+     "emission_factor_id": 382,
+     "data_source": "test",
+     "remarks": null,
+     "created_at": "2026-09-13T05:01:50.591840+00:00",
+     "updated_at": "2026-09-13T05:01:50.591840+00:00"
+    },
+    {
+     "id": 4,
+     "organization_id": 13,
+     "manufacturing_unit_id": null,
+     "year": 2026,
+     "category": 6,
+     "description": "Site visits by car (WTT)",
+     "quantity": 12000.0,
+     "unit": "km",
+     "emission_factor_id": 428,
+     "data_source": "test",
+     "remarks": null,
+     "created_at": "2026-09-13T05:01:50.634889+00:00",
+     "updated_at": "2026-09-13T05:01:50.634889+00:00"
+    }
+   ]
+  },
+  {
+   "name": "utility_bills",
+   "fks": {
+    "organization_id": "organizations",
+    "meter_id": "energy_meters"
+   },
+   "rows": [
+    {
+     "id": 2,
+     "organization_id": 13,
+     "meter_id": 2,
+     "bill_number": "PSPCL-2026-07-01",
+     "billing_period_start": "2026-01-06",
+     "billing_period_end": "2026-03-01",
+     "consumption": 12500.0,
+     "amount": 98500.5,
+     "currency": "INR",
+     "bill_date": "0001-01-01",
+     "due_date": "0001-01-01",
+     "document_url": "",
+     "notes": "",
+     "created_at": "2026-07-20T11:23:39.072415+00:00",
+     "updated_at": "2026-07-20T11:23:39.072415+00:00"
+    },
+    {
+     "id": 3,
+     "organization_id": 13,
+     "meter_id": 2,
+     "bill_number": null,
+     "billing_period_start": "2024-04-01",
+     "billing_period_end": "2024-04-30",
+     "consumption": 250000.0,
+     "amount": null,
+     "currency": "INR",
+     "bill_date": null,
+     "due_date": null,
+     "document_url": null,
+     "notes": null,
+     "created_at": "2026-07-24T05:54:24.364923+00:00",
+     "updated_at": "2026-07-24T05:54:24.364923+00:00"
+    }
+   ]
+  },
+  {
+   "name": "waste_records",
+   "fks": {
+    "building_id": "buildings",
+    "manufacturing_unit_id": "manufacturing_units",
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 2,
+     "organization_id": 13,
+     "manufacturing_unit_id": null,
+     "building_id": null,
+     "period_start": "2026-04-01",
+     "period_end": "2026-06-30",
+     "plastic_waste": 2.5,
+     "e_waste": 0.8,
+     "bio_medical_waste": null,
+     "construction_demolition_waste": null,
+     "battery_waste": 0.0,
+     "radioactive_waste": null,
+     "other_hazardous_waste": null,
+     "other_non_hazardous_waste": 12.0,
+     "recycled": 10.0,
+     "reused": null,
+     "other_recovery": null,
+     "incineration": null,
+     "landfilling": 5.3,
+     "other_disposal": null,
+     "waste_management_practices": null,
+     "remarks": null,
+     "created_at": "2026-08-20T16:29:41.643727+00:00",
+     "updated_at": "2026-08-20T16:54:04.635584+00:00"
+    }
+   ]
+  },
+  {
+   "name": "water_records",
+   "fks": {
+    "building_id": "buildings",
+    "manufacturing_unit_id": "manufacturing_units",
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 2,
+     "organization_id": 13,
+     "manufacturing_unit_id": null,
+     "building_id": null,
+     "period_start": "2026-04-01",
+     "period_end": "2026-06-30",
+     "is_water_stressed_area": true,
+     "withdrawal_surface_water": null,
+     "withdrawal_groundwater": 1200.5,
+     "withdrawal_third_party": 1500.0,
+     "withdrawal_seawater_desalinated": null,
+     "withdrawal_others": null,
+     "discharge_surface_water": null,
+     "discharge_groundwater": null,
+     "discharge_seawater": null,
+     "discharge_third_party": null,
+     "discharge_others": null,
+     "discharge_treatment_level": "Secondary treatment",
+     "has_zero_liquid_discharge": null,
+     "remarks": null,
+     "created_at": "2026-08-20T16:26:40.566967+00:00",
+     "updated_at": null
+    },
+    {
+     "id": 3,
+     "organization_id": 13,
+     "manufacturing_unit_id": null,
+     "building_id": null,
+     "period_start": "2026-01-04",
+     "period_end": "2026-03-01",
+     "is_water_stressed_area": true,
+     "withdrawal_surface_water": null,
+     "withdrawal_groundwater": 1200.5,
+     "withdrawal_third_party": 800.0,
+     "withdrawal_seawater_desalinated": null,
+     "withdrawal_others": null,
+     "discharge_surface_water": null,
+     "discharge_groundwater": null,
+     "discharge_seawater": null,
+     "discharge_third_party": 1500.0,
+     "discharge_others": null,
+     "discharge_treatment_level": "Secondary treatment",
+     "has_zero_liquid_discharge": null,
+     "remarks": null,
+     "created_at": "2026-08-20T16:40:10.045851+00:00",
+     "updated_at": "2026-08-20T16:56:26.645606+00:00"
+    }
+   ]
+  },
+  {
+   "name": "cbam_goods",
+   "fks": {
+    "manufacturing_unit_id": "manufacturing_units",
+    "lca_product_id": "lca_products",
+    "organization_id": "organizations"
+   },
+   "rows": [
+    {
+     "id": 2,
+     "organization_id": 13,
+     "manufacturing_unit_id": null,
+     "lca_product_id": 6,
+     "name": "Clinker (CBAM test)",
+     "cn_code": "2523 10 00",
+     "goods_category": "cement",
+     "production_route": null,
+     "reporting_year": 2026,
+     "production_qty_tonne": 100000.0,
+     "carbon_price_paid_per_tco2e": null,
+     "remarks": null,
+     "created_at": "2026-09-12T12:17:14.774082+00:00",
+     "updated_at": "2026-09-12T12:17:14.774082+00:00"
+    },
+    {
+     "id": 3,
+     "organization_id": 13,
+     "manufacturing_unit_id": null,
+     "lca_product_id": 7,
+     "name": "OPC cement (CBAM test)",
+     "cn_code": "2523 29 00",
+     "goods_category": "cement",
+     "production_route": null,
+     "reporting_year": 2026,
+     "production_qty_tonne": 100000.0,
+     "carbon_price_paid_per_tco2e": null,
+     "remarks": null,
+     "created_at": "2026-09-12T12:17:14.839525+00:00",
+     "updated_at": "2026-09-12T12:17:14.839525+00:00"
+    }
+   ]
+  },
+  {
+   "name": "hvac_equipment",
+   "fks": {
+    "occupant_id": "occupants",
+    "organization_id": "organizations",
+    "floor_id": "floors",
+    "building_id": "buildings"
+   },
+   "rows": [
+    {
+     "id": 1,
+     "organization_id": 13,
+     "building_id": 1,
+     "equipment_code": "HVAC-01",
+     "equipment_name": "Main Chiller",
+     "equipment_type": "Chiller",
+     "capacity_kw": 100.0,
+     "cop": 5.0,
+     "operating_hours_per_day": 10.0,
+     "operating_days_per_month": 26,
+     "manufacturer": null,
+     "installation_year": null,
+     "is_active": true,
+     "occupant_id": null,
+     "serves_common_area": false,
+     "floor_id": null,
+     "created_at": "2026-07-23T09:46:08.360565+00:00",
+     "updated_at": "2026-07-23T09:46:08.360565+00:00"
+    },
+    {
+     "id": 2,
+     "organization_id": 13,
+     "building_id": 7,
+     "equipment_code": "HVAC-02",
+     "equipment_name": "Test AC Unit",
+     "equipment_type": "Chiller",
+     "capacity_kw": 10.0,
+     "cop": 3.0,
+     "operating_hours_per_day": 8.0,
+     "operating_days_per_month": 26,
+     "manufacturer": "",
+     "installation_year": null,
+     "is_active": true,
+     "occupant_id": null,
+     "serves_common_area": false,
+     "floor_id": null,
+     "created_at": "2026-07-23T09:56:47.953947+00:00",
+     "updated_at": "2026-07-23T09:56:47.953947+00:00"
+    },
+    {
+     "id": 6,
+     "organization_id": 13,
+     "building_id": 7,
+     "equipment_code": "HVAC-03",
+     "equipment_name": "\tChiller Unit 1",
+     "equipment_type": "Chiller",
+     "capacity_kw": 5.5,
+     "cop": 3.2,
+     "operating_hours_per_day": 8.0,
+     "operating_days_per_month": 26,
+     "manufacturer": "\tVoltas",
+     "installation_year": 2022,
+     "is_active": true,
+     "occupant_id": null,
+     "serves_common_area": false,
+     "floor_id": null,
+     "created_at": "2026-08-05T17:55:20.405348+00:00",
+     "updated_at": "2026-08-05T17:55:20.405348+00:00"
+    }
+   ]
+  },
+  {
+   "name": "lca_inventory_items",
+   "fks": {
+    "precursor_cbam_good_id": "cbam_goods",
+    "organization_id": "organizations",
+    "product_id": "lca_products",
+    "emission_factor_id": "emission_factors"
+   },
+   "rows": [
+    {
+     "id": 6,
+     "organization_id": 13,
+     "product_id": 4,
+     "name": "Grid Electricity",
+     "stage": "raw_materials",
+     "factor_source": "electricity",
+     "fuel_key": null,
+     "country_code": "IN",
+     "emission_factor_id": null,
+     "quantity": 7.0,
+     "unit": "kWh",
+     "basis": "per_functional_unit",
+     "cbam_bucket": null,
+     "precursor_cbam_good_id": null,
+     "recycled_content_fraction": 0.1,
+     "reused_content_fraction": 0.0,
+     "data_source": null,
+     "remarks": null,
+     "created_at": "2026-09-12T03:47:49.079291+00:00",
+     "updated_at": "2026-09-13T07:20:16.045659+00:00"
+    },
+    {
+     "id": 7,
+     "organization_id": 13,
+     "product_id": 4,
+     "name": "mat_paper_and_board_board",
+     "stage": "raw_materials",
+     "factor_source": "factor",
+     "fuel_key": null,
+     "country_code": null,
+     "emission_factor_id": 56,
+     "quantity": 120000.0,
+     "unit": "tonne",
+     "basis": "annual_total",
+     "cbam_bucket": null,
+     "precursor_cbam_good_id": null,
+     "recycled_content_fraction": 0.1,
+     "reused_content_fraction": 0.0,
+     "data_source": null,
+     "remarks": null,
+     "created_at": "2026-09-12T03:50:35.261236+00:00",
+     "updated_at": "2026-09-13T07:20:16.071074+00:00"
+    },
+    {
+     "id": 12,
+     "organization_id": 13,
+     "product_id": 6,
+     "name": "Kiln coal",
+     "stage": "manufacturing",
+     "factor_source": "fuel",
+     "fuel_key": "other_bituminous_coal",
+     "country_code": null,
+     "emission_factor_id": null,
+     "quantity": 0.13,
+     "unit": "tonne",
+     "basis": "per_functional_unit",
+     "cbam_bucket": null,
+     "precursor_cbam_good_id": null,
+     "recycled_content_fraction": null,
+     "reused_content_fraction": null,
+     "data_source": null,
+     "remarks": null,
+     "created_at": "2026-09-12T12:17:14.712587+00:00",
+     "updated_at": "2026-09-12T12:17:14.712587+00:00"
+    },
+    {
+     "id": 13,
+     "organization_id": 13,
+     "product_id": 6,
+     "name": "Calcination CO2",
+     "stage": "manufacturing",
+     "factor_source": "factor",
+     "fuel_key": null,
+     "country_code": null,
+     "emission_factor_id": 16,
+     "quantity": 1000.0,
+     "unit": "kg",
+     "basis": "per_functional_unit",
+     "cbam_bucket": null,
+     "precursor_cbam_good_id": null,
+     "recycled_content_fraction": null,
+     "reused_content_fraction": null,
+     "data_source": null,
+     "remarks": null,
+     "created_at": "2026-09-12T12:17:14.735807+00:00",
+     "updated_at": "2026-09-12T12:17:14.735807+00:00"
+    },
+    {
+     "id": 14,
+     "organization_id": 13,
+     "product_id": 6,
+     "name": "Kiln electricity",
+     "stage": "manufacturing",
+     "factor_source": "electricity",
+     "fuel_key": null,
+     "country_code": "IN",
+     "emission_factor_id": null,
+     "quantity": 60.0,
+     "unit": "kWh",
+     "basis": "per_functional_unit",
+     "cbam_bucket": null,
+     "precursor_cbam_good_id": null,
+     "recycled_content_fraction": null,
+     "reused_content_fraction": null,
+     "data_source": null,
+     "remarks": null,
+     "created_at": "2026-09-12T12:17:14.755121+00:00",
+     "updated_at": "2026-09-12T12:17:14.755121+00:00"
+    },
+    {
+     "id": 15,
+     "organization_id": 13,
+     "product_id": 7,
+     "name": "Clinker input",
+     "stage": "raw_materials",
+     "factor_source": "factor",
+     "fuel_key": null,
+     "country_code": null,
+     "emission_factor_id": 16,
+     "quantity": 950.0,
+     "unit": "kg",
+     "basis": "per_functional_unit",
+     "cbam_bucket": "precursor",
+     "precursor_cbam_good_id": 2,
+     "recycled_content_fraction": null,
+     "reused_content_fraction": null,
+     "data_source": null,
+     "remarks": null,
+     "created_at": "2026-09-12T12:17:14.803384+00:00",
+     "updated_at": "2026-09-12T12:17:14.803384+00:00"
+    },
+    {
+     "id": 16,
+     "organization_id": 13,
+     "product_id": 7,
+     "name": "Grinding electricity",
+     "stage": "manufacturing",
+     "factor_source": "electricity",
+     "fuel_key": null,
+     "country_code": "IN",
+     "emission_factor_id": null,
+     "quantity": 40.0,
+     "unit": "kWh",
+     "basis": "per_functional_unit",
+     "cbam_bucket": null,
+     "precursor_cbam_good_id": null,
+     "recycled_content_fraction": null,
+     "reused_content_fraction": null,
+     "data_source": null,
+     "remarks": null,
+     "created_at": "2026-09-12T12:17:14.822195+00:00",
+     "updated_at": "2026-09-12T12:17:14.822195+00:00"
+    }
+   ]
+  }
+ ],
+ "emission_factor_refs": {
+  "16": {
+   "meter_type": "clinker_calcination",
+   "unit": "kg",
+   "region": "IN",
+   "source_year": 2006,
+   "valid_from": "2006-01-01"
+  },
+  "54": {
+   "meter_type": "mat_paper_and_board_board",
+   "unit": "tonne",
+   "region": "UK",
+   "source_year": 2026,
+   "valid_from": "2026-01-01"
+  },
+  "56": {
+   "meter_type": "mat_paper_and_board_paper",
+   "unit": "tonne",
+   "region": "UK",
+   "source_year": 2026,
+   "valid_from": "2026-01-01"
+  },
+  "291": {
+   "meter_type": "freight_hgv_average_non_refrigerated_hgvs_avg_laden",
+   "unit": "tonne.km",
+   "region": "UK",
+   "source_year": 2026,
+   "valid_from": "2026-01-01"
+  },
+  "382": {
+   "meter_type": "pass_car_average_car_diesel",
+   "unit": "km",
+   "region": "UK",
+   "source_year": 2026,
+   "valid_from": "2026-01-01"
+  },
+  "428": {
+   "meter_type": "wtt_pass_car_average_car_diesel",
+   "unit": "km",
+   "region": "UK",
+   "source_year": 2026,
+   "valid_from": "2026-01-01"
+  }
+ }
+}
