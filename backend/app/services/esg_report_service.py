@@ -57,6 +57,36 @@ def _tracked(value, unit, source, standard=None):
     return result
 
 
+def _scope3_datapoint(db, organization_id, reporting_year):
+    """Scope 3 for one org/year from Scope3Service: (datapoint, total_t or None, factor_sources).
+    Tracked only when at least one category computed; the note always states N/15."""
+    from app.services.scope3_service import Scope3Service
+
+    s3 = Scope3Service(db, organization_id).summary(reporting_year)
+    n = s3.get("computed_categories", 0)
+    sources = sorted(set(s3.get("factor_sources", [])))
+    if s3.get("total_tco2e") is None:
+        return ({"status": "not_tracked",
+                 "note": f"0/15 Scope 3 categories computed for {reporting_year} (see Carbon Accounting > Scope 3)"},
+                None, sources)
+    return (_tracked(s3["total_tco2e"], "tCO2e",
+                     f"Scope3Service ({n}/15 categories computed; others not tracked or not computed)",
+                     standard=sources),
+            s3["total_tco2e"], sources)
+
+
+def _totals_with_scope3(scope1_t, scope2_t, src, scope1_std, scope2_std, s3_t, s3_std):
+    s12 = round(scope1_t + scope2_t, 3)
+    if s3_t is None:
+        return {"scope1_plus_2_tCO2e": s12,
+                "total_all_scopes": _tracked(s12, "tCO2e", src + " (Scope 1+2; no Scope 3 category computed)",
+                                             standard=sorted(set(scope1_std) | set(scope2_std)))}
+    return {"scope1_plus_2_tCO2e": s12,
+            "scope3_tCO2e": s3_t,
+            "total_all_scopes": _tracked(round(s12 + s3_t, 3), "tCO2e", src + " + Scope3Service (Scope 1+2+3 computed)",
+                                         standard=sorted(set(scope1_std) | set(scope2_std) | set(s3_std)))}
+
+
 def _get_scope_summary(db, organization_id, reporting_year):
     """Shared helper: consolidate CarbonService (BENAS bills, Scope 1+2)
     with ManufacturingCarbonService (ManufactureOS process emissions,
@@ -188,6 +218,7 @@ def generate_brsr_principle6(db: Session, organization_id: int,
     scope1_t, scope2_t, src, scope1_std, scope2_std = _get_scope_summary(
         db, organization_id, reporting_year
     )
+    s3_dp, s3_t, s3_std = _scope3_datapoint(db, organization_id, reporting_year)
 
     return {
         "framework": "BRSR",
@@ -197,6 +228,7 @@ def generate_brsr_principle6(db: Session, organization_id: int,
         "data_basis": f"Utility-bill + manufacturing process-emission data for calendar year {reporting_year}.",
         "essential_indicators": _build_brsr_indicators(
             scope1_t, scope2_t, src, scope1_std, scope2_std,
+            scope3=s3_dp,
             intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
             # P6 also covers water and waste, which are metered rather than
             # derived from emission factors - hence a separate service.
@@ -206,14 +238,7 @@ def generate_brsr_principle6(db: Session, organization_id: int,
             energy=org_year_energy(db, organization_id, reporting_year),
             reporting_year=reporting_year,
         ),
-        "totals": {
-            "scope1_plus_2_tCO2e": round(scope1_t + scope2_t, 3),
-            "total_all_scopes": _tracked(
-                round(scope1_t + scope2_t, 3), "tCO2e",
-                src + " (Scope 1+2 only; Scope 3 not tracked)",
-                standard=sorted(set(scope1_std) | set(scope2_std)),
-            ),
-        },
+        "totals": _totals_with_scope3(scope1_t, scope2_t, src, scope1_std, scope2_std, s3_t, s3_std),
     }
 
 
@@ -513,7 +538,7 @@ def _energy_indicator(label, energy, src_year):
     }
 
 
-def _build_brsr_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, intensity=None,
+def _build_brsr_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, scope3=None, intensity=None,
                            water_waste=None, energy=None, reporting_year=None):
     intensity = intensity or {}
     water_waste = water_waste or {}
@@ -539,7 +564,7 @@ def _build_brsr_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, inte
         },
         "EI_7_ghg_scope3": {
             "label": "Total Scope 3 emissions (tCO2e)",
-            "data": NOT_TRACKED,
+            "data": scope3 or NOT_TRACKED,
         },
         "EI_7_ghg_intensity": {
             "label": "GHG emission intensity per rupee of turnover",
@@ -616,6 +641,7 @@ def generate_gri_305(db: Session, organization_id: int,
     scope1_t, scope2_t, src, scope1_std, scope2_std = _get_scope_summary(
         db, organization_id, reporting_year
     )
+    s3_dp, s3_t, s3_std = _scope3_datapoint(db, organization_id, reporting_year)
 
     return {
         "framework": "GRI 305",
@@ -625,20 +651,14 @@ def generate_gri_305(db: Session, organization_id: int,
         "data_basis": f"Utility-bill + manufacturing process-emission data for calendar year {reporting_year}.",
         "essential_indicators": _build_gri_indicators(
             scope1_t, scope2_t, src, scope1_std, scope2_std,
+            scope3=s3_dp,
             intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
         ),
-        "totals": {
-            "scope1_plus_2_tCO2e": round(scope1_t + scope2_t, 3),
-            "total_all_scopes": _tracked(
-                round(scope1_t + scope2_t, 3), "tCO2e",
-                src + " (Scope 1+2 only; Scope 3 not tracked)",
-                standard=sorted(set(scope1_std) | set(scope2_std)),
-            ),
-        },
+        "totals": _totals_with_scope3(scope1_t, scope2_t, src, scope1_std, scope2_std, s3_t, s3_std),
     }
 
 
-def _build_gri_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, intensity=None):
+def _build_gri_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, scope3=None, intensity=None):
     intensity = intensity or {}
     """GRI 305 core disclosures. Emissions filled, rest not_tracked."""
     return {
@@ -652,7 +672,7 @@ def _build_gri_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, inten
         },
         "305_3_other_indirect_ghg": {
             "label": "305-3 Other indirect (Scope 3) GHG emissions",
-            "data": NOT_TRACKED,
+            "data": scope3 or NOT_TRACKED,
         },
         "305_4_ghg_intensity": {
             "label": "305-4 GHG emissions intensity (per revenue)",
@@ -686,6 +706,7 @@ def generate_esrs_e1(db: Session, organization_id: int,
     scope1_t, scope2_t, src, scope1_std, scope2_std = _get_scope_summary(
         db, organization_id, reporting_year
     )
+    s3_dp, s3_t, s3_std = _scope3_datapoint(db, organization_id, reporting_year)
 
     return {
         "framework": "ESRS E1",
@@ -695,22 +716,16 @@ def generate_esrs_e1(db: Session, organization_id: int,
         "data_basis": f"Utility-bill + manufacturing process-emission data for calendar year {reporting_year}.",
         "essential_indicators": _build_esrs_indicators(
             scope1_t, scope2_t, src, scope1_std, scope2_std,
+            scope3=s3_dp,
             intensity=_get_intensity_metrics(db, organization_id, round(scope1_t + scope2_t, 3)),
             energy=org_year_energy(db, organization_id, reporting_year),
             reporting_year=reporting_year,
         ),
-        "totals": {
-            "scope1_plus_2_tCO2e": round(scope1_t + scope2_t, 3),
-            "total_all_scopes": _tracked(
-                round(scope1_t + scope2_t, 3), "tCO2e",
-                src + " (Scope 1+2 only; Scope 3 not tracked)",
-                standard=sorted(set(scope1_std) | set(scope2_std)),
-            ),
-        },
+        "totals": _totals_with_scope3(scope1_t, scope2_t, src, scope1_std, scope2_std, s3_t, s3_std),
     }
 
 
-def _build_esrs_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, intensity=None,
+def _build_esrs_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, scope3=None, intensity=None,
                            energy=None, reporting_year=None):
     intensity = intensity or {}
     """ESRS E1 disclosures. Emissions filled, rest not_tracked."""
@@ -732,7 +747,7 @@ def _build_esrs_indicators(scope1_t, scope2_t, src, scope1_std, scope2_std, inte
         },
         "E1_6_scope3": {
             "label": "E1-6 Gross Scope 3 GHG emissions",
-            "data": NOT_TRACKED,
+            "data": scope3 or NOT_TRACKED,
         },
         "E1_6_total": {
             "label": "E1-6 Total GHG emissions (location-based)",
@@ -1191,6 +1206,7 @@ def generate_ghg_inventory(db: Session, organization_id: int,
     scope1_t, scope2_t, src, scope1_std, scope2_std = _get_scope_summary(
         db, organization_id, reporting_year
     )
+    s3_dp, s3_t, s3_std = _scope3_datapoint(db, organization_id, reporting_year)
 
     # Organizational boundary: BRSR Section A Q13 if disclosed, else stated as missing.
     profile = db.query(BrsrOrganizationProfile).filter_by(organization_id=organization_id).first()
