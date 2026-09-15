@@ -32,6 +32,35 @@ def get_all_targets(service: NetZeroTargetService = Depends(get_service)):
     return service.get_all()
 
 
+@router.get("/reports/roadmap")
+def net_zero_roadmap(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Net Zero Roadmap (all targets: trajectory, MACC pipeline, gap, TCFD exposure) as JSON.
+    Registered before /{target_id} so 'reports' is never parsed as an id."""
+    from app.services.net_zero_roadmap import build_net_zero_roadmap
+
+    return build_net_zero_roadmap(db, current_user.organization_id)
+
+
+@router.get("/reports/roadmap/pdf")
+def net_zero_roadmap_pdf(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Net Zero Roadmap as a downloadable PDF."""
+    from app.services.net_zero_roadmap import build_net_zero_roadmap, generate_net_zero_roadmap_pdf
+
+    report = build_net_zero_roadmap(db, current_user.organization_id)
+    filename = f"net-zero-roadmap-org{current_user.organization_id}.pdf"
+    return Response(
+        content=generate_net_zero_roadmap_pdf(report),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
 @router.get("/{target_id}", response_model=NetZeroTargetResponse)
 def get_target(target_id: int, service: NetZeroTargetService = Depends(get_service)):
     return service.get_by_id(target_id)

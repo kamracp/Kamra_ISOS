@@ -83,6 +83,15 @@ def _get_current_total_co2e_tonnes(
     When manufacturing_unit_id is given, scoped to meters at that unit's
     linked Building only; None (or unit has no building linked) falls back
     to all org meters."""
+    if manufacturing_unit_id is None:
+        # Organization-wide: use the shared inventory aggregator (BENAS bills +
+        # ManufactureOS process/fuel/electricity) for the CURRENT calendar year,
+        # so Net Zero reports the same Scope 1+2 number as BRSR/GRI/GHG.
+        from app.services.esg_report_service import _get_scope_summary
+
+        s1, s2, _src, _a, _b = _get_scope_summary(db, organization_id, date.today().year)
+        return round(s1 + s2, 3)
+
     meter_query = db.query(EnergyMeter).filter(
         EnergyMeter.organization_id == organization_id
     )

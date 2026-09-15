@@ -73,7 +73,7 @@ export const PILLARS: Pillar[] = [
       { title: "Targets & Projects", path: "/net-zero", description: "Net-zero targets, BAU vs target trajectory, projects and MACC.", status: "live" },
       { title: "Climate Risk (TCFD)", path: "/climate-risk", description: "Physical and transition risks with financial impact.", status: "live" },
     ],
-    reports: [{ title: "Net Zero Roadmap", status: "planned", formats: "PDF" }],
+    reports: [{ title: "Net Zero Roadmap", path: "/net-zero", status: "live", formats: "PDF" }],
   },
   {
     key: "esg", number: 4, title: "ESG Reporting", shortTitle: "ESG Reporting",

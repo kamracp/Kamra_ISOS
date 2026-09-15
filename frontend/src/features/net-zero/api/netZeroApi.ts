@@ -131,3 +131,16 @@ export const decarbonizationProjectApi = {
     await client.delete(`/decarbonization-projects/${id}`);
   },
 };
+
+/** Net Zero Roadmap (all targets: trajectory, MACC pipeline, gap, TCFD) as a PDF download. */
+export async function downloadRoadmapPdf(): Promise<void> {
+  const response = await client.get("/net-zero-targets/reports/roadmap/pdf", { responseType: "blob" });
+  const url = window.URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "net-zero-roadmap.pdf";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}

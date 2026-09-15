@@ -11,6 +11,7 @@ import {
 } from "../hooks/useNetZero";
 
 import NetZeroTargetForm from "../components/NetZeroTargetForm";
+import { downloadRoadmapPdf } from "../api/netZeroApi";
 import DecarbonizationProjectForm from "../components/DecarbonizationProjectForm";
 import { useManufacturingUnits } from "../../manufacturing-units/hooks/useManufacturingUnits";
 
@@ -37,6 +38,11 @@ export default function NetZeroPage() {
 
   const [showTargetForm, setShowTargetForm] = useState(false);
   const [showProjectForm, setShowProjectForm] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const downloadRoadmap = async () => {
+    setDownloading(true);
+    try { await downloadRoadmapPdf(); } finally { setDownloading(false); }
+  };
 
   async function saveTarget(data: NetZeroTargetCreate) {
     try {
@@ -59,11 +65,17 @@ export default function NetZeroPage() {
 
   return (
     <div className="space-y-6 p-8">
-      <div>
-        <h1 className="text-3xl font-bold">Net Zero Action Plan</h1>
-        <p className="text-gray-500">
-          Targets, decarbonization projects, and the cheapest path to get there (MACC)
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Net Zero Action Plan</h1>
+          <p className="text-gray-500">
+            Targets, decarbonization projects, and the cheapest path to get there (MACC)
+          </p>
+        </div>
+        <button type="button" onClick={downloadRoadmap} disabled={downloading}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+          {downloading ? "Preparing..." : "Download Net Zero Roadmap (PDF)"}
+        </button>
       </div>
 
       {/* Targets */}
